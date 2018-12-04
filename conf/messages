@@ -1,0 +1,13 @@
+# Validation errors
+error.prefix=Error:
+error.summary.heading=There is a problem
+error.postcode.invalid=You can only enter these characters: A-Z 0-9
+error.telephone.invalid=You can only enter these characters: 0-9 ( ) space
+error.string.invalid=You can only enter these characters: a-z A-Z 0-9 ,.() - ! @ space
+error.maxLength=You can only enter up to {0} characters
+error.email=Enter a valid email address
+
+# Service specific messages
+app.name=agent-overseas-application
+servicename.titleSuffix=agent-overseas-application - GOV.UK
+
