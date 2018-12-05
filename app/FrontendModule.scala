@@ -1,11 +1,12 @@
 import java.net.URL
-import javax.inject.Provider
+import javax.inject.{Inject, Named, Provider, Singleton}
 
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
 import org.slf4j.MDC
 import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.http.cache.client.SessionCache
 import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
 import uk.gov.hmrc.play.bootstrap.http.{DefaultHttpClient, HttpClient}
 import uk.gov.hmrc.play.config.ServicesConfig
@@ -29,14 +30,14 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 
     bind(classOf[HttpClient]).to(classOf[DefaultHttpClient])
     bind(classOf[AuthConnector]).to(classOf[DefaultAuthConnector])
+    bind(classOf[SessionCache]).to(classOf[ApplicationSessionCache])
 
-    //example of service property bindings
-    bindServiceConfigProperty[Int]("agent-overseas-application.someInt")
-    bindServiceConfigProperty[String]("agent-overseas-application.someString")
-    bindServiceConfigProperty[Boolean]("agent-overseas-application.someBoolean")
+    bindServiceConfigProperty[String]("cachable.session-cache.domain")
+    bindServiceConfigProperty[String]("companyAuthSignInUrl")
 
     bindBaseUrl("auth")
     bindBaseUrl("agent-overseas-application")
+    bindBaseUrl("cachable.session-cache")
   }
 
   private def bindBaseUrl(serviceName: String) =
@@ -109,4 +110,15 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
         }
       }
   }
+}
+
+@Singleton
+class ApplicationSessionCache @Inject()(
+  val http: HttpClient,
+  @Named("appName") val appName: String,
+  @Named("cachable.session-cache.domain") val domain: String,
+  @Named("cachable.session-cache-baseUrl") val baseUrl: URL)
+    extends SessionCache {
+  override lazy val defaultSource = appName
+  override lazy val baseUri = baseUrl.toExternalForm
 }

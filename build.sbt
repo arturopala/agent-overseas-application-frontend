@@ -19,11 +19,11 @@ lazy val compileDeps = Seq(
   "uk.gov.hmrc" %% "bootstrap-play-25" % "4.1.0",
   "uk.gov.hmrc" %% "govuk-template" % "5.26.0-play-25",
   "uk.gov.hmrc" %% "play-ui" % "7.27.0-play-25",
-  "uk.gov.hmrc" %% "auth-client" % "2.17.0-play-25",
+  "uk.gov.hmrc" %% "auth-client" % "2.6.0",
   "uk.gov.hmrc" %% "play-partials" % "6.3.0",
   "uk.gov.hmrc" %% "agent-kenshoo-monitoring" % "3.1.0",
   "uk.gov.hmrc" %% "agent-mtd-identifiers" % "0.12.0",
-  "uk.gov.hmrc" %% "domain" % "5.2.0"
+  "uk.gov.hmrc" %% "http-caching-client" % "7.1.0"
 )
 
 def testDeps(scope: String) = Seq(

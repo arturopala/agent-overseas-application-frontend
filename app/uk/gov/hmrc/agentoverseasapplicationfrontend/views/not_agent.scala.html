@@ -1,0 +1,22 @@
+@import play.api.Configuration
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AmlsDetails
+@import uk.gov.hmrc.play.views.html.helpers.{form, input}
+
+@()(implicit messages: Messages, request: Request[_], configuration: Configuration)
+
+@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("nonAgent.title")) {
+    <h1 class="heading-xlarge">@Messages("nonAgent.title")</h1>
+
+    <p>@Html(Messages("nonAgent.p1",""))</p>
+    <p>@Messages("nonAgent.p2")</p>
+
+    <ul class="list list-bullet">
+        <li>@Messages("nonAgent.l1")</li>
+        <li>@Messages("nonAgent.l2")</li>
+    </ul>
+
+
+    <p><a class="button" href="" role="button" id="buttonRegisterNow">@Messages("button.register")</a></p>
+
+}

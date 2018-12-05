@@ -1,12 +1,11 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth
 
-import org.scalatest.mockito.MockitoSugar
 import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers.redirectLocation
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
 
-class AgentAffinityNoHmrcAsAgentAuthActionISpec extends BaseISpec with MockitoSugar {
+class AgentAffinityNoHmrcAsAgentAuthActionISpec extends BaseISpec {
 
   implicit val timeout = akka.util.Timeout {
     import scala.concurrent.duration._
@@ -20,7 +19,7 @@ class AgentAffinityNoHmrcAsAgentAuthActionISpec extends BaseISpec with MockitoSu
     def withValidApplicant = authAction { implicit validApplicantRequest => Ok(validApplicantRequest.authProviderId) }
   }
 
-  "SubscriptionAuthAction" should {
+  "AgentAffinityNoHmrcAsAgentAuthAction" should {
     val testController = new TestController(authAction)
 
     "ALLOW logged in user with affinityGroup Agent" in {
@@ -49,7 +48,8 @@ class AgentAffinityNoHmrcAsAgentAuthActionISpec extends BaseISpec with MockitoSu
       givenUnauthorisedWith("UnsupportedAffinityGroup")
 
       val result = await(testController.withValidApplicant(FakeRequest()))
-      status(result) shouldBe 403
+      status(result) shouldBe 303
+      redirectLocation(result).get shouldBe "/agent-services/apply-from-outside-uk/not-agent"
     }
   }
 }

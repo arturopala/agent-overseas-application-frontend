@@ -1,4 +1,14 @@
 # microservice specific routes
 
-GET         /                       @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.root
+GET         /                        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.StartController.root
 
+GET         /not-agent               @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.StartController.showNotAgent
+
+GET         /money-laundering        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showAntiMoneyLaunderingForm
+POST        /money-laundering        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitAntiMoneyLaundering
+GET         /contact-details         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showContactDetailsForm
+
+
+POST        /sign-out                @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.SignOutController.signOut
+
+GET         /assets/*file            controllers.Assets.at(path="/public", file)

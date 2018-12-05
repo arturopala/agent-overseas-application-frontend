@@ -112,4 +112,23 @@ trait AuthStubs {
           """.stripMargin)
     request.withSession(SessionKeys.authToken -> "Bearer XYZ")
   }
+
+  def basicRequest[A](request: FakeRequest[A]): FakeRequest[A] = {
+    givenAuthorisedFor(
+      s"""
+         |{
+         |  "authorise": [
+         |    { "authProviders": ["GovernmentGateway"] }]
+         |}
+           """.stripMargin,
+      s"""
+         |{
+         |    "credentials": {
+         |    "providerId": "12345-credId",
+         |    "providerType": "GovernmentGateway"
+         |  }
+         |}
+          """.stripMargin)
+    request.withSession(SessionKeys.authToken -> "Bearer XYZ")
+  }
 }
