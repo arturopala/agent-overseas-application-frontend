@@ -26,6 +26,14 @@ amls.hint.expandable.p1=You cannot apply for an agent services account if you ar
 amls.hint.expandable.p2=For details about who can apply, <a href="{0}" target="_blank" id="guidance">check the guidance (opens in a new window or tab)</a>.
 amls.hint.expandable.sign_out=<a href="{0}" id="signOut">Finish and sign out</a>
 
+### Contact Details
+contactDetails.title=Contact details
+contactDetails.form.firstName=First Name
+contactDetails.form.lastName=Last Name
+contactDetails.form.jobTitle=Job Title
+contactDetails.form.businessTelephone=Business Telephone
+contactDetails.form.businessEmail=Business Email
+
 #Non agent
 nonAgent.title=You have not signed in with a Government Gateway agent account
 nonAgent.p1=If you already have a Government Gateway agent account, <a href="{0}">sign in</a> with your account details.

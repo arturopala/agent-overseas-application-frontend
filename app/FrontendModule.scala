@@ -1,14 +1,12 @@
 import java.net.URL
-import javax.inject.{Inject, Named, Provider, Singleton}
 
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
+import javax.inject.{Inject, Named, Provider, Singleton}
 import org.slf4j.MDC
 import play.api.{Configuration, Environment, Logger}
-import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.cache.client.SessionCache
-import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
-import uk.gov.hmrc.play.bootstrap.http.{DefaultHttpClient, HttpClient}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 import uk.gov.hmrc.play.config.ServicesConfig
 
 class FrontendModule(val environment: Environment, val configuration: Configuration)
@@ -28,8 +26,6 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 
     bindProperty("appName")
 
-    bind(classOf[HttpClient]).to(classOf[DefaultHttpClient])
-    bind(classOf[AuthConnector]).to(classOf[DefaultAuthConnector])
     bind(classOf[SessionCache]).to(classOf[ApplicationSessionCache])
 
     bindServiceConfigProperty[String]("cachable.session-cache.domain")

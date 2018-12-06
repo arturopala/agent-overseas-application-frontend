@@ -11,6 +11,7 @@ import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.Retrievals.{authorisedEnrolments, credentials}
 import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.bootstrap.config.AuthRedirects
 
@@ -22,8 +23,9 @@ class AgentAffinityNoEnrolmentAuthActionImpl @Inject()(
   val config: Configuration)(implicit ec: ExecutionContext)
     extends AgentAffinityNoHmrcAsAgentAuthAction with AuthorisedFunctions with AuthRedirects {
 
-  def invokeBlock[A](request: Request[A], block: (CredentialRequest[A]) => Future[Result]): Future[Result] = {
-    implicit val hc = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
+  def invokeBlock[A](request: Request[A], block: CredentialRequest[A] => Future[Result]): Future[Result] = {
+    implicit val hc: HeaderCarrier =
+      HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
     authorised(AuthProviders(GovernmentGateway) and AffinityGroup.Agent)
       .retrieve(credentials and authorisedEnrolments) {

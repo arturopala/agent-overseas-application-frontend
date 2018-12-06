@@ -7,14 +7,14 @@ import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.{AgentAffinityNoHmrcAsAgentAuthAction, BasicAuthAction}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.not_agent
-import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
+import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class StartController @Inject()(
   override val messagesApi: MessagesApi,
-  val authConnector: DefaultAuthConnector,
+  val authConnector: AuthConnector,
   val env: Environment,
   basicAuthAction: BasicAuthAction,
   validApplicantAction: AgentAffinityNoHmrcAsAgentAuthAction,

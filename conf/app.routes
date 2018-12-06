@@ -6,8 +6,11 @@ GET         /not-agent               @uk.gov.hmrc.agentoverseasapplicationfronte
 
 GET         /money-laundering        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showAntiMoneyLaunderingForm
 POST        /money-laundering        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitAntiMoneyLaundering
-GET         /contact-details         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showContactDetailsForm
 
+GET         /contact-details         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showContactDetailsForm
+POST        /contact-details         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitContactDetails
+
+GET         /trading-name            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showTradingNameForm
 
 POST        /sign-out                @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.SignOutController.signOut
 

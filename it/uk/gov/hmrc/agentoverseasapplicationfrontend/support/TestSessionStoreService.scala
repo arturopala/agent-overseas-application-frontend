@@ -1,6 +1,6 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.support
 
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentApplication
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, ContactDetails}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -8,7 +8,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class TestSessionStoreService extends SessionStoreService(null) {
 
-  class Session(var agentApplication: Option[AgentApplication] = None)
+  class Session(var agentSession: Option[AgentSession] = None)
 
   private val sessions = collection.mutable.Map[String, Session]()
 
@@ -26,14 +26,14 @@ class TestSessionStoreService extends SessionStoreService(null) {
   def allSessionsRemoved: Boolean =
     sessions.isEmpty
 
-  override def fetchAgentApplication(
+  override def fetchAgentSession(
                                         implicit hc: HeaderCarrier,
-                                        ec: ExecutionContext): Future[Option[AgentApplication]] =
-    Future.successful(currentSession.agentApplication)
+                                        ec: ExecutionContext): Future[Option[AgentSession]] =
+    Future.successful(currentSession.agentSession)
 
-  override def cacheAgentApplication(
-                                        agentApplication: AgentApplication)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
-    Future.successful(currentSession.agentApplication = Some(agentApplication))
+  override def cacheAgentSession(
+                                        agentApplication: AgentSession)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
+    Future.successful(currentSession.agentSession = Some(agentApplication))
 
   override def remove()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
     Future {

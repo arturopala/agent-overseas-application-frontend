@@ -1,7 +1,8 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
-import play.api.test.Helpers.LOCATION
 import play.api.test.FakeRequest
+import play.api.test.Helpers.LOCATION
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AmlsDetails, ContactDetails}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
 
 class ApplicationControllerISpec extends BaseISpec {
@@ -40,10 +41,44 @@ class ApplicationControllerISpec extends BaseISpec {
       status(result) shouldBe 303
       result.header.headers(LOCATION) shouldBe routes.ApplicationController.showContactDetailsForm().url
 
-      val amlsDetails = await(sessionStoreService.fetchAgentApplication).get.amlsDetails
+      val amlsDetails = await(sessionStoreService.fetchAgentSession).get.amlsDetails
 
-      amlsDetails.supervisoryBody shouldBe "ABCD"
-      amlsDetails.membershipNumber shouldBe Some("123445")
+      amlsDetails shouldBe Some(AmlsDetails("ABCD", Some("123445")))
+    }
+  }
+
+  "GET /contact-details" should {
+    "display the contact details form" in {
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+
+      val result = await(controller.showContactDetailsForm(authenticatedRequest))
+
+      status(result) shouldBe 200
+
+      result should containMessages(
+        "contactDetails.title",
+        "contactDetails.form.firstName",
+        "contactDetails.form.lastName",
+        "contactDetails.form.jobTitle",
+        "contactDetails.form.businessTelephone",
+        "contactDetails.form.businessEmail"
+      )
+    }
+  }
+
+  "POST /contact-details" should {
+    "submit form and then redirect to trading-name" in {
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("firstName" -> "test", "lastName" -> "last", "jobTitle" -> "senior agent", "businessTelephone" -> "12345", "businessEmail" -> "test@email.com")
+
+      val result = await(controller.submitContactDetails(authenticatedRequest))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showTradingNameForm().url
+
+      val mayBeContactDetails = await(sessionStoreService.fetchAgentSession).get.contactDetails
+
+      mayBeContactDetails shouldBe Some(ContactDetails("test", "last", "senior agent", "12345", "test@email.com"))
     }
   }
 }
