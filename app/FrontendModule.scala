@@ -36,7 +36,6 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
     bindServiceConfigProperty[String]("companyAuthSignInUrl")
 
     bindBaseUrl("auth")
-    bindBaseUrl("agent-overseas-application")
     bindBaseUrl("cachable.session-cache")
   }
 
