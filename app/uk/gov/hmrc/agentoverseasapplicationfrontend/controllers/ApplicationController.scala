@@ -3,7 +3,7 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call}
-import play.api.{Configuration, Environment}
+import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.{AmlsDetailsForm, ContactDetailsForm}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession
@@ -50,9 +50,11 @@ class ApplicationController @Inject()(
 
   def showContactDetailsForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     sessionStoreService.fetchAgentSession.map {
-      case Some(AgentSession(_, Some(contactDetails))) =>
+      case Some(AgentSession(Some(_), Some(contactDetails))) =>
         Ok(contact_details(ContactDetailsForm.form.fill(contactDetails)))
-      case _ => Ok(contact_details(ContactDetailsForm.form))
+      case Some(AgentSession(Some(_), None)) =>
+        Ok(contact_details(ContactDetailsForm.form))
+      case _ => Redirect(routes.ApplicationController.showAntiMoneyLaunderingForm())
     }
   }
 
@@ -65,7 +67,10 @@ class ApplicationController @Inject()(
           val call = routes.ApplicationController.showTradingNameForm()
           sessionStoreService.fetchAgentSession.flatMap {
             case Some(session) => updateSessionAndRedirect(session.copy(contactDetails = Some(validForm)))(call)
-            case None          => updateSessionAndRedirect(AgentSession(contactDetails = Some(validForm)))(call)
+            case None          =>
+              //should not happen as GET /contact-details makes sure that a valid session exists
+              Logger.warn("no agent session found during storing contact details")
+              InternalServerError
           }
         }
       )

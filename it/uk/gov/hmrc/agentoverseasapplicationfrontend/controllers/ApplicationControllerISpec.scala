@@ -1,9 +1,10 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import play.api.test.FakeRequest
-import play.api.test.Helpers.LOCATION
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AmlsDetails, ContactDetails}
+import play.api.test.Helpers.{LOCATION, redirectLocation}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, AmlsDetails, ContactDetails}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
+import uk.gov.hmrc.http.HeaderCarrier
 
 class ApplicationControllerISpec extends BaseISpec {
 
@@ -49,6 +50,10 @@ class ApplicationControllerISpec extends BaseISpec {
 
   "GET /contact-details" should {
     "display the contact details form" in {
+
+      implicit val hc: HeaderCarrier = HeaderCarrier()
+      await(sessionStoreService.cacheAgentSession(AgentSession(Some(AmlsDetails("body", Some("123"))), None)))
+
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
 
       val result = await(controller.showContactDetailsForm(authenticatedRequest))
@@ -64,10 +69,28 @@ class ApplicationControllerISpec extends BaseISpec {
         "contactDetails.form.businessEmail"
       )
     }
+
+    "redirect to /money-laundering when amlsDetails are not found in the session" in {
+
+      implicit val hc: HeaderCarrier = HeaderCarrier()
+      await(sessionStoreService.cacheAgentSession(AgentSession(None, None)))
+
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+
+      val result = await(controller.showContactDetailsForm(authenticatedRequest))
+
+      status(result) shouldBe 303
+
+      redirectLocation(result) shouldBe Some(routes.ApplicationController.showAntiMoneyLaunderingForm().url)
+    }
   }
 
   "POST /contact-details" should {
     "submit form and then redirect to trading-name" in {
+
+      implicit val hc: HeaderCarrier = HeaderCarrier()
+      await(sessionStoreService.cacheAgentSession(AgentSession(Some(AmlsDetails("body", Some("123"))), None)))
+
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody("firstName" -> "test", "lastName" -> "last", "jobTitle" -> "senior agent", "businessTelephone" -> "12345", "businessEmail" -> "test@email.com")
 

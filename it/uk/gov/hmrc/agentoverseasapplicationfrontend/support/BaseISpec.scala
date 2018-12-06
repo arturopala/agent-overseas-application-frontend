@@ -1,5 +1,8 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.support
 
+import java.util.concurrent.TimeUnit
+
+import akka.util.Timeout
 import com.google.inject.AbstractModule
 import org.scalatest.matchers.{MatchResult, Matcher}
 import org.scalatestplus.play.OneAppPerSuite
@@ -7,16 +10,16 @@ import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Result
-import play.api.test.FakeRequest
+import play.api.test.{DefaultAwaitTimeout, FakeRequest}
 import play.api.test.Helpers._
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
-import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.agentoverseasapplicationfrontend.stubs.{AuthStubs, DataStreamStubs}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
+import uk.gov.hmrc.play.test.UnitSpec
 
-class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with AuthStubs with DataStreamStubs with MetricsTestSupport {
+class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with AuthStubs with DataStreamStubs with MetricsTestSupport with DefaultAwaitTimeout {
   implicit val ec = play.api.libs.concurrent.Execution.defaultContext
 
   override implicit lazy val app: Application = appBuilder.build()
@@ -99,6 +102,7 @@ class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with A
         )
       }
     }
+
   protected def containMessages(expectedMessageKeys: String*): Matcher[Result] =
     new Matcher[Result] {
       override def apply(result: Result): MatchResult = {
@@ -115,6 +119,7 @@ class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with A
         )
       }
     }
+
   protected def repeatMessage(expectedMessageKey: String, times: Int): Matcher[Result] = new Matcher[Result] {
     override def apply(result: Result): MatchResult = {
       checkIsHtml200(result)
