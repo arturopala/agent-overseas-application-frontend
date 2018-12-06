@@ -9,9 +9,15 @@
 
     <a href="@routes.ApplicationController.showAntiMoneyLaunderingForm" class="link-back">@Messages("button.back")</a>
 
+    <h2 class="heading margin-bottom-10">@Messages("contactDetails.caption")</h2>
+
     <h1 class="heading-xlarge margin-bottom-20">@Messages("contactDetails.title")</h1>
 
+    <div class="panel panel-border-wide margin-bottom-30">@Messages("contactDetails.inset.p1")</div>
+
     @form(action = routes.ApplicationController.submitContactDetails, 'class -> "form js-form") {
+
+        <span class="body-text">@Messages("contactDetails.body.text")</span>
 
         <div class="form-group">
         @input(
@@ -48,6 +54,7 @@
             @input(
             contactDetailsFrom("businessTelephone"),
             '_label -> Messages("contactDetails.form.businessTelephone"),
+            '_inputHint -> Messages(s"contactDetails.form.businessTelephone.hint"),
             '_inputClass -> "form-control--block",
             '_labelClass -> "soft--ends",
             '_labelTextClass -> "form-label"
