@@ -1,0 +1,32 @@
+@import play.api.Configuration
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AmlsDetails
+@import uk.gov.hmrc.play.views.html.helpers.{form, input}
+
+@(tradingNameForm: Form[String])(implicit messages: Messages, request: Request[_], configuration: Configuration)
+
+@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("tradingName.title")) {
+
+    <a href="@routes.ApplicationController.showContactDetailsForm" class="link-back">@Messages("button.back")</a>
+
+    <h1 class="heading-xlarge">
+        <span class="pre-heading">@Messages("tradingName.p1")</span>
+       @Messages("tradingName.title")
+    </h1>
+
+    @form(action = routes.ApplicationController.submitTradingName, 'class -> "form js-form") {
+
+        <div class="form-group">
+            @input(
+            tradingNameForm("tradingName"),
+            '_inputClass -> "form-control--block",
+            '_labelClass -> "soft--ends",
+            '_labelTextClass -> "form-label"
+            )
+        </div>
+
+        <div class="form-group">
+            <button class="button" type="submit" id="continue">@Messages("button.continue")</button>
+        </div>
+    }
+}

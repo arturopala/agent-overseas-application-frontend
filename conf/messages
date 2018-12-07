@@ -44,3 +44,7 @@ nonAgent.p1=If you already have a Government Gateway agent account, <a href="{0}
 nonAgent.p2=If you do not have one, you need to:
 nonAgent.l1=create a new Government Gateway account, selecting the ‘Agent’ option
 nonAgent.l2=use your new account details to sign in and create your agent services account
+
+# Trading name
+tradingName.title=What is the trading name of your business?
+tradingName.p1=Your business details

@@ -7,6 +7,13 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
 import uk.gov.hmrc.http.HeaderCarrier
 
 class ApplicationControllerISpec extends BaseISpec {
+  implicit val hc: HeaderCarrier = HeaderCarrier()
+
+  private val contactDetails = ContactDetails("test", "last", "senior agent", "12345", "test@email.com")
+  private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
+
+  private val agentSession =
+    AgentSession(Some(amlsDetails), contactDetails = Some(contactDetails), tradingName = Some("some name"))
 
   private lazy val controller: ApplicationController = app.injector.instanceOf[ApplicationController]
 
@@ -51,7 +58,6 @@ class ApplicationControllerISpec extends BaseISpec {
   "GET /contact-details" should {
     "display the contact details form" in {
 
-      implicit val hc: HeaderCarrier = HeaderCarrier()
       await(sessionStoreService.cacheAgentSession(AgentSession(Some(AmlsDetails("body", Some("123"))), None)))
 
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
@@ -70,11 +76,7 @@ class ApplicationControllerISpec extends BaseISpec {
       )
     }
 
-    "redirect to /money-laundering when amlsDetails are not found in the session" in {
-
-      implicit val hc: HeaderCarrier = HeaderCarrier()
-      await(sessionStoreService.cacheAgentSession(AgentSession(None, None)))
-
+    "redirect to /money-laundering when session not found" in {
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
 
       val result = await(controller.showContactDetailsForm(authenticatedRequest))
@@ -87,8 +89,6 @@ class ApplicationControllerISpec extends BaseISpec {
 
   "POST /contact-details" should {
     "submit form and then redirect to trading-name" in {
-
-      implicit val hc: HeaderCarrier = HeaderCarrier()
       await(sessionStoreService.cacheAgentSession(AgentSession(Some(AmlsDetails("body", Some("123"))), None)))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
@@ -102,6 +102,50 @@ class ApplicationControllerISpec extends BaseISpec {
       val mayBeContactDetails = await(sessionStoreService.fetchAgentSession).get.contactDetails
 
       mayBeContactDetails shouldBe Some(ContactDetails("test", "last", "senior agent", "12345", "test@email.com"))
+    }
+  }
+
+  "GET /trading-name" should {
+    "display the trading name form" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(tradingName = None))
+
+      val result = await(controller.showTradingNameForm(cleanCredsAgent(FakeRequest())))
+
+      status(result) shouldBe 200
+
+      result should containMessages(
+        "tradingName.title",
+        "tradingName.p1"
+      )
+    }
+
+    "redirect to /money-laundering when session not found" in {
+
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+
+      val result = await(controller.showTradingNameForm(authenticatedRequest))
+
+      status(result) shouldBe 303
+
+      redirectLocation(result) shouldBe Some(routes.ApplicationController.showAntiMoneyLaunderingForm().url)
+    }
+  }
+
+  "POST /trading-name" should {
+    "submit form and then redirect to main-business-address" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(tradingName = None))
+
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("tradingName" -> "test")
+
+      val result = await(controller.submitTradingName(authenticatedRequest))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showMainBusinessAddressForm().url
+
+      val tradingName = await(sessionStoreService.fetchAgentSession).get.tradingName
+
+      tradingName shouldBe Some("test")
     }
   }
 }
