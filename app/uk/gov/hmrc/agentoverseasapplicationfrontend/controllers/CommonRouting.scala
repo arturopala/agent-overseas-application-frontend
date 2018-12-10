@@ -16,7 +16,7 @@ trait CommonRouting { this: Results =>
       case MissingAmlsDetails()        => routes.ApplicationController.showAntiMoneyLaunderingForm()
       case MissingContactDetails()     => routes.ApplicationController.showContactDetailsForm()
       case MissingTradingName()        => routes.ApplicationController.showTradingNameForm()
-      case MissingTradingAddress()     => routes.ApplicationController.showTradingAddressForm()
+      case MissingTradingAddress()     => routes.ApplicationController.showMainBusinessAddressForm()
       case MissingRegisteredWithHmrc() => routes.ApplicationController.showRegisteredWithHmrcForm()
       case _                           => routes.ApplicationController.showAntiMoneyLaunderingForm()
     }

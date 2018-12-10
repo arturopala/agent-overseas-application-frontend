@@ -2,7 +2,7 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{LOCATION, redirectLocation}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, AmlsDetails, ContactDetails, TradingAddress}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, AmlsDetails, ContactDetails, MainBusinessAddress}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -141,7 +141,7 @@ class ApplicationControllerISpec extends BaseISpec {
       val result = await(controller.submitTradingName(authenticatedRequest))
 
       status(result) shouldBe 303
-      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showTradingAddressForm().url
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showMainBusinessAddressForm().url
 
       val tradingName = await(sessionStoreService.fetchAgentSession).get.tradingName
 
@@ -149,17 +149,17 @@ class ApplicationControllerISpec extends BaseISpec {
     }
   }
 
-  "GET /main-business-details" should {
+  "GET /main-business-address" should {
     "display the trading address form" in {
-      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(tradingAddress = None))
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(mainBusinessAddress = None))
 
-      val result = await(controller.showTradingAddressForm(cleanCredsAgent(FakeRequest())))
+      val result = await(controller.showMainBusinessAddressForm(cleanCredsAgent(FakeRequest())))
 
       status(result) shouldBe 200
 
       result should containMessages(
-        "tradingAddress.caption",
-        "tradingAddress.title"
+        "mainBusinessAddress.caption",
+        "mainBusinessAddress.title"
       )
     }
 
@@ -167,7 +167,7 @@ class ApplicationControllerISpec extends BaseISpec {
 
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
 
-      val result = await(controller.showTradingAddressForm(authenticatedRequest))
+      val result = await(controller.showMainBusinessAddressForm(authenticatedRequest))
 
       status(result) shouldBe 303
 
@@ -175,21 +175,21 @@ class ApplicationControllerISpec extends BaseISpec {
     }
   }
 
-  "POST /main-business-details" should {
+  "POST /main-business-address" should {
     "submit form and then redirect to registered-with-hmrc page" in {
-      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(tradingAddress = None))
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(mainBusinessAddress = None))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody("addressLine1" -> "line1", "addressLine2" -> "line2", "countryCode" -> "GB")
 
-      val result = await(controller.submitTradingAddress(authenticatedRequest))
+      val result = await(controller.submitMainBusinessAddress(authenticatedRequest))
 
       status(result) shouldBe 303
       result.header.headers(LOCATION) shouldBe routes.ApplicationController.showRegisteredWithHmrcForm().url
 
-      val tradingAddress = await(sessionStoreService.fetchAgentSession).get.tradingAddress
+      val tradingAddress = await(sessionStoreService.fetchAgentSession).get.mainBusinessAddress
 
-      tradingAddress shouldBe Some(TradingAddress("line1", "line2", None, None, "GB"))
+      tradingAddress shouldBe Some(MainBusinessAddress("line1", "line2", None, None, "GB"))
     }
   }
 }

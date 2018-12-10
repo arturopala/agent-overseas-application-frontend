@@ -1,28 +1,28 @@
 @import play.api.Configuration
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
-@import uk.gov.hmrc.agentoverseasapplicationfrontend.models.TradingAddress
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.models.MainBusinessAddress
 @import uk.gov.hmrc.play.views.html.helpers.{form, input}
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.helpers._
 
-@(tradingAddressFrom: Form[TradingAddress], countries: Map[String, String])(implicit messages: Messages, request: Request[_], configuration: Configuration)
+@(tradingAddressFrom: Form[MainBusinessAddress], countries: Map[String, String])(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
-@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("tradingAddress.title")) {
+@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("mainBusinessAddress.title")) {
 
     <a href="@routes.ApplicationController.showTradingNameForm" class="link-back">@Messages("button.back")</a>
 
     <h1 class="heading-xlarge">
-        <span class="pre-heading">@Messages("tradingAddress.caption")</span>
-        @Messages("tradingAddress.title")
+        <span class="pre-heading">@Messages("mainBusinessAddress.caption")</span>
+        @Messages("mainBusinessAddress.title")
     </h1>
 
-    @form(action = routes.ApplicationController.submitTradingAddress, 'class -> "form js-form") {
+    @form(action = routes.ApplicationController.submitMainBusinessAddress, 'class -> "form js-form") {
 
-        <span class="body-text">@Messages("tradingAddress.body.text")</span>
+        <span class="body-text">@Messages("mainBusinessAddress.body.text")</span>
 
         <div class="form-group">
         @input(
             tradingAddressFrom("addressLine1"),
-            '_label -> Messages(s"tradingAddress.form.addressLine1"),
+            '_label -> Messages(s"mainBusinessAddress.form.addressLine1"),
             '_inputClass -> "form-control--block",
             '_labelClass -> "soft--ends",
             '_labelTextClass -> "form-label"
@@ -32,7 +32,7 @@
         <div class="form-group">
         @input(
             tradingAddressFrom("addressLine2"),
-            '_label -> Messages("tradingAddress.form.addressLine2"),
+            '_label -> Messages("mainBusinessAddress.form.addressLine2"),
             '_inputClass -> "form-control--block",
             '_labelClass -> "soft--ends",
             '_labelTextClass -> "form-label"
@@ -43,7 +43,7 @@
         <div class="form-group">
             @input(
             tradingAddressFrom("addressLine3"),
-            '_label -> Messages("tradingAddress.form.addressLine3"),
+            '_label -> Messages("mainBusinessAddress.form.addressLine3"),
             '_inputClass -> "form-control--block",
             '_labelClass -> "soft--ends",
             '_labelTextClass -> "form-label"
@@ -53,7 +53,7 @@
         <div class="form-group">
             @input(
             tradingAddressFrom("addressLine4"),
-            '_label -> Messages("tradingAddress.form.addressLine4"),
+            '_label -> Messages("mainBusinessAddress.form.addressLine4"),
             '_inputClass -> "form-control--block",
             '_labelClass -> "soft--ends",
             '_labelTextClass -> "form-label"
@@ -66,9 +66,9 @@
                 countries.toSeq,
                 true,
                 '_errorsAboveInput -> true,
-                '_label -> Messages("tradingAddress.form.country"),
+                '_label -> Messages("mainBusinessAddress.form.country"),
                 '_inputClass -> "form-control input--cleared",
-                '_labelClass -> "heading-small soft--ends",
+                '_labelClass -> "soft--ends",
                 '_selectWrapper -> Html("""class="autocomplete-wrapper"""")
             )
         </div>

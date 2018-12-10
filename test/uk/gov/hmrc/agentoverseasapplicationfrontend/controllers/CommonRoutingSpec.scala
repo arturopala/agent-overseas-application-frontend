@@ -1,7 +1,7 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import play.api.mvc.Results
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, AmlsDetails, ContactDetails, TradingAddress}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, AmlsDetails, ContactDetails, MainBusinessAddress}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.TestSessionCache
 import uk.gov.hmrc.http.HeaderCarrier
@@ -15,14 +15,14 @@ class CommonRoutingSpec extends UnitSpec {
 
   private val contactDetails = ContactDetails("test", "last", "senior agent", "12345", "test@email.com")
   private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
-  private val tradingAddress = TradingAddress("line1", "line2", None, None, "GB")
+  private val tradingAddress = MainBusinessAddress("line1", "line2", None, None, "GB")
 
   private val agentSession =
     AgentSession(
       Some(amlsDetails),
       contactDetails = Some(contactDetails),
       tradingName = Some("some name"),
-      tradingAddress = Some(tradingAddress))
+      mainBusinessAddress = Some(tradingAddress))
 
   "lookupNextPage" should {
     "return showAntiMoneyLaunderingForm when AmlsDetails are not found in session" in {
@@ -49,10 +49,10 @@ class CommonRoutingSpec extends UnitSpec {
       await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showTradingNameForm()
     }
 
-    "return showTradingAddressForm when Trading Address is not found in session" in {
-      await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession.copy(tradingAddress = None)))
+    "return showMainBusinessAddressForm when Business Address is not found in session" in {
+      await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession.copy(mainBusinessAddress = None)))
 
-      await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showTradingAddressForm()
+      await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showMainBusinessAddressForm()
     }
   }
 

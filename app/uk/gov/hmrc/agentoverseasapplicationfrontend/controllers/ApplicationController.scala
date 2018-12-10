@@ -5,11 +5,11 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Result}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
-import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.{AmlsDetailsForm, ContactDetailsForm, TradingAddressForm, TradingNameForm}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.{AmlsDetailsForm, ContactDetailsForm, MainBusinessAddressForm, TradingNameForm}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.{CountryNamesLoader, toFuture}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.{anti_money_laundering, contact_details, trading_address, trading_name}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.{anti_money_laundering, contact_details, main_business_address, trading_name}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
@@ -89,21 +89,21 @@ class ApplicationController @Inject()(
     }
   }
 
-  def showTradingAddressForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
+  def showMainBusinessAddressForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { session =>
-      val form = TradingAddressForm.tradingAddressForm(validCountryCodes)
-      Ok(trading_address(session.tradingAddress.fold(form)(form.fill), countries))
+      val form = MainBusinessAddressForm.mainBusinessAddressForm(validCountryCodes)
+      Ok(main_business_address(session.mainBusinessAddress.fold(form)(form.fill), countries))
     }
   }
 
-  def submitTradingAddress: Action[AnyContent] = validApplicantAction.async { implicit request =>
+  def submitMainBusinessAddress: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { session =>
-      TradingAddressForm
-        .tradingAddressForm(validCountryCodes)
+      MainBusinessAddressForm
+        .mainBusinessAddressForm(validCountryCodes)
         .bindFromRequest()
         .fold(
-          formWithErrors => Ok(trading_address(formWithErrors, countries)),
-          validForm => updateSessionAndRedirect(session.copy(tradingAddress = Some(validForm)))
+          formWithErrors => Ok(main_business_address(formWithErrors, countries)),
+          validForm => updateSessionAndRedirect(session.copy(mainBusinessAddress = Some(validForm)))
         )
     }
   }

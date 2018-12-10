@@ -2,13 +2,13 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.models
 
 import play.api.libs.json.{Format, Json}
 
-case class TradingAddress(
+case class MainBusinessAddress(
   addressLine1: String,
   addressLine2: String,
   addressLine3: Option[String],
   addressLine4: Option[String],
   countryCode: String)
 
-object TradingAddress {
-  implicit val format: Format[TradingAddress] = Json.format[TradingAddress]
+object MainBusinessAddress {
+  implicit val format: Format[MainBusinessAddress] = Json.format[MainBusinessAddress]
 }

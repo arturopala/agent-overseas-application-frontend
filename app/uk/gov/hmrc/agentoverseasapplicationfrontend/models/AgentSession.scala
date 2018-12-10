@@ -6,7 +6,7 @@ case class AgentSession(
   amlsDetails: Option[AmlsDetails] = None,
   contactDetails: Option[ContactDetails] = None,
   tradingName: Option[String] = None,
-  tradingAddress: Option[TradingAddress] = None,
+  mainBusinessAddress: Option[MainBusinessAddress] = None,
   registeredWithHmrc: Option[String] = None)
 
 object AgentSession {
@@ -25,7 +25,7 @@ object AgentSession {
   }
 
   object MissingTradingAddress {
-    def unapply(session: Option[AgentSession]): Boolean = session.exists(_.tradingAddress.isEmpty)
+    def unapply(session: Option[AgentSession]): Boolean = session.exists(_.mainBusinessAddress.isEmpty)
   }
 
   object MissingRegisteredWithHmrc {
