@@ -6,7 +6,8 @@ case class AgentSession(
   amlsDetails: Option[AmlsDetails] = None,
   contactDetails: Option[ContactDetails] = None,
   tradingName: Option[String] = None,
-  businessAddress: Option[String] = None)
+  tradingAddress: Option[TradingAddress] = None,
+  registeredWithHmrc: Option[String] = None)
 
 object AgentSession {
   implicit val format: OFormat[AgentSession] = Json.format[AgentSession]
@@ -23,7 +24,11 @@ object AgentSession {
     def unapply(session: Option[AgentSession]): Boolean = session.exists(_.tradingName.isEmpty)
   }
 
-  object MissingMainBusinessAddress {
-    def unapply(session: Option[AgentSession]): Boolean = session.exists(_.businessAddress.isEmpty)
+  object MissingTradingAddress {
+    def unapply(session: Option[AgentSession]): Boolean = session.exists(_.tradingAddress.isEmpty)
+  }
+
+  object MissingRegisteredWithHmrc {
+    def unapply(session: Option[AgentSession]): Boolean = session.exists(_.registeredWithHmrc.isEmpty)
   }
 }

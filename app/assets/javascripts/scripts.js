@@ -36,4 +36,48 @@ $(function() {
 
         })
 
+
+      var showHideContent = new GOVUK.ShowHideContent()
+      showHideContent.init()
+
+        $('body').on('change', '#country-auto-complete', function(){
+           if(!$(this).val()){
+                       $('#country select option').removeAttr('selected')
+                  }
+
+        });
+
+       var selectEl = document.querySelector('#country-auto-complete')
+          if(selectEl){
+              accessibleAutocomplete.enhanceSelectElement({
+                autoselect: true,
+                defaultValue: selectEl.options[selectEl.options.selectedIndex].innerHTML,
+                minLength: 2,
+                selectElement: selectEl
+              })
+          }
+
+          function findCountry(country) {
+              return  country == $("#country-auto-complete").val();
+          }
+
+        //custom handle for not found countries
+        $('#country-auto-complete').change(function(){
+            var changedValue = $(this).val()
+            var array = [];
+
+            $('.autocomplete__menu li').each(function(){
+                array.push($(this).text())
+            })
+
+            if(array == "No results found"){
+                $('#country-auto-complete-select').append('<option id="notFound" value="NOTFOUND">No results found</option>')
+                $('#country-auto-complete-select').val('NOTFOUND').attr("selected", "selected");
+
+            }else if(array == ""){
+                $('#country-auto-complete-select').val('').attr("selected", "selected");
+            }
+
+        });
+
 });

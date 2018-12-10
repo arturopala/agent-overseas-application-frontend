@@ -13,7 +13,11 @@ POST        /contact-details         @uk.gov.hmrc.agentoverseasapplicationfronte
 GET         /trading-name            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showTradingNameForm
 POST        /trading-name            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitTradingName
 
-GET         /main-business-address   @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showMainBusinessAddressForm
+GET         /main-business-details   @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showTradingAddressForm
+POST        /main-business-details   @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitTradingAddress
+
+GET         /registered-with-hmrc    @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showRegisteredWithHmrcForm
+
 
 POST        /sign-out                @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.SignOutController.signOut
 

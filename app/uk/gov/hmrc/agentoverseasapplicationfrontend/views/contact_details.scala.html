@@ -9,9 +9,10 @@
 
     <a href="@routes.ApplicationController.showAntiMoneyLaunderingForm" class="link-back">@Messages("button.back")</a>
 
-    <h2 class="heading margin-bottom-10">@Messages("contactDetails.caption")</h2>
-
-    <h1 class="heading-xlarge margin-bottom-20">@Messages("contactDetails.title")</h1>
+    <h1 class="heading-xlarge">
+        <span class="pre-heading">@Messages("contactDetails.caption")</span>
+        @Messages("contactDetails.title")
+    </h1>
 
     <div class="panel panel-border-wide margin-bottom-30">@Messages("contactDetails.inset.p1")</div>
 

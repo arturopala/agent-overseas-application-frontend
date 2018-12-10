@@ -13,13 +13,12 @@ trait CommonRouting { this: Results =>
 
   def lookupNextPage(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Call] =
     sessionStoreService.fetchAgentSession.map {
-      case MissingAmlsDetails() => routes.ApplicationController.showAntiMoneyLaunderingForm()
-      case MissingContactDetails() =>
-        routes.ApplicationController.showContactDetailsForm()
-      case MissingTradingName() =>
-        routes.ApplicationController.showTradingNameForm()
-      case MissingMainBusinessAddress() => routes.ApplicationController.showMainBusinessAddressForm()
-      case _                            => routes.ApplicationController.showAntiMoneyLaunderingForm()
+      case MissingAmlsDetails()        => routes.ApplicationController.showAntiMoneyLaunderingForm()
+      case MissingContactDetails()     => routes.ApplicationController.showContactDetailsForm()
+      case MissingTradingName()        => routes.ApplicationController.showTradingNameForm()
+      case MissingTradingAddress()     => routes.ApplicationController.showTradingAddressForm()
+      case MissingRegisteredWithHmrc() => routes.ApplicationController.showRegisteredWithHmrcForm()
+      case _                           => routes.ApplicationController.showAntiMoneyLaunderingForm()
     }
 
 }

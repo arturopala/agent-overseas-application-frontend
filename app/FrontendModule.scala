@@ -25,6 +25,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
     loggerDateFormat.foreach(str => MDC.put("logger.json.dateformat", str))
 
     bindProperty("appName")
+    bindProperty("country.list.location")
 
     bind(classOf[SessionCache]).to(classOf[ApplicationSessionCache])
 

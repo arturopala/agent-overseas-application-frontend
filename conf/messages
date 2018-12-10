@@ -16,6 +16,9 @@ button.continue=Continue
 button.back=Back
 button.register=Create a Government Gateway account
 
+error.country.empty=Enter your country
+error.country.invalid=Select the country of your address from the list
+
 ### AMLS
 amls.title=Money laundering compliance details
 amls.inset.p1=You must be registered with a money laundering supervisory body before you can apply for an agent services account.
@@ -37,6 +40,15 @@ contactDetails.form.jobTitle=Job title
 contactDetails.form.businessTelephone=Business telephone number
 contactDetails.form.businessTelephone.hint=For international numbers include the country code
 contactDetails.form.businessEmail=Business email address
+
+tradingAddress.caption=Your business details
+tradingAddress.title=Your main trading address
+tradingAddress.body.text=This address cannot be a PO Box or third party address.
+tradingAddress.form.addressLine1=Address line 1
+tradingAddress.form.addressLine2=Address line 2
+tradingAddress.form.addressLine3=Address line 3 (optional)
+tradingAddress.form.addressLine4=Address line 4 (optional)
+tradingAddress.form.country=Country
 
 #Non agent
 nonAgent.title=You have not signed in with a Government Gateway agent account

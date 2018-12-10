@@ -2,7 +2,7 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{LOCATION, redirectLocation}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, AmlsDetails, ContactDetails}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, AmlsDetails, ContactDetails, TradingAddress}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -132,7 +132,7 @@ class ApplicationControllerISpec extends BaseISpec {
   }
 
   "POST /trading-name" should {
-    "submit form and then redirect to main-business-address" in {
+    "submit form and then redirect to main-business-details" in {
       sessionStoreService.currentSession.agentSession = Some(agentSession.copy(tradingName = None))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
@@ -141,11 +141,55 @@ class ApplicationControllerISpec extends BaseISpec {
       val result = await(controller.submitTradingName(authenticatedRequest))
 
       status(result) shouldBe 303
-      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showMainBusinessAddressForm().url
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showTradingAddressForm().url
 
       val tradingName = await(sessionStoreService.fetchAgentSession).get.tradingName
 
       tradingName shouldBe Some("test")
+    }
+  }
+
+  "GET /main-business-details" should {
+    "display the trading address form" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(tradingAddress = None))
+
+      val result = await(controller.showTradingAddressForm(cleanCredsAgent(FakeRequest())))
+
+      status(result) shouldBe 200
+
+      result should containMessages(
+        "tradingAddress.caption",
+        "tradingAddress.title"
+      )
+    }
+
+    "redirect to /money-laundering when session not found" in {
+
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+
+      val result = await(controller.showTradingAddressForm(authenticatedRequest))
+
+      status(result) shouldBe 303
+
+      redirectLocation(result) shouldBe Some(routes.ApplicationController.showAntiMoneyLaunderingForm().url)
+    }
+  }
+
+  "POST /main-business-details" should {
+    "submit form and then redirect to registered-with-hmrc page" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(tradingAddress = None))
+
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("addressLine1" -> "line1", "addressLine2" -> "line2", "countryCode" -> "GB")
+
+      val result = await(controller.submitTradingAddress(authenticatedRequest))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showRegisteredWithHmrcForm().url
+
+      val tradingAddress = await(sessionStoreService.fetchAgentSession).get.tradingAddress
+
+      tradingAddress shouldBe Some(TradingAddress("line1", "line2", None, None, "GB"))
     }
   }
 }
