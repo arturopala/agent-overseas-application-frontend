@@ -2,6 +2,7 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import play.api.mvc.{Call, Results}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession._
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{No, Unsure, Yes}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -13,12 +14,14 @@ trait CommonRouting { this: Results =>
 
   def lookupNextPage(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Call] =
     sessionStoreService.fetchAgentSession.map {
-      case MissingAmlsDetails()        => routes.ApplicationController.showAntiMoneyLaunderingForm()
-      case MissingContactDetails()     => routes.ApplicationController.showContactDetailsForm()
-      case MissingTradingName()        => routes.ApplicationController.showTradingNameForm()
-      case MissingTradingAddress()     => routes.ApplicationController.showMainBusinessAddressForm()
-      case MissingRegisteredWithHmrc() => routes.ApplicationController.showRegisteredWithHmrcForm()
-      case _                           => routes.ApplicationController.showAntiMoneyLaunderingForm()
+      case MissingAmlsDetails()              => routes.ApplicationController.showAntiMoneyLaunderingForm()
+      case MissingContactDetails()           => routes.ApplicationController.showContactDetailsForm()
+      case MissingTradingName()              => routes.ApplicationController.showTradingNameForm()
+      case MissingTradingAddress()           => routes.ApplicationController.showMainBusinessAddressForm()
+      case MissingRegisteredWithHmrc()       => routes.ApplicationController.showRegisteredWithHmrcForm()
+      case IsRegisteredWithHmrc(Yes)         => routes.ApplicationController.showSelfAssessmentAgentCodeForm()
+      case IsRegisteredWithHmrc(No | Unsure) => routes.ApplicationController.showUkTaxRegistrationForm()
+      case _                                 => routes.ApplicationController.showAntiMoneyLaunderingForm()
     }
 
 }

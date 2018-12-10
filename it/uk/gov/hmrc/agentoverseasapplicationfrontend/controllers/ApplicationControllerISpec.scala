@@ -1,8 +1,10 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
+import org.jsoup.Jsoup
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{LOCATION, redirectLocation}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, AmlsDetails, ContactDetails, MainBusinessAddress}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
+
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -11,9 +13,14 @@ class ApplicationControllerISpec extends BaseISpec {
 
   private val contactDetails = ContactDetails("test", "last", "senior agent", "12345", "test@email.com")
   private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
+  private val mainBusinessAddress = MainBusinessAddress("line 1", "line 2", None, None, countryCode = "IE")
 
-  private val agentSession =
-    AgentSession(Some(amlsDetails), contactDetails = Some(contactDetails), tradingName = Some("some name"))
+  private val agentSession = AgentSession(
+    amlsDetails = Some(amlsDetails),
+    contactDetails = Some(contactDetails),
+    tradingName = Some("some name"),
+    mainBusinessAddress = Some(mainBusinessAddress)
+  )
 
   private lazy val controller: ApplicationController = app.injector.instanceOf[ApplicationController]
 
@@ -133,7 +140,7 @@ class ApplicationControllerISpec extends BaseISpec {
 
   "POST /trading-name" should {
     "submit form and then redirect to main-business-details" in {
-      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(tradingName = None))
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(tradingName = None, mainBusinessAddress = None))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody("tradingName" -> "test")
@@ -190,6 +197,111 @@ class ApplicationControllerISpec extends BaseISpec {
       val tradingAddress = await(sessionStoreService.fetchAgentSession).get.mainBusinessAddress
 
       tradingAddress shouldBe Some(MainBusinessAddress("line1", "line2", None, None, "GB"))
+    }
+  }
+
+  "GET /registered-with-hmrc" should {
+    trait RegisteredWithHmrcSetup {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(registeredWithHmrc = None))
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+      val result = await(controller.showRegisteredWithHmrcForm(authenticatedRequest))
+    }
+
+    "contain page titles and header content" in new RegisteredWithHmrcSetup {
+      result should containMessages(
+        "registeredWithHmrc.title",
+        "registeredWithHmrc.caption",
+        "registeredWithHmrc.form.title"
+      )
+    }
+
+    "ask for whether they are registered with HMRC" in new RegisteredWithHmrcSetup {
+      val doc = Jsoup.parse(bodyOf(result))
+
+      val expectedRadios = Map(
+        "yes" -> "registeredWithHmrc.form.registered.yes",
+        "no" -> "registeredWithHmrc.form.registered.no",
+        "unsure" -> "registeredWithHmrc.form.registered.unsure"
+      )
+
+      expectedRadios.foreach{
+        case (expectedValue, expectedMessage) => {
+          val elRadio = doc.getElementById(s"registeredWithHmrc-$expectedValue")
+          elRadio should not be null
+          elRadio.tagName() shouldBe "input"
+          elRadio.attr("type") shouldBe "radio"
+          elRadio.attr("value") shouldBe expectedValue
+
+          checkMessageIsDefined(expectedMessage)
+          val elLabel = doc.select(s"label[for=registeredWithHmrc-$expectedValue]").first()
+          elLabel should not be null
+          elLabel.text() shouldBe htmlEscapedMessage(expectedMessage)
+        }
+      }
+    }
+
+    "show existing selection if session already contains choice" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(registeredWithHmrc = Some(Unsure)))
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+      val result = await(controller.showRegisteredWithHmrcForm(authenticatedRequest))
+      val doc = Jsoup.parse(bodyOf(result))
+
+      doc.getElementById("registeredWithHmrc-unsure").attr("checked") shouldBe "checked"
+    }
+
+    "contain a continue button" in new RegisteredWithHmrcSetup {
+      result should containSubmitButton(
+        expectedMessageKey = "button.continue",
+        expectedElementId = "continue"
+      )
+    }
+
+    "contain a back link to /main-business-address" in new RegisteredWithHmrcSetup {
+      result should containLink(
+        expectedMessageKey = "button.back",
+        expectedHref = "/agent-services/apply-from-outside-uk/main-business-address"
+      )
+    }
+
+    "contain a form that would POST to /registered-with-hmrc" in new RegisteredWithHmrcSetup {
+      val doc = Jsoup.parse(bodyOf(result))
+
+      val elForm = doc.select("form")
+      elForm should not be null
+      elForm.attr("action") shouldBe "/agent-services/apply-from-outside-uk/registered-with-hmrc"
+      elForm.attr("method") shouldBe "POST"
+    }
+
+    "redirect to /money-laundering when session not found" in {
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+      val result = await(controller.showRegisteredWithHmrcForm(authenticatedRequest))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showAntiMoneyLaunderingForm().url
+    }
+  }
+
+  "POST /registered-with-hmrc" should {
+    "store choice in session after successful submission and redirect to next page" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(registeredWithHmrc = None))
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("registeredWithHmrc" -> "yes")
+
+      val result = await(controller.submitRegisteredWithHmrc(authenticatedRequest))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showSelfAssessmentAgentCodeForm().url
+
+      await(sessionStoreService.fetchAgentSession).get.registeredWithHmrc shouldBe Some(Yes)
+    }
+
+    "show validation error if no choice was selected" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(registeredWithHmrc = None))
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+
+      await(controller.submitRegisteredWithHmrc(authenticatedRequest)) should containMessages("error.required")
+
+      await(sessionStoreService.fetchAgentSession).get.registeredWithHmrc shouldBe None
     }
   }
 }

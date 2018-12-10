@@ -60,3 +60,11 @@ nonAgent.l2=use your new account details to sign in and create your agent servic
 # Trading name
 tradingName.title=What is the trading name of your business?
 tradingName.p1=Your business details
+
+# Registered With HMRC
+registeredWithHmrc.title=Are you registered as an agent with HMRC?
+registeredWithHmrc.caption=Other business details
+registeredWithHmrc.form.title=We need to know if you are registered, so we can confirm who you are.
+registeredWithHmrc.form.registered.yes=Yes
+registeredWithHmrc.form.registered.no=No
+registeredWithHmrc.form.registered.unsure=I am not sure

@@ -1,6 +1,6 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.services
 
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, AmlsDetails, ContactDetails}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.TestSessionCache
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.SessionId
@@ -14,9 +14,14 @@ class SessionStoreServiceSpec extends UnitSpec {
 
   private val contactDetails = ContactDetails("test", "last", "senior agent", "12345", "test@email.com")
   private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
+  private val registeredWithHmrc = Yes
 
   private val agentSession =
-    AgentSession(Some(amlsDetails), contactDetails = Some(contactDetails))
+    AgentSession(
+      amlsDetails = Some(amlsDetails),
+      contactDetails = Some(contactDetails),
+      registeredWithHmrc = Some(registeredWithHmrc)
+    )
 
   "SessionStoreService" should {
 

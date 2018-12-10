@@ -1,17 +1,15 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.support
 
-import java.util.concurrent.TimeUnit
-
-import akka.util.Timeout
 import com.google.inject.AbstractModule
+import org.jsoup.Jsoup
 import org.scalatest.matchers.{MatchResult, Matcher}
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Result
-import play.api.test.{DefaultAwaitTimeout, FakeRequest}
 import play.api.test.Helpers._
+import play.api.test.{DefaultAwaitTimeout, FakeRequest}
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
 import uk.gov.hmrc.agentoverseasapplicationfrontend.stubs.{AuthStubs, DataStreamStubs}
@@ -119,6 +117,71 @@ class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with A
         )
       }
     }
+
+  protected def containInputElement(expectedElementId: String, expectedInputType: String): Matcher[Result] = {
+    new Matcher[Result] {
+      override def apply(result: Result): MatchResult = {
+        val doc = Jsoup.parse(bodyOf(result))
+        val foundElement = doc.getElementById(expectedElementId)
+        val isAsExpected = Option(foundElement) match {
+          case None => false
+          case Some(elAmls) => {
+            val isExpectedTag = elAmls.tagName() == "input"
+            val isExpectedType = elAmls.attr("type") == expectedInputType
+            isExpectedTag && isExpectedType
+          }
+        }
+        MatchResult(
+          isAsExpected,
+          s"""Response does not contain an input element of type "$expectedInputType" with id "$expectedElementId"""",
+          s"""Response contains an input element of type "$expectedInputType" with id "$expectedElementId""""
+        )
+      }
+    }
+  }
+
+  protected def containSubmitButton(expectedMessageKey: String, expectedElementId: String, expectedTagName: String = "button", expectedType: String = "submit"): Matcher[Result] = {
+    new Matcher[Result] {
+      override def apply(result: Result): MatchResult = {
+        val doc = Jsoup.parse(bodyOf(result))
+        checkMessageIsDefined(expectedMessageKey)
+        val foundElement = doc.getElementById(expectedElementId)
+        val isAsExpected = Option(foundElement) match {
+          case None => false
+          case Some(element) => {
+            val isExpectedTag = element.tagName() == expectedTagName
+            val isExpectedType = element.attr("type") == expectedType
+            val hasExpectedMsg = element.text() == htmlEscapedMessage(expectedMessageKey)
+            isExpectedTag && isExpectedType && hasExpectedMsg
+          }
+        }
+        MatchResult(
+          isAsExpected,
+          s"""Response does not contain a submit button with id "$expectedElementId" and type "$expectedType" with content for message key "$expectedMessageKey" """,
+          s"""Response contains a submit button with id "$expectedElementId" and type "$expectedType" with content for message key "$expectedMessageKey" """
+        )
+      }
+    }
+  }
+
+  protected def containLink(expectedMessageKey: String, expectedHref: String): Matcher[Result] = {
+    new Matcher[Result] {
+      override def apply(result: Result): MatchResult = {
+        val doc = Jsoup.parse(bodyOf(result))
+        checkMessageIsDefined(expectedMessageKey)
+        val foundElement = doc.select(s"a[href=$expectedHref]").first()
+        val wasFoundWithCorrectMessage = Option(foundElement) match {
+          case None => false
+          case Some(element) => element.text() == htmlEscapedMessage(expectedMessageKey)
+        }
+        MatchResult(
+          wasFoundWithCorrectMessage,
+          s"""Response does not contain a link to "$expectedHref" with content for message key "$expectedMessageKey" """,
+          s"""Response contains a link to "$expectedHref" with content for message key "$expectedMessageKey" """
+        )
+      }
+    }
+  }
 
   protected def repeatMessage(expectedMessageKey: String, times: Int): Matcher[Result] = new Matcher[Result] {
     override def apply(result: Result): MatchResult = {

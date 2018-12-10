@@ -5,11 +5,11 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Result}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
-import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.{AmlsDetailsForm, ContactDetailsForm, MainBusinessAddressForm, TradingNameForm}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.{CountryNamesLoader, toFuture}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.{anti_money_laundering, contact_details, main_business_address, trading_name}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
@@ -55,8 +55,9 @@ class ApplicationController @Inject()(
 
   def showContactDetailsForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { session =>
-      val form = session.contactDetails.fold(ContactDetailsForm.form)(ContactDetailsForm.form.fill)
-      Ok(contact_details(form))
+      val form = ContactDetailsForm.form
+
+      Ok(contact_details(session.contactDetails.fold(form)(form.fill)))
     }
   }
 
@@ -73,8 +74,9 @@ class ApplicationController @Inject()(
 
   def showTradingNameForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { session =>
-      val form = session.tradingName.fold(TradingNameForm.form)(TradingNameForm.form.fill)
-      Ok(trading_name(form))
+      val form = TradingNameForm.form
+
+      Ok(trading_name(session.tradingName.fold(form)(form.fill)))
     }
   }
 
@@ -109,7 +111,34 @@ class ApplicationController @Inject()(
   }
 
   def showRegisteredWithHmrcForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    Ok("Success")
+    withAgentSession { session =>
+      val form = RegisteredWithHmrcForm.form
+
+      Ok(registered_with_hmrc(session.registeredWithHmrc.fold(form)(form.fill)))
+    }
+  }
+
+  def submitRegisteredWithHmrc: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { session =>
+      RegisteredWithHmrcForm.form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Ok(registered_with_hmrc(formWithErrors)),
+          validFormValue => {
+            sessionStoreService
+              .cacheAgentSession(session.copy(registeredWithHmrc = Some(validFormValue)))
+              .flatMap(_ => lookupNextPage.map(Redirect))
+          }
+        )
+    }
+  }
+
+  def showSelfAssessmentAgentCodeForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    NotImplemented
+  }
+
+  def showUkTaxRegistrationForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    NotImplemented
   }
 
   private def withAgentSession(body: AgentSession => Future[Result])(implicit hc: HeaderCarrier): Future[Result] =

@@ -1,24 +1,28 @@
 # microservice specific routes
 
-GET         /                        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.StartController.root
+GET   /                              @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.StartController.root
 
-GET         /not-agent               @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.StartController.showNotAgent
+GET   /not-agent                     @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.StartController.showNotAgent
 
-GET         /money-laundering        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showAntiMoneyLaunderingForm
-POST        /money-laundering        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitAntiMoneyLaundering
+GET   /money-laundering              @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showAntiMoneyLaunderingForm
+POST  /money-laundering              @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitAntiMoneyLaundering
 
-GET         /contact-details         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showContactDetailsForm
-POST        /contact-details         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitContactDetails
+GET   /contact-details               @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showContactDetailsForm
+POST  /contact-details               @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitContactDetails
 
-GET         /trading-name            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showTradingNameForm
-POST        /trading-name            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitTradingName
+GET   /trading-name                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showTradingNameForm
+POST  /trading-name                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitTradingName
 
-GET         /main-business-address   @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showMainBusinessAddressForm
-POST        /main-business-address   @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitMainBusinessAddress
+GET   /main-business-address         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showMainBusinessAddressForm
+POST  /main-business-address         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitMainBusinessAddress
 
-GET         /registered-with-hmrc    @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showRegisteredWithHmrcForm
+GET   /registered-with-hmrc          @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showRegisteredWithHmrcForm
+POST  /registered-with-hmrc          @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitRegisteredWithHmrc
 
+GET   /self-assessment-agent-code    @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showSelfAssessmentAgentCodeForm
 
-POST        /sign-out                @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.SignOutController.signOut
+GET   /uk-tax-registration           @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showUkTaxRegistrationForm
 
-GET         /assets/*file            controllers.Assets.at(path="/public", file)
+POST  /sign-out                      @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.SignOutController.signOut
+
+GET   /assets/*file                  controllers.Assets.at(path="/public", file)

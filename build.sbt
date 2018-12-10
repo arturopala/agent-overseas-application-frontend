@@ -31,7 +31,8 @@ def testDeps(scope: String) = Seq(
   "org.scalatest" %% "scalatest" % "3.0.5" % scope,
   "org.mockito" % "mockito-core" % "2.23.4" % scope,
   "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.1" % scope,
-  "com.github.tomakehurst" % "wiremock" % "2.19.0" % scope
+  "com.github.tomakehurst" % "wiremock" % "2.19.0" % scope,
+  "org.jsoup" % "jsoup" % "1.11.3" % scope
 )
 
 lazy val root = Project("agent-overseas-application-frontend", file("."))

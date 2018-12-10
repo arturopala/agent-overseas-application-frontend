@@ -1,7 +1,7 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import play.api.mvc.Results
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, AmlsDetails, ContactDetails, MainBusinessAddress}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.TestSessionCache
 import uk.gov.hmrc.http.HeaderCarrier
@@ -15,14 +15,15 @@ class CommonRoutingSpec extends UnitSpec {
 
   private val contactDetails = ContactDetails("test", "last", "senior agent", "12345", "test@email.com")
   private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
-  private val tradingAddress = MainBusinessAddress("line1", "line2", None, None, "GB")
+  private val mainBusinessAddress = MainBusinessAddress("line1", "line2", None, None, "IE")
 
   private val agentSession =
     AgentSession(
-      Some(amlsDetails),
+      amlsDetails = Some(amlsDetails),
       contactDetails = Some(contactDetails),
       tradingName = Some("some name"),
-      mainBusinessAddress = Some(tradingAddress))
+      mainBusinessAddress = Some(mainBusinessAddress)
+    )
 
   "lookupNextPage" should {
     "return showAntiMoneyLaunderingForm when AmlsDetails are not found in session" in {
@@ -53,6 +54,38 @@ class CommonRoutingSpec extends UnitSpec {
       await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession.copy(mainBusinessAddress = None)))
 
       await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showMainBusinessAddressForm()
+    }
+
+    "return showRegisteredWithHmrc when RegisteredWithHmrc choice is not found in session" in {
+      await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession.copy(registeredWithHmrc = None)))
+
+      await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showRegisteredWithHmrcForm()
+    }
+
+    "return correct branching page" when {
+      "RegisteredWithHmrc choice is Yes" should {
+        "return showSelfAssessmentAgentCodeForm when self assessment details are not in session" in {
+          await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession.copy(registeredWithHmrc = Some(Yes))))
+
+          await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showSelfAssessmentAgentCodeForm()
+        }
+      }
+
+      "RegisteredWithHmrc choice is No" should {
+        behave like routesToCorrectUnregisteredPage(registeredWithHmrcChoice = No)
+      }
+      "RegisteredWithHmrc choice is Unsure" should {
+        behave like routesToCorrectUnregisteredPage(registeredWithHmrcChoice = Unsure)
+      }
+
+      def routesToCorrectUnregisteredPage(registeredWithHmrcChoice: RegisteredWithHmrc) =
+        "return showUkTaxRegistrationForm when uk tax registration details are not in session" in {
+          await(
+            FakeRouting.sessionStoreService.cacheAgentSession(
+              agentSession.copy(registeredWithHmrc = Some(registeredWithHmrcChoice))))
+
+          await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showUkTaxRegistrationForm()
+        }
     }
   }
 
