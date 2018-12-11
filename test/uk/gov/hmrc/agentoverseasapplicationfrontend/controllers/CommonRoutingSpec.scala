@@ -101,7 +101,7 @@ class CommonRoutingSpec extends UnitSpec {
 
       Seq(No, Unsure).foreach { negativeChoice =>
         s"RegisteredForUkTax choice is $negativeChoice" should {
-          "return showCompanyRegistrationNumber when company registration number is not in session" in {
+          "return showCompanyRegistrationNumberForm when company registration number is not in session" in {
             await(
               FakeRouting.sessionStoreService.cacheAgentSession(
                 agentSession.copy(
@@ -114,6 +114,75 @@ class CommonRoutingSpec extends UnitSpec {
           }
         }
       }
+    }
+
+    "return showTaxRegistrationNumberForm when AgentSession collected prerequisites" in {
+      await(
+        FakeRouting.sessionStoreService.cacheAgentSession(agentSession.copy(
+          registeredWithHmrc = Some(No),
+          registeredForUkTax = Some(Yes),
+          personalDetails = Some("somePersonalDetail"),
+          companyRegistrationNumber = Some("someCompanyRegNo")
+        )))
+
+      await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showTaxRegistrationNumberForm()
+    }
+
+    Seq(No, Unsure).foreach { negativeChoice =>
+      s"RegisteredForUkTax choice is $negativeChoice" should {
+        "return showTaxRegistrationNumberForm when AgentSession collected prerequisites" in {
+          await(
+            FakeRouting.sessionStoreService.cacheAgentSession(
+              agentSession.copy(
+                registeredWithHmrc = Some(No),
+                registeredForUkTax = Some(negativeChoice),
+                personalDetails = None,
+                companyRegistrationNumber = Some("someCompanyRegNo")
+              )))
+
+          await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showTaxRegistrationNumberForm()
+        }
+      }
+    }
+
+    "return showTaxRegistrationNumberForm when hasTaxRegNumbers equals None" in {
+      await(
+        FakeRouting.sessionStoreService.cacheAgentSession(
+          agentSession.copy(
+            registeredWithHmrc = Some(No),
+            registeredForUkTax = Some(No),
+            personalDetails = None,
+            companyRegistrationNumber = Some("someCompanyRegNo"),
+            hasTaxRegNumbers = None
+          )))
+
+      await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showTaxRegistrationNumberForm()
+    }
+
+    "return showYourTaxRegNo when hasTaxRegNumbers equals Some(true)" in {
+      await(
+        FakeRouting.sessionStoreService.cacheAgentSession(agentSession.copy(
+          registeredWithHmrc = Some(No),
+          registeredForUkTax = Some(No),
+          personalDetails = None,
+          companyRegistrationNumber = Some("someCompanyRegNo"),
+          hasTaxRegNumbers = Some(true)
+        )))
+
+      await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showYourTaxRegNo()
+    }
+
+    "return showCheckAnswers when hasTaxRegNumbers equals Some(false)" in {
+      await(
+        FakeRouting.sessionStoreService.cacheAgentSession(agentSession.copy(
+          registeredWithHmrc = Some(No),
+          registeredForUkTax = Some(No),
+          personalDetails = None,
+          companyRegistrationNumber = Some("someCompanyRegNo"),
+          hasTaxRegNumbers = Some(false)
+        )))
+
+      await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showCheckAnswers()
     }
   }
 

@@ -8,6 +8,12 @@ object FormValidators {
 
   def countryCode(validCountryCodes: Set[String]): Mapping[String] = text.verifying(validCountryCode(validCountryCodes))
 
+  def radioInputSelected[T](message: String = "error.no-radio-selected"): Constraint[Option[T]] =
+    Constraint[Option[T]] { fieldValue: Option[T] =>
+      if (fieldValue.isDefined) Valid
+      else Invalid(ValidationError(message))
+    }
+
   private def validCountryCode(codes: Set[String]) = Constraint { fieldValue: String =>
     nonEmptyWithMessage("error.country.empty")(fieldValue.trim) match {
       case i: Invalid => i
@@ -25,5 +31,4 @@ object FormValidators {
     else if (o.trim.isEmpty) Invalid(ValidationError(messageKey))
     else Valid
   }
-
 }

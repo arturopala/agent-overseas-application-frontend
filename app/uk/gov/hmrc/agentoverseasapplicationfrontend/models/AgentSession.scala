@@ -9,7 +9,11 @@ case class AgentSession(
   mainBusinessAddress: Option[MainBusinessAddress] = None,
   registeredWithHmrc: Option[YesNoUnsure] = None,
   selfAssessmentAgentCode: Option[String] = None,
-  registeredForUkTax: Option[YesNoUnsure] = None)
+  registeredForUkTax: Option[YesNoUnsure] = None,
+  personalDetails: Option[String] = None,
+  companyRegistrationNumber: Option[String] = None,
+  hasTaxRegNumbers: Option[Boolean] = None,
+  taxRegistrationNumbers: Option[List[String]] = None)
 
 object AgentSession {
   implicit val format: OFormat[AgentSession] = Json.format[AgentSession]
@@ -45,4 +49,31 @@ object AgentSession {
   object IsRegisteredForUkTax {
     def unapply(session: Option[AgentSession]): Option[YesNoUnsure] = session.flatMap(_.registeredForUkTax)
   }
+
+  object MissingPersonalDetails {
+    def unapply(session: Option[AgentSession]): Boolean =
+      session.flatMap(_.registeredForUkTax) match {
+        case Some(No)     => false
+        case Some(Unsure) => false
+        case _            => session.exists(_.personalDetails.isEmpty)
+      }
+  }
+
+  object MissingCompanyRegistrationNumber {
+    def unapply(session: Option[AgentSession]): Boolean = session.exists(_.companyRegistrationNumber.isEmpty)
+  }
+
+  object MissingHasTaxRegistrationNumber {
+    def unapply(session: Option[AgentSession]): Boolean = session.exists(_.hasTaxRegNumbers.isEmpty)
+  }
+
+  object HasTaxRegistrationNumber {
+    def unapply(session: Option[AgentSession]): Boolean = session.exists(_.hasTaxRegNumbers.getOrElse(false))
+  }
+
+  object NoTaxRegistrationNumber {
+    def unapply(session: Option[AgentSession]): Boolean =
+      session.exists(_.hasTaxRegNumbers.getOrElse(true) == false) //interested in false so getOrElse(true) is the bad case
+  }
+
 }

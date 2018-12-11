@@ -8,7 +8,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait CommonRouting { this: Results =>
+trait CommonRouting {
+  this: Results =>
 
   val sessionStoreService: SessionStoreService
 
@@ -31,7 +32,24 @@ trait CommonRouting { this: Results =>
 
   private def routesWhenNotRegisteredWithHmrc(agentSession: Option[AgentSession]): Call = agentSession match {
     case MissingRegisteredForUkTax()       => routes.ApplicationController.showUkTaxRegistrationForm()
-    case IsRegisteredForUkTax(Yes)         => routes.ApplicationController.showPersonalDetailsForm()
-    case IsRegisteredForUkTax(No | Unsure) => routes.ApplicationController.showCompanyRegistrationNumberForm()
+    case IsRegisteredForUkTax(Yes)         => showPersonalDetailsOrContinue(agentSession)
+    case IsRegisteredForUkTax(No | Unsure) => collectCompanyRegNoOrContinue(agentSession)
+  }
+
+  private def showPersonalDetailsOrContinue(agentSession: Option[AgentSession]): Call = agentSession match {
+    case MissingPersonalDetails() => routes.ApplicationController.showPersonalDetailsForm()
+    case _                        => collectCompanyRegNoOrContinue(agentSession)
+  }
+
+  private def collectCompanyRegNoOrContinue(agentSession: Option[AgentSession]): Call = agentSession match {
+    case MissingPersonalDetails()           => showPersonalDetailsOrContinue(agentSession)
+    case MissingCompanyRegistrationNumber() => routes.ApplicationController.showCompanyRegistrationNumberForm()
+    case _                                  => collectTaxRegNoOrContinue(agentSession)
+  }
+
+  private def collectTaxRegNoOrContinue(agentSession: Option[AgentSession]): Call = agentSession match {
+    case MissingHasTaxRegistrationNumber() => routes.ApplicationController.showTaxRegistrationNumberForm()
+    case HasTaxRegistrationNumber()        => routes.ApplicationController.showYourTaxRegNo()
+    case NoTaxRegistrationNumber()         => routes.ApplicationController.showCheckAnswers()
   }
 }

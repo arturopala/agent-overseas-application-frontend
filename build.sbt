@@ -23,7 +23,8 @@ lazy val compileDeps = Seq(
   "uk.gov.hmrc" %% "play-partials" % "6.3.0",
   "uk.gov.hmrc" %% "agent-kenshoo-monitoring" % "3.3.0",
   "uk.gov.hmrc" %% "agent-mtd-identifiers" % "0.12.0",
-  "uk.gov.hmrc" %% "http-caching-client" % "7.1.0"
+  "uk.gov.hmrc" %% "http-caching-client" % "7.1.0",
+  "uk.gov.hmrc" %% "play-conditional-form-mapping" % "0.2.0"
 )
 
 def testDeps(scope: String) = Seq(

@@ -3,8 +3,8 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 import org.jsoup.Jsoup
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{LOCATION, redirectLocation}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.TaxRegistrationNumberForm
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
-
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -420,6 +420,136 @@ class ApplicationControllerISpec extends BaseISpec {
       await(controller.submitUkTaxRegistration(authenticatedRequest)) should containMessages("error.required")
 
       await(sessionStoreService.fetchAgentSession).get.registeredForUkTax shouldBe None
+    }
+  }
+
+  "GET /tax-registration-number" should {
+    val currentApplication: AgentSession = AgentSession(
+      amlsDetails = Some(amlsDetails),
+      contactDetails = Some(contactDetails),
+      tradingName = Some("some name"),
+      mainBusinessAddress = Some(mainBusinessAddress),
+      registeredWithHmrc = Some(No),
+      registeredForUkTax = Some(No),
+      companyRegistrationNumber = Some("someRegNumber")
+    )
+
+
+    "page contains valid information on page the tax-registration-number page with form" in {
+      sessionStoreService.currentSession.agentSession = Some(currentApplication)
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+
+      val result = await(controller.showTaxRegistrationNumberForm(authenticatedRequest))
+      val backButtonUrl = routes.ApplicationController.showCompanyRegistrationNumberForm().url
+
+      status(result) shouldBe 200
+
+      result should containMessages(
+        "taxRegNo.title",
+        "taxRegNo.p1",
+        "taxRegNo.form.yes",
+        "taxRegNo.form.yes.prompt",
+        "taxRegNo.form.no",
+        "button.back"
+      )
+
+      result should containSubstrings(backButtonUrl)
+    }
+
+    "if previously answered 'Yes' pre-populate form with 'Yes' and the value provided" in {
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+      val taxRegNo = "tax_reg_number_123"
+      sessionStoreService.currentSession.agentSession = Some(currentApplication.copy(hasTaxRegNumbers = Some(true),
+       taxRegistrationNumbers = Some(List(taxRegNo))))
+
+      val result = await(controller.showTaxRegistrationNumberForm(authenticatedRequest))
+
+      status(result) shouldBe 200
+
+      val doc = Jsoup.parse(bodyOf(result))
+
+      bodyOf(result).contains("""<input id="canProvideTaxRegNo_true" type="radio" name="canProvideTaxRegNo" value="true" checked>""") shouldBe true
+      doc.getElementById("canProvideTaxRegNo_true_value").attr("value") shouldBe taxRegNo
+    }
+
+    "if previously answered 'No' pre-populate form with checked 'No'" in {
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+      sessionStoreService.currentSession.agentSession = Some(currentApplication.copy(hasTaxRegNumbers = Some(false)))
+
+      val result = await(controller.showTaxRegistrationNumberForm(authenticatedRequest))
+
+      status(result) shouldBe 200
+
+      bodyOf(result).contains("""<input id="canProvideTaxRegNo_false" type="radio" name="canProvideTaxRegNo" value="false" checked>""") shouldBe true
+    }
+  }
+
+  "POST /tax-registration-number" should {
+    val currentApplication: AgentSession = AgentSession(
+      amlsDetails = Some(amlsDetails),
+      contactDetails = Some(contactDetails),
+      tradingName = Some("some name"),
+      mainBusinessAddress = Some(mainBusinessAddress),
+      registeredWithHmrc = Some(No),
+      registeredForUkTax = Some(No),
+      companyRegistrationNumber = Some("someRegNumber")
+      )
+
+    "Provided selected 'Yes' on radioButton with included identifier, submit and redirect to next page /your-tax-registration-number" in {
+      sessionStoreService.currentSession.agentSession = Some(currentApplication)
+      val taxRegNo = "someTaxRegNo"
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("canProvideTaxRegNo" -> "true", "value" -> taxRegNo)
+
+      val result = await(controller.submitTaxRegistrationNumber(authenticatedRequest))
+
+      status(result) shouldBe 303
+
+      redirectLocation(result) shouldBe Some(routes.ApplicationController.showYourTaxRegNo().url)
+      val modifiedApplication = sessionStoreService.currentSession.agentSession.get
+
+      modifiedApplication.hasTaxRegNumbers shouldBe Some(true)
+      modifiedApplication.taxRegistrationNumbers shouldBe Some(List(taxRegNo))
+
+    }
+
+    "Provided selected 'Yes' on radioButton without identifier, submit then show 'This field is required' error message" in {
+      sessionStoreService.currentSession.agentSession = Some(currentApplication)
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("canProvideTaxRegNo" -> "true")
+
+      val result = await(controller.submitTaxRegistrationNumber(authenticatedRequest))
+
+      status(result) shouldBe 200
+
+      result should containSubstrings("This field is required")
+    }
+
+    "Provided selected 'No' on radioButton submit and redirect to next page /your-tax-registration-number" in {
+      sessionStoreService.currentSession.agentSession = Some(currentApplication)
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("canProvideTaxRegNo" -> "false")
+
+      val result = await(controller.submitTaxRegistrationNumber(authenticatedRequest))
+
+      status(result) shouldBe 303
+
+      redirectLocation(result) shouldBe Some(routes.ApplicationController.showCheckAnswers().url)
+      val modifiedApplication = sessionStoreService.currentSession.agentSession.get
+
+      modifiedApplication.hasTaxRegNumbers shouldBe Some(false)
+      modifiedApplication.taxRegistrationNumbers shouldBe None
+    }
+
+    "Provided nothing selected on radio form submit and return with form error taxRegNo.form.no-radio.selected" in {
+      sessionStoreService.currentSession.agentSession = Some(currentApplication)
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+
+      val result = await(controller.submitTaxRegistrationNumber(authenticatedRequest))
+
+      status(result) shouldBe 200
+
+      result should containMessages("taxRegNo.form.no-radio.selected")
     }
   }
 }

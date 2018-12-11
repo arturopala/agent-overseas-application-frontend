@@ -11,7 +11,7 @@ error.email=Enter a valid email address
 app.name=agent-services - apply-from-outside-uk
 servicename.titleSuffix=Apply for approval to create an agent services account
 
-### Common
+# Common
 button.continue=Continue
 button.back=Back
 button.register=Create a Government Gateway account
@@ -19,7 +19,7 @@ button.register=Create a Government Gateway account
 error.country.empty=Enter your country
 error.country.invalid=Select the country of your address from the list
 
-### AMLS
+# AMLS
 amls.title=Money laundering compliance details
 amls.inset.p1=You must be registered with a money laundering supervisory body before you can apply for an agent services account.
 amls.form.supervisory_body=Name of supervisory body
@@ -29,7 +29,7 @@ amls.hint.expandable.p1=You cannot apply for an agent services account if you ar
 amls.hint.expandable.p2=For details about who can apply, <a href="{0}" target="_blank" id="guidance">check the guidance (opens in a new window or tab)</a>.
 amls.hint.expandable.sign_out=<a href="{0}" id="signOut">Finish and sign out</a>
 
-### Contact Details
+# Contact Details
 contactDetails.caption=Your details
 contactDetails.title=Your contact details
 contactDetails.inset.p1=You need to be a director, owner or senior company officer of the business you are applying for.
@@ -76,3 +76,11 @@ ukTaxRegistration.form.title=We need to know if you are registered, so we can co
 ukTaxRegistration.form.registered.yes=Yes
 ukTaxRegistration.form.registered.no=No
 ukTaxRegistration.form.registered.unsure=I am not sure
+# Has Tax Registration Number Radio Button
+taxRegNo.title=Do you have any tax registration numbers in your country?
+taxRegNo.p1=This information will help us to confirm who you are.
+taxRegNo.form.yes=Yes
+taxRegNo.form.yes.prompt=Enter your tax registration number
+taxRegNo.form.no=No
+
+taxRegNo.form.no-radio.selected=You must select one of the following to continue

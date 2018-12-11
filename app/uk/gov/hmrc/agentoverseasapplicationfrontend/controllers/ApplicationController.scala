@@ -1,13 +1,14 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import javax.inject.{Inject, Singleton}
+
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, Result}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, No, Unsure, Yes}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession.IsRegisteredWithHmrc
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.{CountryNamesLoader, toFuture}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
@@ -156,14 +157,53 @@ class ApplicationController @Inject()(
     }
   }
 
+  def showCompanyRegistrationNumberForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { applicationSession =>
+      NotImplemented
+    }
+  }
+  def showTaxRegistrationNumberForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { applicationSession =>
+      val prePopulate = TaxRegistrationNumber(
+        applicationSession.hasTaxRegNumbers,
+        applicationSession.taxRegistrationNumbers.getOrElse(List.empty).headOption)
+
+      val form = TaxRegistrationNumberForm.form.fill(prePopulate)
+
+      Ok(tax_registration_number(form))
+    }
+  }
+  def submitTaxRegistrationNumber: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { applicationData =>
+      TaxRegistrationNumberForm.form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Ok(tax_registration_number(formWithErrors)),
+          validForm =>
+            updateSessionAndRedirect(
+              applicationData.copy(
+                hasTaxRegNumbers = validForm.canProvideTaxRegNo,
+                taxRegistrationNumbers = validForm.value.map(taxId => Some(List(taxId))).getOrElse(None)))
+        )
+    }
+  }
+  def showYourTaxRegNo: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { applicationSession =>
+      NotImplemented
+    }
+  }
+  def showCheckAnswers: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { applicationSession =>
+      NotImplemented
+    }
+  }
+
   private def ukTaxRegistrationBackLink(session: AgentSession) = Some(session) match {
     case IsRegisteredWithHmrc(Yes)         => routes.ApplicationController.showSelfAssessmentAgentCodeForm()
     case IsRegisteredWithHmrc(No | Unsure) => routes.ApplicationController.showRegisteredWithHmrcForm()
   }
 
   def showPersonalDetailsForm: Action[AnyContent] = controllers.Default.TODO
-
-  def showCompanyRegistrationNumberForm: Action[AnyContent] = controllers.Default.TODO
 
   private def withAgentSession(body: AgentSession => Future[Result])(implicit hc: HeaderCarrier): Future[Result] =
     sessionStoreService.fetchAgentSession.flatMap {
@@ -173,5 +213,4 @@ class ApplicationController @Inject()(
 
   private def updateSessionAndRedirect(agentSession: AgentSession)(implicit hc: HeaderCarrier): Future[Result] =
     sessionStoreService.cacheAgentSession(agentSession).flatMap(_ => lookupNextPage.map(Redirect))
-
 }

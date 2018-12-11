@@ -1,0 +1,46 @@
+@import play.api.Configuration
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.models.TaxRegistrationNumber
+@import uk.gov.hmrc.play.views.html.helpers.{errorSummary, form}
+
+@(taxRegistrationNumberForm: Form[TaxRegistrationNumber])(implicit messages: Messages, request: Request[_], configuration: Configuration)
+
+@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("taxRegNo.title")) {
+
+    <a href="@routes.ApplicationController.showCompanyRegistrationNumberForm()" class="link-back">@Messages("button.back")</a>
+
+    <h1 class="heading-large  @if(taxRegistrationNumberForm.hasErrors) {push--top}">@Messages("taxRegNo.title")</h1>
+
+    @if(taxRegistrationNumberForm.hasErrors) {
+        @errorSummary(Messages("error.summary.heading"), taxRegistrationNumberForm, Seq.empty, Some("enter-tax-registration-numbers"))
+    }
+
+    @form(action = routes.ApplicationController.submitTaxRegistrationNumber(), 'class -> "form js-form") {
+        <div class="form-group @if(taxRegistrationNumberForm.error("value").isDefined) {form-group-error}" id="radioResponse">
+            <fieldset>
+                <legend>
+                    <p>@Messages("taxRegNo.p1")</p>
+                </legend>
+
+                <div class="multiple-choice" data-target="taxRegNoFormTarget">
+                    <input id="canProvideTaxRegNo_true" type="radio" name="canProvideTaxRegNo" value="true" @if(taxRegistrationNumberForm.error("value").isDefined || taxRegistrationNumberForm.value.map(_.canProvideTaxRegNo == Some(true)).getOrElse(false)) {checked}>
+                    <label for="canProvideTaxRegNo_true">@Messages("taxRegNo.form.yes")</label>
+                </div>
+                <div class="panel panel-border-narrow js-hidden @if(taxRegistrationNumberForm.error("value").isDefined) {form-group-error}" id="taxRegNoFormTarget">
+                    <label class="form-label" for="value">@Messages("taxRegNo.form.yes.prompt")</label>
+                    @taxRegistrationNumberForm.errors("value").map { formError => <span class="error-message">@Messages(formError.message)</span> }
+                    <input class="form-control @if(taxRegistrationNumberForm.error("value").isDefined) {form-control-error}" name="value" type="text" id="canProvideTaxRegNo_true_value" value="@taxRegistrationNumberForm.value.map(_.value.getOrElse(""))">
+                </div>
+
+                <div class="multiple-choice">
+                    <input id="canProvideTaxRegNo_false" type="radio" name="canProvideTaxRegNo" value="false" @if(taxRegistrationNumberForm.error("value").isDefined || taxRegistrationNumberForm.value.map(_.canProvideTaxRegNo == Some(false)).getOrElse(false)) {checked}>
+                    <label for="canProvideTaxRegNo_false">@Messages("taxRegNo.form.no")</label>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="form-group">
+            <button class="button" type="submit" id="continue">@Messages("button.continue")</button>
+        </div>
+    }
+}
