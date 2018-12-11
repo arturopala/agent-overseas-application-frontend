@@ -62,7 +62,7 @@ class CommonRoutingSpec extends UnitSpec {
       await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showRegisteredWithHmrcForm()
     }
 
-    "return correct branching page" when {
+    "return correct branching page after having decided if they are registered with HMRC" when {
       "RegisteredWithHmrc choice is Yes" should {
         "return showSelfAssessmentAgentCodeForm when self assessment details are not in session" in {
           await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession.copy(registeredWithHmrc = Some(Yes))))
@@ -71,21 +71,49 @@ class CommonRoutingSpec extends UnitSpec {
         }
       }
 
-      "RegisteredWithHmrc choice is No" should {
-        behave like routesToCorrectUnregisteredPage(registeredWithHmrcChoice = No)
-      }
-      "RegisteredWithHmrc choice is Unsure" should {
-        behave like routesToCorrectUnregisteredPage(registeredWithHmrcChoice = Unsure)
-      }
+      Seq(No, Unsure).foreach { registeredWithHmrcChoice =>
+        s"RegisteredWithHmrc choice is $registeredWithHmrcChoice" should {
+          "return showUkTaxRegistrationForm when uk tax registration details are not in session" in {
+            await(
+              FakeRouting.sessionStoreService.cacheAgentSession(agentSession.copy(
+                registeredWithHmrc = Some(registeredWithHmrcChoice)
+              )))
 
-      def routesToCorrectUnregisteredPage(registeredWithHmrcChoice: RegisteredWithHmrc) =
-        "return showUkTaxRegistrationForm when uk tax registration details are not in session" in {
+            await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showUkTaxRegistrationForm()
+          }
+        }
+      }
+    }
+
+    "return correct branching page after having decided if they are registered for UK tax" when {
+      "RegisteredForUkTax choice is Yes" should {
+        "return showPersonalDetailsForm when personal details are not in session" in {
           await(
             FakeRouting.sessionStoreService.cacheAgentSession(
-              agentSession.copy(registeredWithHmrc = Some(registeredWithHmrcChoice))))
+              agentSession.copy(
+                registeredWithHmrc = Some(Unsure),
+                registeredForUkTax = Some(Yes)
+              )))
 
-          await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showUkTaxRegistrationForm()
+          await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showPersonalDetailsForm()
         }
+      }
+
+      Seq(No, Unsure).foreach { negativeChoice =>
+        s"RegisteredForUkTax choice is $negativeChoice" should {
+          "return showCompanyRegistrationNumber when company registration number is not in session" in {
+            await(
+              FakeRouting.sessionStoreService.cacheAgentSession(
+                agentSession.copy(
+                  registeredWithHmrc = Some(Unsure),
+                  registeredForUkTax = Some(negativeChoice)
+                )))
+
+            await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController
+              .showCompanyRegistrationNumberForm()
+          }
+        }
+      }
     }
   }
 

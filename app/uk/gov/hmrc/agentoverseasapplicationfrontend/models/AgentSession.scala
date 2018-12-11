@@ -7,7 +7,9 @@ case class AgentSession(
   contactDetails: Option[ContactDetails] = None,
   tradingName: Option[String] = None,
   mainBusinessAddress: Option[MainBusinessAddress] = None,
-  registeredWithHmrc: Option[RegisteredWithHmrc] = None)
+  registeredWithHmrc: Option[YesNoUnsure] = None,
+  selfAssessmentAgentCode: Option[String] = None,
+  registeredForUkTax: Option[YesNoUnsure] = None)
 
 object AgentSession {
   implicit val format: OFormat[AgentSession] = Json.format[AgentSession]
@@ -33,6 +35,14 @@ object AgentSession {
   }
 
   object IsRegisteredWithHmrc {
-    def unapply(session: Option[AgentSession]): Option[RegisteredWithHmrc] = session.flatMap(_.registeredWithHmrc)
+    def unapply(session: Option[AgentSession]): Option[YesNoUnsure] = session.flatMap(_.registeredWithHmrc)
+  }
+
+  object MissingRegisteredForUkTax {
+    def unapply(session: Option[AgentSession]): Boolean = session.exists(_.registeredForUkTax.isEmpty)
+  }
+
+  object IsRegisteredForUkTax {
+    def unapply(session: Option[AgentSession]): Option[YesNoUnsure] = session.flatMap(_.registeredForUkTax)
   }
 }

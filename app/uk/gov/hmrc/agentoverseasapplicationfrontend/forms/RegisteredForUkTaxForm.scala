@@ -4,10 +4,10 @@ import play.api.data.Form
 import play.api.data.Forms._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.YesNoUnsure
 
-object RegisteredWithHmrcForm {
+object RegisteredForUkTaxForm {
   val form: Form[YesNoUnsure] = Form(
     mapping(
-      "registeredWithHmrc" -> nonEmptyText
+      "registeredForUkTax" -> nonEmptyText
     )(YesNoUnsure.apply)(YesNoUnsure.unapply)
   )
 }

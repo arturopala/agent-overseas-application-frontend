@@ -2,11 +2,12 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Result}
+import play.api.mvc.{Action, AnyContent, Call, Result}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, No, Unsure, Yes}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession.IsRegisteredWithHmrc
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.{CountryNamesLoader, toFuture}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
@@ -124,11 +125,7 @@ class ApplicationController @Inject()(
         .bindFromRequest()
         .fold(
           formWithErrors => Ok(registered_with_hmrc(formWithErrors)),
-          validFormValue => {
-            sessionStoreService
-              .cacheAgentSession(session.copy(registeredWithHmrc = Some(validFormValue)))
-              .flatMap(_ => lookupNextPage.map(Redirect))
-          }
+          validFormValue => updateSessionAndRedirect(session.copy(registeredWithHmrc = Some(validFormValue)))
         )
     }
   }
@@ -138,8 +135,35 @@ class ApplicationController @Inject()(
   }
 
   def showUkTaxRegistrationForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    NotImplemented
+    withAgentSession { session =>
+      val form = RegisteredForUkTaxForm.form
+      val backLinkRoute: Call = ukTaxRegistrationBackLink(session)
+      Ok(uk_tax_registration(session.registeredForUkTax.fold(form)(form.fill), backLinkRoute))
+    }
   }
+
+  def submitUkTaxRegistration: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { session =>
+      RegisteredForUkTaxForm.form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => {
+            val backLinkRoute: Call = ukTaxRegistrationBackLink(session)
+            Ok(uk_tax_registration(formWithErrors, backLinkRoute))
+          },
+          validFormValue => updateSessionAndRedirect(session.copy(registeredForUkTax = Some(validFormValue)))
+        )
+    }
+  }
+
+  private def ukTaxRegistrationBackLink(session: AgentSession) = Some(session) match {
+    case IsRegisteredWithHmrc(Yes)         => routes.ApplicationController.showSelfAssessmentAgentCodeForm()
+    case IsRegisteredWithHmrc(No | Unsure) => routes.ApplicationController.showRegisteredWithHmrcForm()
+  }
+
+  def showPersonalDetailsForm: Action[AnyContent] = controllers.Default.TODO
+
+  def showCompanyRegistrationNumberForm: Action[AnyContent] = controllers.Default.TODO
 
   private def withAgentSession(body: AgentSession => Future[Result])(implicit hc: HeaderCarrier): Future[Result] =
     sessionStoreService.fetchAgentSession.flatMap {

@@ -68,3 +68,11 @@ registeredWithHmrc.form.title=We need to know if you are registered, so we can c
 registeredWithHmrc.form.registered.yes=Yes
 registeredWithHmrc.form.registered.no=No
 registeredWithHmrc.form.registered.unsure=I am not sure
+
+# Registered for UK Tax
+ukTaxRegistration.title=Are you registered to pay UK tax or National Insurance?
+ukTaxRegistration.caption=Your details
+ukTaxRegistration.form.title=We need to know if you are registered, so we can confirm who you are.
+ukTaxRegistration.form.registered.yes=Yes
+ukTaxRegistration.form.registered.no=No
+ukTaxRegistration.form.registered.unsure=I am not sure

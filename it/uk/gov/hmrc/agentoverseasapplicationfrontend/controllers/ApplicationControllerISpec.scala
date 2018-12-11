@@ -201,10 +201,11 @@ class ApplicationControllerISpec extends BaseISpec {
   }
 
   "GET /registered-with-hmrc" should {
-    trait RegisteredWithHmrcSetup {
-      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(registeredWithHmrc = None))
+    class RegisteredWithHmrcSetup(agentSession: AgentSession = agentSession.copy(registeredWithHmrc = None)) {
+      sessionStoreService.currentSession.agentSession = Some(agentSession)
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
       val result = await(controller.showRegisteredWithHmrcForm(authenticatedRequest))
+      val doc = Jsoup.parse(bodyOf(result))
     }
 
     "contain page titles and header content" in new RegisteredWithHmrcSetup {
@@ -216,8 +217,6 @@ class ApplicationControllerISpec extends BaseISpec {
     }
 
     "ask for whether they are registered with HMRC" in new RegisteredWithHmrcSetup {
-      val doc = Jsoup.parse(bodyOf(result))
-
       val expectedRadios = Map(
         "yes" -> "registeredWithHmrc.form.registered.yes",
         "no" -> "registeredWithHmrc.form.registered.no",
@@ -240,11 +239,8 @@ class ApplicationControllerISpec extends BaseISpec {
       }
     }
 
-    "show existing selection if session already contains choice" in {
-      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(registeredWithHmrc = Some(Unsure)))
-      val authenticatedRequest = cleanCredsAgent(FakeRequest())
-      val result = await(controller.showRegisteredWithHmrcForm(authenticatedRequest))
-      val doc = Jsoup.parse(bodyOf(result))
+    "show existing selection if session already contains choice" in
+      new RegisteredWithHmrcSetup(agentSession.copy(registeredWithHmrc = Some(Unsure))) {
 
       doc.getElementById("registeredWithHmrc-unsure").attr("checked") shouldBe "checked"
     }
@@ -264,8 +260,6 @@ class ApplicationControllerISpec extends BaseISpec {
     }
 
     "contain a form that would POST to /registered-with-hmrc" in new RegisteredWithHmrcSetup {
-      val doc = Jsoup.parse(bodyOf(result))
-
       val elForm = doc.select("form")
       elForm should not be null
       elForm.attr("action") shouldBe "/agent-services/apply-from-outside-uk/registered-with-hmrc"
@@ -302,6 +296,130 @@ class ApplicationControllerISpec extends BaseISpec {
       await(controller.submitRegisteredWithHmrc(authenticatedRequest)) should containMessages("error.required")
 
       await(sessionStoreService.fetchAgentSession).get.registeredWithHmrc shouldBe None
+    }
+  }
+
+  "GET /uk-tax-registration" should {
+    val defaultAgentSession = agentSession.copy(
+      registeredWithHmrc = Some(No),
+      registeredForUkTax = None
+    )
+    class UkTaxRegistrationSetup(agentSession: AgentSession = defaultAgentSession) {
+      sessionStoreService.currentSession.agentSession = Some(agentSession)
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+      val result = await(controller.showUkTaxRegistrationForm(authenticatedRequest))
+      val doc = Jsoup.parse(bodyOf(result))
+    }
+
+    "contain page titles and header content" in new UkTaxRegistrationSetup {
+      result should containMessages(
+        "ukTaxRegistration.title",
+        "ukTaxRegistration.caption",
+        "ukTaxRegistration.form.title"
+      )
+    }
+
+    "ask for whether they are registered for UK tax" in new UkTaxRegistrationSetup {
+      val expectedRadios = Map(
+        "yes" -> "ukTaxRegistration.form.registered.yes",
+        "no" -> "ukTaxRegistration.form.registered.no",
+        "unsure" -> "ukTaxRegistration.form.registered.unsure"
+      )
+
+      expectedRadios.foreach{
+        case (expectedValue, expectedMessage) => {
+          val elRadio = doc.getElementById(s"registeredForUkTax-$expectedValue")
+          elRadio should not be null
+          elRadio.tagName() shouldBe "input"
+          elRadio.attr("type") shouldBe "radio"
+          elRadio.attr("value") shouldBe expectedValue
+
+          checkMessageIsDefined(expectedMessage)
+          val elLabel = doc.select(s"label[for=registeredForUkTax-$expectedValue]").first()
+          elLabel should not be null
+          elLabel.text() shouldBe htmlEscapedMessage(expectedMessage)
+        }
+      }
+    }
+
+    "show existing selection if session already contains choice" in
+      new UkTaxRegistrationSetup(defaultAgentSession.copy(registeredForUkTax = Some(Unsure))) {
+      doc.getElementById("registeredForUkTax-unsure").attr("checked") shouldBe "checked"
+    }
+
+    "contain a continue button" in new UkTaxRegistrationSetup {
+      result should containSubmitButton(
+        expectedMessageKey = "button.continue",
+        expectedElementId = "continue"
+      )
+    }
+
+    "contain a back link to previous page" when {
+      "previous page is /self-assessment-agent-code if they stated they are registered with HMRC" in
+        new UkTaxRegistrationSetup(defaultAgentSession.copy(
+          registeredWithHmrc = Some(Yes),
+          selfAssessmentAgentCode = Some("saAgentCode")
+        )) {
+        result should containLink(
+          expectedMessageKey = "button.back",
+          expectedHref = "/agent-services/apply-from-outside-uk/self-assessment-agent-code"
+        )
+      }
+      "previous page is /registered-with-hmrc if they stated they are not registered with HMRC" in
+        new UkTaxRegistrationSetup(defaultAgentSession.copy(
+          registeredWithHmrc = Some(No),
+          selfAssessmentAgentCode = None
+        )) {
+        result should containLink(
+          expectedMessageKey = "button.back",
+          expectedHref = "/agent-services/apply-from-outside-uk/registered-with-hmrc"
+        )
+      }
+    }
+
+    "contain a form that would POST to /uk-tax-registration" in new UkTaxRegistrationSetup {
+      val elForm = doc.select("form")
+      elForm should not be null
+      elForm.attr("action") shouldBe "/agent-services/apply-from-outside-uk/uk-tax-registration"
+      elForm.attr("method") shouldBe "POST"
+    }
+
+    "redirect to /money-laundering when session not found" in {
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+      val result = await(controller.showUkTaxRegistrationForm(authenticatedRequest))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showAntiMoneyLaunderingForm().url
+    }
+  }
+
+  "POST /uk-tax-registration" should {
+    "store choice in session after successful submission and redirect to next page" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(
+        registeredWithHmrc = Some(No),
+        registeredForUkTax = None
+      ))
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("registeredForUkTax" -> "yes")
+
+      val result = await(controller.submitUkTaxRegistration(authenticatedRequest))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showPersonalDetailsForm().url
+
+      await(sessionStoreService.fetchAgentSession).get.registeredForUkTax shouldBe Some(Yes)
+    }
+
+    "show validation error if no choice was selected" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(
+        registeredWithHmrc = Some(No),
+        registeredForUkTax = None
+      ))
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+
+      await(controller.submitUkTaxRegistration(authenticatedRequest)) should containMessages("error.required")
+
+      await(sessionStoreService.fetchAgentSession).get.registeredForUkTax shouldBe None
     }
   }
 }

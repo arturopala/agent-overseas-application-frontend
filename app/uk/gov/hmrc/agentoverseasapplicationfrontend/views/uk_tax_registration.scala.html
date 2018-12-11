@@ -1,0 +1,37 @@
+@import play.api.Configuration
+@import play.mvc.Call
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
+@import uk.gov.hmrc.play.views.html.helpers.{form, input_radio_group}
+
+@(registeredForUkTaxForm: Form[YesNoUnsure], backLinkRoute: Call)(implicit messages: Messages, request: Request[_], configuration: Configuration)
+
+@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("ukTaxRegistration.title")) {
+
+    <a href="@backLinkRoute" class="link-back">@Messages("button.back")</a>
+
+    <h1 class="heading-xlarge margin-bottom-20">
+        <span class="pre-heading">@Messages("ukTaxRegistration.caption")</span>
+        @Messages("ukTaxRegistration.title")
+    </h1>
+
+    @form(action = routes.ApplicationController.submitUkTaxRegistration, 'class -> "form js-form") {
+
+        <div class="form-group">
+            @input_radio_group(
+                registeredForUkTaxForm("registeredForUkTax"),
+                Seq(
+                    "yes" -> Messages("ukTaxRegistration.form.registered.yes"),
+                    "no" -> Messages("ukTaxRegistration.form.registered.no"),
+                    "unsure" -> Messages("ukTaxRegistration.form.registered.unsure")
+                ),
+                '_legend -> Messages("ukTaxRegistration.form.title"),
+                '_groupDivClass -> "soft--ends",
+                '_fieldsetAttributes -> Html("""id='registeredForUkTax'""")
+            )
+
+        </div>
+        <button class="button" type="submit" id="continue">@Messages("button.continue")</button>
+    }
+}
