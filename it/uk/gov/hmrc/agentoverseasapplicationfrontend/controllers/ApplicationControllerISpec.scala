@@ -503,7 +503,7 @@ class ApplicationControllerISpec extends BaseISpec {
       mainBusinessAddress = Some(mainBusinessAddress),
       registeredWithHmrc = Some(No),
       registeredForUkTax = Some(No),
-      companyRegistrationNumber = Some("someRegNumber")
+      companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some("ABC123")))
     )
 
 
@@ -564,8 +564,8 @@ class ApplicationControllerISpec extends BaseISpec {
       mainBusinessAddress = Some(mainBusinessAddress),
       registeredWithHmrc = Some(No),
       registeredForUkTax = Some(No),
-      companyRegistrationNumber = Some("someRegNumber")
-    )
+      companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some("ABC123")))
+      )
 
     "Provided selected 'Yes' on radioButton with included identifier, submit and redirect to next page /your-tax-registration-number" in {
       sessionStoreService.currentSession.agentSession = Some(currentApplication)
@@ -622,6 +622,89 @@ class ApplicationControllerISpec extends BaseISpec {
       status(result) shouldBe 200
 
       result should containMessages("taxRegNo.form.no-radio.selected")
+    }
+  }
+
+  "GET /company-registration-number" should {
+    "display the company-registration-number form" in {
+      sessionStoreService.currentSession.agentSession =
+        Some(agentSession.copy(
+          registeredForUkTax = Some(Yes),
+          companyRegistrationNumber = None))
+
+      val result = await(controller.showCompanyRegistrationNumberForm(cleanCredsAgent(FakeRequest())))
+      val backButtonUrl = routes.ApplicationController.showPersonalDetailsForm().url
+
+      status(result) shouldBe 200
+      result should containMessages(
+        "companyRegistrationNumber.title",
+        "companyRegistrationNumber.caption"
+      )
+
+      result should containSubstrings(backButtonUrl)
+    }
+
+    "display the company-registration-number form with correct back button link in case user selects No|Unsure option in the /uk-tax-registration page" in {
+      sessionStoreService.currentSession.agentSession =
+        Some(agentSession.copy(
+          registeredForUkTax = Some(No),
+          companyRegistrationNumber = None))
+
+      val result = await(controller.showCompanyRegistrationNumberForm(cleanCredsAgent(FakeRequest())))
+      val backButtonUrl = routes.ApplicationController.showUkTaxRegistrationForm().url
+
+      status(result) shouldBe 200
+      result should containMessages(
+        "companyRegistrationNumber.title",
+        "companyRegistrationNumber.caption"
+      )
+
+      result should containSubstrings(backButtonUrl)
+    }
+  }
+
+  "POST /company-registration-number" should {
+    "store choice in session after successful submission and redirect to next page" in {
+      sessionStoreService.currentSession.agentSession =
+        Some(agentSession.copy(companyRegistrationNumber = None,
+          registeredWithHmrc = Some(No),
+          registeredForUkTax = Some(Yes),
+          selfAssessmentAgentCode = Some("code"),
+          personalDetails = Some(personalDetails)))
+
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("confirmRegistration" -> "true", "registrationNumber" -> "ABC123")
+
+      val result = await(controller.submitCompanyRegistrationNumber(authenticatedRequest))
+      status(result) shouldBe 303
+
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showTaxRegistrationNumberForm().url
+      await(sessionStoreService.fetchAgentSession).get.companyRegistrationNumber shouldBe Some(CompanyRegistrationNumber(Some(true), Some("ABC123")))
+    }
+
+    "show validation error if no choice was selected" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(
+        registeredWithHmrc = Some(No),
+        registeredForUkTax = Some(No)
+      ))
+
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+
+      await(controller.submitCompanyRegistrationNumber(authenticatedRequest)) should containMessages("companyRegistrationNumber.error.no-radio.selected")
+      await(sessionStoreService.fetchAgentSession).get.companyRegistrationNumber shouldBe None
+    }
+
+    "show validation error if Yes is selected but no input passed for registrationNumber" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(
+        registeredWithHmrc = Some(No),
+        registeredForUkTax = Some(No)
+      ))
+
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("confirmRegistration" -> "true", "registrationNumber" -> "")
+
+      await(controller.submitCompanyRegistrationNumber(authenticatedRequest)) should containSubstrings("This field is required")
+      await(sessionStoreService.fetchAgentSession).get.companyRegistrationNumber shouldBe None
     }
   }
 }

@@ -19,6 +19,7 @@ class CommonRoutingSpec extends UnitSpec {
   private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
   private val mainBusinessAddress = MainBusinessAddress("line1", "line2", None, None, "IE")
   private val personalDetails = PersonalDetails(RadioOption.NinoChoice, Some(Nino("AB123456A")), None)
+  private val companyRegistrationNumber = CompanyRegistrationNumber(Some(true), Some("123"))
 
   private val agentSession =
     AgentSession(
@@ -135,7 +136,7 @@ class CommonRoutingSpec extends UnitSpec {
           agentSession.copy(
             registeredWithHmrc = Some(No),
             registeredForUkTax = Some(Yes),
-            companyRegistrationNumber = Some("someCompanyRegNo")
+            companyRegistrationNumber = Some(companyRegistrationNumber)
           )))
 
       await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showTaxRegistrationNumberForm()
@@ -150,7 +151,7 @@ class CommonRoutingSpec extends UnitSpec {
                 registeredWithHmrc = Some(No),
                 registeredForUkTax = Some(negativeChoice),
                 personalDetails = None,
-                companyRegistrationNumber = Some("someCompanyRegNo")
+                companyRegistrationNumber = Some(companyRegistrationNumber)
               )))
 
           await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showTaxRegistrationNumberForm()
@@ -160,14 +161,13 @@ class CommonRoutingSpec extends UnitSpec {
 
     "return showTaxRegistrationNumberForm when hasTaxRegNumbers equals None" in {
       await(
-        FakeRouting.sessionStoreService.cacheAgentSession(
-          agentSession.copy(
-            registeredWithHmrc = Some(No),
-            registeredForUkTax = Some(No),
-            personalDetails = None,
-            companyRegistrationNumber = Some("someCompanyRegNo"),
-            hasTaxRegNumbers = None
-          )))
+        FakeRouting.sessionStoreService.cacheAgentSession(agentSession.copy(
+          registeredWithHmrc = Some(No),
+          registeredForUkTax = Some(No),
+          personalDetails = None,
+          companyRegistrationNumber = Some(companyRegistrationNumber),
+          hasTaxRegNumbers = None
+        )))
 
       await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showTaxRegistrationNumberForm()
     }
@@ -178,7 +178,7 @@ class CommonRoutingSpec extends UnitSpec {
           registeredWithHmrc = Some(No),
           registeredForUkTax = Some(No),
           personalDetails = None,
-          companyRegistrationNumber = Some("someCompanyRegNo"),
+          companyRegistrationNumber = Some(companyRegistrationNumber),
           hasTaxRegNumbers = Some(true)
         )))
 
@@ -191,7 +191,7 @@ class CommonRoutingSpec extends UnitSpec {
           registeredWithHmrc = Some(No),
           registeredForUkTax = Some(No),
           personalDetails = None,
-          companyRegistrationNumber = Some("someCompanyRegNo"),
+          companyRegistrationNumber = Some(companyRegistrationNumber),
           hasTaxRegNumbers = Some(false)
         )))
 

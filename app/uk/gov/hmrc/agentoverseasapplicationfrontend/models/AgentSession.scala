@@ -11,7 +11,7 @@ case class AgentSession(
   selfAssessmentAgentCode: Option[String] = None,
   registeredForUkTax: Option[YesNoUnsure] = None,
   personalDetails: Option[PersonalDetails] = None,
-  companyRegistrationNumber: Option[String] = None,
+  companyRegistrationNumber: Option[CompanyRegistrationNumber] = None,
   hasTaxRegNumbers: Option[Boolean] = None,
   taxRegistrationNumbers: Option[List[String]] = None)
 

@@ -1,0 +1,49 @@
+@import play.api.Configuration
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.models.CompanyRegistrationNumber
+@import uk.gov.hmrc.play.views.html.helpers.{form, input, input_radio_group, errorSummary}
+
+@(companyRegistrationNumberForm: Form[CompanyRegistrationNumber], backButtonLink: String)(implicit messages: Messages, request: Request[_], configuration: Configuration)
+
+@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("companyRegistrationNumber.title")) {
+
+    <a href="@backButtonLink" class="link-back">@Messages("button.back")</a>
+
+    <h1 class="heading-xlarge">
+        <span class="pre-heading">@Messages("companyRegistrationNumber.caption")</span>
+        <h1 class="heading-large  @if(companyRegistrationNumberForm.hasErrors){push--top}">@Messages("companyRegistrationNumber.title")</h1>
+    </h1>
+
+    @if(companyRegistrationNumberForm.hasErrors) {
+        @errorSummary(Messages("error.summary.heading"), companyRegistrationNumberForm, Seq.empty, Some("enter-tax-registration-numbers"))
+    }
+
+    @form(action = routes.ApplicationController.submitCompanyRegistrationNumber, 'class -> "form js-form") {
+    <div class="form-group @if(companyRegistrationNumberForm.error("registrationNumber").isDefined){form-group-error}" id="radioResponse">
+    <fieldset>
+        <legend>
+            <p>@Messages("companyRegistrationNumber.body.text")</p>
+        </legend>
+
+        <div class="multiple-choice" data-target="confirmRegistration">
+            <input id="confirmRegistration_true" type="radio" name="confirmRegistration" value="true" @if(companyRegistrationNumberForm.error("registrationNumber").isDefined || companyRegistrationNumberForm.value.map(_.confirmRegistration == Some(true)).getOrElse(false)){checked}>
+            <label for="confirmRegistration_true">@Messages("companyRegistrationNumber.form.registered.yes")</label>
+        </div>
+        <div class="panel panel-border-narrow js-hidden @if(companyRegistrationNumberForm.error("registrationNumber").isDefined){form-group-error}" id="confirmRegistration">
+        <label class="form-label" for="registrationNumber">@Messages("companyRegistrationNumber.radioResponse.hidden.input.label.enter.crn")</label>
+        @companyRegistrationNumberForm.errors("registrationNumber").map { formError => <span class="error-message">@Messages(formError.message)</span> }
+        <input data-uppercase="true" class="form-control @if(companyRegistrationNumberForm.error("registrationNumber").isDefined){form-control-error}" name="registrationNumber" type="text" id="registrationNumber" value="@companyRegistrationNumberForm.value.map(_.registrationNumber.getOrElse(""))">
+        </div>
+
+        <div class="multiple-choice">
+            <input id="confirmRegistration_false" type="radio" name="confirmRegistration" value="false">
+            <label for="confirmRegistration_false">@Messages("companyRegistrationNumber.form.registered.no")</label>
+        </div>
+    </fieldset>
+    </div>
+
+    <div class="form-group">
+        <button class="button" type="submit" id="continue">@Messages("button.continue")</button>
+    </div>
+    }
+}

@@ -95,5 +95,14 @@ taxRegNo.p1=This information will help us to confirm who you are.
 taxRegNo.form.yes=Yes
 taxRegNo.form.yes.prompt=Enter your tax registration number
 taxRegNo.form.no=No
-
 taxRegNo.form.no-radio.selected=You must select one of the following to continue
+taxRegNo.form.no-radio.selected=You must select one of the following to continue
+
+# Company Registration Number
+companyRegistrationNumber.title=Does your business have a company registration number or equivalent in your country?
+companyRegistrationNumber.caption=Other business details
+companyRegistrationNumber.body.text=This information will help us to confirm your business details.
+companyRegistrationNumber.form.registered.yes=Yes
+companyRegistrationNumber.form.registered.no=No
+companyRegistrationNumber.radioResponse.hidden.input.label.enter.crn=Enter the company registration number
+companyRegistrationNumber.error.no-radio.selected=You must select one of the following to continue

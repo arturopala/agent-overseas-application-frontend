@@ -180,6 +180,27 @@ class ApplicationController @Inject()(
     }
   }
 
+  def showCompanyRegistrationNumberForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { session =>
+      val form = CompanyRegistrationNumberForm.form
+      Ok(
+        company_registration_number(
+          session.companyRegistrationNumber.fold(form)(form.fill),
+          companyRegNumberBackLink(session)))
+    }
+  }
+
+  def submitCompanyRegistrationNumber: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { session =>
+      CompanyRegistrationNumberForm.form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Ok(company_registration_number(formWithErrors, companyRegNumberBackLink(session))),
+          validFormValue => updateSessionAndRedirect(session.copy(companyRegistrationNumber = Some(validFormValue)))
+        )
+    }
+  }
+
   def showTaxRegistrationNumberForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { applicationSession =>
       val prePopulate = TaxRegistrationNumber(
@@ -191,6 +212,7 @@ class ApplicationController @Inject()(
       Ok(tax_registration_number(form))
     }
   }
+
   def submitTaxRegistrationNumber: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { applicationData =>
       TaxRegistrationNumberForm.form
@@ -201,15 +223,17 @@ class ApplicationController @Inject()(
             updateSessionAndRedirect(
               applicationData.copy(
                 hasTaxRegNumbers = validForm.canProvideTaxRegNo,
-                taxRegistrationNumbers = validForm.value.map(taxId => Some(List(taxId))).getOrElse(None)))
+                taxRegistrationNumbers = validForm.value.flatMap(taxId => Some(List(taxId)))))
         )
     }
   }
+
   def showYourTaxRegNo: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { applicationSession =>
       NotImplemented
     }
   }
+
   def showCheckAnswers: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { applicationSession =>
       NotImplemented
@@ -221,7 +245,10 @@ class ApplicationController @Inject()(
     case IsRegisteredWithHmrc(No | Unsure) => routes.ApplicationController.showRegisteredWithHmrcForm()
   }
 
-  def showCompanyRegistrationNumberForm: Action[AnyContent] = controllers.Default.TODO
+  private def companyRegNumberBackLink(session: AgentSession) = Some(session) match {
+    case IsRegisteredForUkTax(Yes)         => routes.ApplicationController.showPersonalDetailsForm().url
+    case IsRegisteredForUkTax(No | Unsure) => routes.ApplicationController.showUkTaxRegistrationForm().url
+  }
 
   private def withAgentSession(body: AgentSession => Future[Result])(implicit hc: HeaderCarrier): Future[Result] =
     sessionStoreService.fetchAgentSession.flatMap {
