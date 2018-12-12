@@ -1,0 +1,51 @@
+@import play.api.Configuration
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetails
+@import uk.gov.hmrc.play.views.html.helpers.{form, input}
+
+@(personalDetailsForm: Form[PersonalDetails])(implicit messages: Messages, request: Request[_], configuration: Configuration)
+
+    @uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("personalDetails.title")) {
+    <a href="@routes.ApplicationController.showUkTaxRegistrationForm()" class="link-back">@Messages("button.back")</a>
+
+    @form(action = routes.ApplicationController.submitPersonalDetails, 'class -> "form js-form") {
+
+        <div class="form-group" id="radioResponse">
+        <fieldset>
+            <legend>
+                <h1 class="heading-large">@Messages("personalDetails.title")</h1>
+                <p>@Messages("personalDetails.p1")</p>
+                <p class="faded-text">@Messages("personalDetails.p2")</p>
+            </legend>
+            <div class="multiple-choice" data-target="ninoRadioInput">
+                <input id="variant_nino" type="radio" name="personalDetailsChoice" @if(personalDetailsForm.value.exists(_.choice.value == "nino")){checked} value="nino" >
+                <label for="variant_nino">@Messages("personalDetails.form.nino")</label>
+            </div>
+            <div class="panel panel-border-narrow js-hidden" id="ninoRadioInput">
+            <label class="form-label" for="nino">@Messages("personalDetails.form.nino")
+                <span class="form-hint">@Messages("personalDetails.form.helper.nino")</span>
+            </label>
+            <input data-uppercase="true" class="form-control" name="nino" type="text" id="nino"  @if(personalDetailsForm.value.exists(_.choice.value == "nino")){ value="@personalDetailsForm.value.flatMap(_.nino.map(_.nino)).getOrElse("")" } >
+            </div>
+            <div class="multiple-choice" data-target="utrRadioInput">
+                <input id="variant_utr" type="radio" name="personalDetailsChoice" @if(personalDetailsForm.value.exists(_.choice.value == "saUtr")){checked} value="saUtr">
+                <label for="variant_utr">@Messages("personalDetails.form.sautr")</label>
+            </div>
+            <div class="panel panel-border-narrow js-hidden" id="utrRadioInput">
+            <label class="form-label" for="saUtr">@Messages("personalDetails.form.sautr")
+                <span class="form-hint">@Messages("personalDetails.form.helper.sautr")</span>
+            </label>
+            <input class="form-control" name="saUtr" type="text" id="saUtr" @if(personalDetailsForm.value.exists(_.choice.value == "saUtr")) { value="@personalDetailsForm.value.flatMap(_.saUtr.map(_.utr)).getOrElse("")" }>
+            </div>
+            <div class="multiple-choice">
+                <input id="variant_cannotProvide" type="radio" name="personalDetailsChoice" value="unsure" @if(personalDetailsForm.value.exists(_.choice.value == "unsure")){checked}>
+                <label for="variant_cannotProvide">@Messages("personalDetails.form.noDetails")</label>
+            </div>
+        </fieldset>
+        </div>
+        <div class="form-group">
+            <button class="button" type="submit" id="continue">@Messages("button.continue")</button>
+        </div>
+ }
+
+}

@@ -76,6 +76,19 @@ ukTaxRegistration.form.title=We need to know if you are registered, so we can co
 ukTaxRegistration.form.registered.yes=Yes
 ukTaxRegistration.form.registered.no=No
 ukTaxRegistration.form.registered.unsure=I am not sure
+
+# Personal details
+personalDetails.title=Your UK tax or National Insurance details
+personalDetails.p1=You need to enter your UK National Insurance number or Self Assessment Unique Taxpayer Reference (UTR). This will help us match your details against information we hold.
+personalDetails.p2=Select one option.
+personalDetails.form.nino=National Insurance number
+personalDetails.form.input.label.nino=National Insurance number
+personalDetails.form.helper.nino=For example, QQ 12 34 56 C
+personalDetails.form.sautr=Self Assessment UTR
+personalDetails.form.input.label.sautr=Self Assessment UTR
+personalDetails.form.helper.sautr=For example, 12345 67890
+personalDetails.form.noDetails=I do not have these details
+
 # Has Tax Registration Number Radio Button
 taxRegNo.title=Do you have any tax registration numbers in your country?
 taxRegNo.p1=This information will help us to confirm who you are.

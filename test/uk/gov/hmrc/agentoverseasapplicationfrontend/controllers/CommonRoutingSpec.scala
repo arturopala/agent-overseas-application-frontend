@@ -1,9 +1,11 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import play.api.mvc.Results
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetails.RadioOption
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.TestSessionCache
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.play.test.UnitSpec
@@ -16,13 +18,15 @@ class CommonRoutingSpec extends UnitSpec {
   private val contactDetails = ContactDetails("test", "last", "senior agent", "12345", "test@email.com")
   private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
   private val mainBusinessAddress = MainBusinessAddress("line1", "line2", None, None, "IE")
+  private val personalDetails = PersonalDetails(RadioOption.NinoChoice, Some(Nino("AB123456A")), None)
 
   private val agentSession =
     AgentSession(
       amlsDetails = Some(amlsDetails),
       contactDetails = Some(contactDetails),
       tradingName = Some("some name"),
-      mainBusinessAddress = Some(mainBusinessAddress)
+      mainBusinessAddress = Some(mainBusinessAddress),
+      personalDetails = Some(personalDetails)
     )
 
   "lookupNextPage" should {
@@ -92,7 +96,8 @@ class CommonRoutingSpec extends UnitSpec {
             FakeRouting.sessionStoreService.cacheAgentSession(
               agentSession.copy(
                 registeredWithHmrc = Some(Unsure),
-                registeredForUkTax = Some(Yes)
+                registeredForUkTax = Some(Yes),
+                personalDetails = None
               )))
 
           await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showPersonalDetailsForm()
@@ -116,14 +121,22 @@ class CommonRoutingSpec extends UnitSpec {
       }
     }
 
+    "return showPersonalDetailsForm when PersonalDetails are not found in the session" in {
+      await(
+        FakeRouting.sessionStoreService.cacheAgentSession(
+          agentSession.copy(registeredWithHmrc = Some(No), registeredForUkTax = Some(Yes), personalDetails = None)))
+
+      await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showPersonalDetailsForm()
+    }
+
     "return showTaxRegistrationNumberForm when AgentSession collected prerequisites" in {
       await(
-        FakeRouting.sessionStoreService.cacheAgentSession(agentSession.copy(
-          registeredWithHmrc = Some(No),
-          registeredForUkTax = Some(Yes),
-          personalDetails = Some("somePersonalDetail"),
-          companyRegistrationNumber = Some("someCompanyRegNo")
-        )))
+        FakeRouting.sessionStoreService.cacheAgentSession(
+          agentSession.copy(
+            registeredWithHmrc = Some(No),
+            registeredForUkTax = Some(Yes),
+            companyRegistrationNumber = Some("someCompanyRegNo")
+          )))
 
       await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showTaxRegistrationNumberForm()
     }

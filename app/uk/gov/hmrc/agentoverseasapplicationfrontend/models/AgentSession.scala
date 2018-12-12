@@ -10,7 +10,7 @@ case class AgentSession(
   registeredWithHmrc: Option[YesNoUnsure] = None,
   selfAssessmentAgentCode: Option[String] = None,
   registeredForUkTax: Option[YesNoUnsure] = None,
-  personalDetails: Option[String] = None,
+  personalDetails: Option[PersonalDetails] = None,
   companyRegistrationNumber: Option[String] = None,
   hasTaxRegNumbers: Option[Boolean] = None,
   taxRegistrationNumbers: Option[List[String]] = None)
@@ -75,5 +75,4 @@ object AgentSession {
     def unapply(session: Option[AgentSession]): Boolean =
       session.exists(_.hasTaxRegNumbers.getOrElse(true) == false) //interested in false so getOrElse(true) is the bad case
   }
-
 }

@@ -3,9 +3,10 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 import org.jsoup.Jsoup
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{LOCATION, redirectLocation}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.TaxRegistrationNumberForm
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetails.RadioOption
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
+import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 
 class ApplicationControllerISpec extends BaseISpec {
@@ -14,12 +15,14 @@ class ApplicationControllerISpec extends BaseISpec {
   private val contactDetails = ContactDetails("test", "last", "senior agent", "12345", "test@email.com")
   private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
   private val mainBusinessAddress = MainBusinessAddress("line 1", "line 2", None, None, countryCode = "IE")
+  private val personalDetails = PersonalDetails(RadioOption.NinoChoice, Some(Nino("AB123456A")), None)
 
   private val agentSession = AgentSession(
     amlsDetails = Some(amlsDetails),
     contactDetails = Some(contactDetails),
     tradingName = Some("some name"),
-    mainBusinessAddress = Some(mainBusinessAddress)
+    mainBusinessAddress = Some(mainBusinessAddress),
+    personalDetails = Some(personalDetails)
   )
 
   private lazy val controller: ApplicationController = app.injector.instanceOf[ApplicationController]
@@ -397,7 +400,8 @@ class ApplicationControllerISpec extends BaseISpec {
     "store choice in session after successful submission and redirect to next page" in {
       sessionStoreService.currentSession.agentSession = Some(agentSession.copy(
         registeredWithHmrc = Some(No),
-        registeredForUkTax = None
+        registeredForUkTax = None,
+        personalDetails = None
       ))
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody("registeredForUkTax" -> "yes")
@@ -420,6 +424,74 @@ class ApplicationControllerISpec extends BaseISpec {
       await(controller.submitUkTaxRegistration(authenticatedRequest)) should containMessages("error.required")
 
       await(sessionStoreService.fetchAgentSession).get.registeredForUkTax shouldBe None
+    }
+  }
+
+  "GET /personal-details" should {
+    val defaultAgentSession = agentSession.copy(
+      registeredWithHmrc = Some(No),
+      registeredForUkTax = Some(Yes)
+    )
+    class PersonalDetailsSetup(agentSession: AgentSession = defaultAgentSession) {
+      sessionStoreService.currentSession.agentSession = Some(agentSession)
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+      val result = await(controller.showPersonalDetailsForm(authenticatedRequest))
+      val doc = Jsoup.parse(bodyOf(result))
+    }
+
+    "contain page titles and header content" in new PersonalDetailsSetup {
+      result should containMessages(
+        "personalDetails.title",
+        "personalDetails.p1",
+        "personalDetails.p2",
+        "personalDetails.form.nino",
+        "personalDetails.form.input.label.nino",
+        "personalDetails.form.helper.nino",
+        "personalDetails.form.sautr",
+        "personalDetails.form.input.label.sautr",
+        "personalDetails.form.helper.sautr",
+        "personalDetails.form.noDetails"
+      )
+    }
+
+    "contain a back link to previous page - /uk-tax-registration " in new PersonalDetailsSetup {
+      result should containLink(
+        expectedMessageKey = "button.back",
+        expectedHref = "/agent-services/apply-from-outside-uk/uk-tax-registration")
+      }
+
+    "contain a form that would POST to /personal-details" in new PersonalDetailsSetup {
+      val elForm = doc.select("form")
+      elForm should not be null
+      elForm.attr("action") shouldBe "/agent-services/apply-from-outside-uk/personal-details"
+      elForm.attr("method") shouldBe "POST"
+    }
+
+    "redirect to /money-laundering when session not found" in {
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+      val result = await(controller.showUkTaxRegistrationForm(authenticatedRequest))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showAntiMoneyLaunderingForm().url
+    }
+  }
+
+  "POST /personal-details" should {
+    "store choice in session after successful submission and redirect to next page" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(
+        registeredWithHmrc = Some(No),
+        registeredForUkTax = Some(Yes)
+      ))
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("personalDetailsChoice" -> "nino", "nino" -> "AB123456A", "saUtr" -> "")
+
+      val result = await(controller.submitPersonalDetails(authenticatedRequest))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showCompanyRegistrationNumberForm().url
+
+      val savedPersonalDetails = await(sessionStoreService.fetchAgentSession).get.personalDetails.get
+      savedPersonalDetails shouldBe PersonalDetails(RadioOption.NinoChoice, Some(Nino("AB123456A")), None)
     }
   }
 
@@ -460,7 +532,7 @@ class ApplicationControllerISpec extends BaseISpec {
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
       val taxRegNo = "tax_reg_number_123"
       sessionStoreService.currentSession.agentSession = Some(currentApplication.copy(hasTaxRegNumbers = Some(true),
-       taxRegistrationNumbers = Some(List(taxRegNo))))
+        taxRegistrationNumbers = Some(List(taxRegNo))))
 
       val result = await(controller.showTaxRegistrationNumberForm(authenticatedRequest))
 
@@ -493,7 +565,7 @@ class ApplicationControllerISpec extends BaseISpec {
       registeredWithHmrc = Some(No),
       registeredForUkTax = Some(No),
       companyRegistrationNumber = Some("someRegNumber")
-      )
+    )
 
     "Provided selected 'Yes' on radioButton with included identifier, submit and redirect to next page /your-tax-registration-number" in {
       sessionStoreService.currentSession.agentSession = Some(currentApplication)

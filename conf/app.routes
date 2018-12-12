@@ -21,12 +21,17 @@ POST        /registered-with-hmrc                @uk.gov.hmrc.agentoverseasappli
 
 GET         /self-assessment-agent-code          @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showSelfAssessmentAgentCodeForm
 
-GET         /personal-details                    @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showPersonalDetailsForm
-
 GET         /company-registration-number         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showCompanyRegistrationNumberForm
 
 GET         /uk-tax-registration                 @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showUkTaxRegistrationForm
 POST        /uk-tax-registration                 @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitUkTaxRegistration
+
+GET   /personal-details              @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showPersonalDetailsForm
+POST  /personal-details              @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitPersonalDetails
+
+POST        /sign-out                @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.SignOutController.signOut
+
+POST  /sign-out                      @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.SignOutController.signOut
 
 GET         /tax-registration-number             @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showTaxRegistrationNumberForm
 POST        /tax-registration-number             @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitTaxRegistrationNumber

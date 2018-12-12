@@ -7,6 +7,8 @@ import play.api.mvc.{Action, AnyContent, Call, Result}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, No, Unsure, Yes}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession.{IsRegisteredForUkTax, IsRegisteredWithHmrc}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession.IsRegisteredWithHmrc
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
@@ -157,11 +159,27 @@ class ApplicationController @Inject()(
     }
   }
 
-  def showCompanyRegistrationNumberForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { applicationSession =>
-      NotImplemented
+  def showPersonalDetailsForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { session =>
+      val form = PersonalDetailsForm.form
+
+      Ok(personal_details(session.personalDetails.fold(form)(form.fill)))
     }
   }
+
+  def submitPersonalDetails: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { session =>
+      PersonalDetailsForm.form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Ok(personal_details(formWithErrors)),
+          validForm => {
+            updateSessionAndRedirect(session.copy(personalDetails = Some(validForm)))
+          }
+        )
+    }
+  }
+
   def showTaxRegistrationNumberForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { applicationSession =>
       val prePopulate = TaxRegistrationNumber(
@@ -203,7 +221,7 @@ class ApplicationController @Inject()(
     case IsRegisteredWithHmrc(No | Unsure) => routes.ApplicationController.showRegisteredWithHmrcForm()
   }
 
-  def showPersonalDetailsForm: Action[AnyContent] = controllers.Default.TODO
+  def showCompanyRegistrationNumberForm: Action[AnyContent] = controllers.Default.TODO
 
   private def withAgentSession(body: AgentSession => Future[Result])(implicit hc: HeaderCarrier): Future[Result] =
     sessionStoreService.fetchAgentSession.flatMap {
