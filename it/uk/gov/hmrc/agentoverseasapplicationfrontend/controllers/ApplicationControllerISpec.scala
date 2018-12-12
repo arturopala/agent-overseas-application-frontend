@@ -707,4 +707,68 @@ class ApplicationControllerISpec extends BaseISpec {
       await(sessionStoreService.fetchAgentSession).get.companyRegistrationNumber shouldBe None
     }
   }
+
+  "GET /add-tax-registration-number" should {
+    "display the add-tax-registration-number form" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession)
+
+      val result = await(controller.showAddTaxRegNoForm(cleanCredsAgent(FakeRequest())))
+
+      status(result) shouldBe 200
+
+      result should containMessages(
+        "addTrn.title"
+      )
+    }
+
+    "contain back button in the add-tax-registration-number form" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession)
+
+      val result = await(controller.showAddTaxRegNoForm(cleanCredsAgent(FakeRequest())))
+
+      status(result) shouldBe 200
+
+      result should containLink(
+        expectedMessageKey = "button.back",
+        expectedHref = "/agent-services/apply-from-outside-uk/your-tax-registration-number"
+      )
+    }
+
+    "redirect to /money-laundering when session not found" in {
+
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+
+      val result = await(controller.showAddTaxRegNoForm(authenticatedRequest))
+
+      status(result) shouldBe 303
+
+      redirectLocation(result) shouldBe Some(routes.ApplicationController.showAntiMoneyLaunderingForm().url)
+    }
+  }
+
+  "POST /add-tax-registration-number" should {
+    "submit form and then redirect to your-tax-registration-number page" when {
+      "current session has some tax reg. numbers" in {
+        testSubmitAddTaxRegNo(Some(Seq("67890")))
+      }
+      "current session does not have any tax reg numbers" in {
+        testSubmitAddTaxRegNo()
+      }
+    }
+
+    def testSubmitAddTaxRegNo(numbers: Option[Seq[String]] = None) = {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(taxRegistrationNumbers = numbers))
+
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("trn" -> "123456")
+
+      val result = await(controller.submitAddTaxRegNo(authenticatedRequest))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showYourTaxRegNo().url
+
+      val taxRegNumbers = await(sessionStoreService.fetchAgentSession).get.taxRegistrationNumbers.get
+      taxRegNumbers should contain("123456")
+    }
+  }
 }

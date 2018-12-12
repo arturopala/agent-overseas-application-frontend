@@ -228,6 +228,31 @@ class ApplicationController @Inject()(
     }
   }
 
+  def showAddTaxRegNoForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { _ =>
+      Ok(add_tax_registration_number(AddTrnForm.form))
+    }
+  }
+
+  def submitAddTaxRegNo: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { session =>
+      AddTrnForm.form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Ok(add_tax_registration_number(formWithErrors)),
+          validForm => {
+            val trn = session.taxRegistrationNumbers match {
+              case Some(numbers) => numbers :+ validForm
+              case None          => Seq(validForm)
+            }
+            sessionStoreService
+              .cacheAgentSession(session.copy(taxRegistrationNumbers = Some(trn)))
+              .map(_ => Redirect(routes.ApplicationController.showYourTaxRegNo))
+          }
+        )
+    }
+  }
+
   def showYourTaxRegNo: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { applicationSession =>
       NotImplemented

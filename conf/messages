@@ -106,3 +106,6 @@ companyRegistrationNumber.form.registered.yes=Yes
 companyRegistrationNumber.form.registered.no=No
 companyRegistrationNumber.radioResponse.hidden.input.label.enter.crn=Enter the company registration number
 companyRegistrationNumber.error.no-radio.selected=You must select one of the following to continue
+
+# Add tax registration number
+addTrn.title=What is your tax registration number?
