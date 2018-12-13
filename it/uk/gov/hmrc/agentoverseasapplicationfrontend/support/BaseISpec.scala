@@ -118,23 +118,28 @@ class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with A
       }
     }
 
-  protected def containInputElement(expectedElementId: String, expectedInputType: String): Matcher[Result] = {
+  protected def containElement(id: String,
+                               tag: String,
+                               attrs: Map[String, String]): Matcher[Result] = {
     new Matcher[Result] {
       override def apply(result: Result): MatchResult = {
         val doc = Jsoup.parse(bodyOf(result))
-        val foundElement = doc.getElementById(expectedElementId)
+        val foundElement = doc.getElementById(id)
         val isAsExpected = Option(foundElement) match {
           case None => false
-          case Some(elAmls) => {
-            val isExpectedTag = elAmls.tagName() == "input"
-            val isExpectedType = elAmls.attr("type") == expectedInputType
-            isExpectedTag && isExpectedType
+          case Some(elFound) => {
+            val isExpectedTag = elFound.tagName() == tag
+            val hasExpectedAttrs = attrs.forall{ case (expectedAttr, expectedValue) =>
+              elFound.attr(expectedAttr) == expectedValue
+            }
+            isExpectedTag && hasExpectedAttrs
           }
         }
+
         MatchResult(
           isAsExpected,
-          s"""Response does not contain an input element of type "$expectedInputType" with id "$expectedElementId"""",
-          s"""Response contains an input element of type "$expectedInputType" with id "$expectedElementId""""
+          s"""Response does not contain a "$tag" element with id of "$id" with matching attributes $attrs""",
+          s"""Response contains a "$tag" element with id of "$id" with matching attributes $attrs"""
         )
       }
     }

@@ -77,6 +77,20 @@ ukTaxRegistration.form.registered.yes=Yes
 ukTaxRegistration.form.registered.no=No
 ukTaxRegistration.form.registered.unsure=I am not sure
 
+# Agent codes
+agentCodes.title=Tell us about any HMRC agent codes you have for these services
+agentCodes.caption=Other business details
+agentCodes.p1=This will help us match your details against information we hold.
+agentCodes.form.hint=Select all that apply or leave blank if you are not sure.
+agentCodes.form.self-assessment.label=Self Assessment
+agentCodes.form.self-assessment.inset=Self Assessment agent code
+agentCodes.form.corporation-tax.label=Corporation Tax
+agentCodes.form.corporation-tax.inset=Corporation Tax agent code
+agentCodes.form.vat.label=VAT
+agentCodes.form.vat.inset=VAT agent code
+agentCodes.form.paye.label=PAYE
+agentCodes.form.paye.inset=PAYE agent code
+
 # Personal details
 personalDetails.title=Your UK tax or National Insurance details
 personalDetails.p1=You need to enter your UK National Insurance number or Self Assessment Unique Taxpayer Reference (UTR). This will help us match your details against information we hold.

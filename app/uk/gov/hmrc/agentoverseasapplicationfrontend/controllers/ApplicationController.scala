@@ -133,8 +133,23 @@ class ApplicationController @Inject()(
     }
   }
 
-  def showSelfAssessmentAgentCodeForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    NotImplemented
+  def showAgentCodesForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { session =>
+      val form = AgentCodesForm.form
+
+      Ok(self_assessment_agent_code(session.agentCodes.fold(form)(form.fill)))
+    }
+  }
+
+  def submitAgentCodes: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { session =>
+      AgentCodesForm.form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Ok(self_assessment_agent_code(formWithErrors)),
+          validFormValue => updateSessionAndRedirect(session.copy(agentCodes = Some(validFormValue)))
+        )
+    }
   }
 
   def showUkTaxRegistrationForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
@@ -259,14 +274,14 @@ class ApplicationController @Inject()(
     }
   }
 
-  def showCheckAnswers: Action[AnyContent] = validApplicantAction.async { implicit request =>
+  def showCheckYourAnswers: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { applicationSession =>
       NotImplemented
     }
   }
 
   private def ukTaxRegistrationBackLink(session: AgentSession) = Some(session) match {
-    case IsRegisteredWithHmrc(Yes)         => routes.ApplicationController.showSelfAssessmentAgentCodeForm()
+    case IsRegisteredWithHmrc(Yes)         => routes.ApplicationController.showAgentCodesForm()
     case IsRegisteredWithHmrc(No | Unsure) => routes.ApplicationController.showRegisteredWithHmrcForm()
   }
 

@@ -10,6 +10,7 @@ object PersonalDetailsForm {
       "personalDetailsChoice" -> nonEmptyText,
       "nino"                  -> optional(text),
       "saUtr"                 -> optional(text)
-    )(PersonalDetails.apply)(details => Some(details.choice.value, details.nino.map(_.nino), details.saUtr.map(_.utr)))
+    )(PersonalDetails.apply)(details =>
+      Some((details.choice.value, details.nino.map(_.nino), details.saUtr.map(_.utr))))
   )
 }

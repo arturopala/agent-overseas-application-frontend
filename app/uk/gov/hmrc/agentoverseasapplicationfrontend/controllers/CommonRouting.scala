@@ -21,16 +21,19 @@ trait CommonRouting {
         case MissingTradingName()              => routes.ApplicationController.showTradingNameForm()
         case MissingTradingAddress()           => routes.ApplicationController.showMainBusinessAddressForm()
         case MissingRegisteredWithHmrc()       => routes.ApplicationController.showRegisteredWithHmrcForm()
-        case IsRegisteredWithHmrc(Yes)         => routesWhenRegisteredWithHmrc(session)
-        case IsRegisteredWithHmrc(No | Unsure) => routesWhenNotRegisteredWithHmrc(session)
+        case IsRegisteredWithHmrc(Yes)         => routesFromAgentCodesOnwards(session)
+        case IsRegisteredWithHmrc(No | Unsure) => routesFromUkTaxRegistrationOnwards(session)
         case _                                 => routes.ApplicationController.showAntiMoneyLaunderingForm()
       }
     }
 
-  private def routesWhenRegisteredWithHmrc(agentSession: Option[AgentSession]): Call =
-    routes.ApplicationController.showSelfAssessmentAgentCodeForm()
+  private def routesFromAgentCodesOnwards(agentSession: Option[AgentSession]): Call = agentSession match {
+    case MissingAgentCodes()                  => routes.ApplicationController.showAgentCodesForm()
+    case HasAnsweredWithOneOrMoreAgentCodes() => routes.ApplicationController.showCheckYourAnswers()
+    case HasAnsweredWithNoAgentCodes()        => routesFromUkTaxRegistrationOnwards(agentSession)
+  }
 
-  private def routesWhenNotRegisteredWithHmrc(agentSession: Option[AgentSession]): Call = agentSession match {
+  private def routesFromUkTaxRegistrationOnwards(agentSession: Option[AgentSession]): Call = agentSession match {
     case MissingRegisteredForUkTax()       => routes.ApplicationController.showUkTaxRegistrationForm()
     case IsRegisteredForUkTax(Yes)         => showPersonalDetailsOrContinue(agentSession)
     case IsRegisteredForUkTax(No | Unsure) => collectCompanyRegNoOrContinue(agentSession)
@@ -50,6 +53,6 @@ trait CommonRouting {
   private def collectTaxRegNoOrContinue(agentSession: Option[AgentSession]): Call = agentSession match {
     case MissingHasTaxRegistrationNumber() => routes.ApplicationController.showTaxRegistrationNumberForm()
     case HasTaxRegistrationNumber()        => routes.ApplicationController.showYourTaxRegNo()
-    case NoTaxRegistrationNumber()         => routes.ApplicationController.showCheckAnswers()
+    case NoTaxRegistrationNumber()         => routes.ApplicationController.showCheckYourAnswers()
   }
 }

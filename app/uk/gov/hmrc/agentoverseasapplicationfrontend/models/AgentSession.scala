@@ -8,7 +8,7 @@ case class AgentSession(
   tradingName: Option[String] = None,
   mainBusinessAddress: Option[MainBusinessAddress] = None,
   registeredWithHmrc: Option[YesNoUnsure] = None,
-  selfAssessmentAgentCode: Option[String] = None,
+  agentCodes: Option[AgentCodes] = None,
   registeredForUkTax: Option[YesNoUnsure] = None,
   personalDetails: Option[PersonalDetails] = None,
   companyRegistrationNumber: Option[CompanyRegistrationNumber] = None,
@@ -40,6 +40,19 @@ object AgentSession {
 
   object IsRegisteredWithHmrc {
     def unapply(session: Option[AgentSession]): Option[YesNoUnsure] = session.flatMap(_.registeredWithHmrc)
+  }
+
+  object MissingAgentCodes {
+    def unapply(session: Option[AgentSession]): Boolean = session.exists(_.agentCodes.isEmpty)
+  }
+
+  object HasAnsweredWithOneOrMoreAgentCodes {
+    def unapply(session: Option[AgentSession]): Boolean = session.flatMap(_.agentCodes).exists(_.hasOneOrMoreCodes)
+  }
+
+  object HasAnsweredWithNoAgentCodes {
+    def unapply(session: Option[AgentSession]): Boolean =
+      session.flatMap(_.agentCodes).exists(_.hasOneOrMoreCodes == false)
   }
 
   object MissingRegisteredForUkTax {

@@ -287,7 +287,7 @@ class ApplicationControllerISpec extends BaseISpec {
       val result = await(controller.submitRegisteredWithHmrc(authenticatedRequest))
 
       status(result) shouldBe 303
-      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showSelfAssessmentAgentCodeForm().url
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showAgentCodesForm().url
 
       await(sessionStoreService.fetchAgentSession).get.registeredWithHmrc shouldBe Some(Yes)
     }
@@ -361,7 +361,7 @@ class ApplicationControllerISpec extends BaseISpec {
       "previous page is /self-assessment-agent-code if they stated they are registered with HMRC" in
         new UkTaxRegistrationSetup(defaultAgentSession.copy(
           registeredWithHmrc = Some(Yes),
-          selfAssessmentAgentCode = Some("saAgentCode")
+          agentCodes = Some(AgentCodes(None, None, None, None))
         )) {
         result should containLink(
           expectedMessageKey = "button.back",
@@ -371,7 +371,7 @@ class ApplicationControllerISpec extends BaseISpec {
       "previous page is /registered-with-hmrc if they stated they are not registered with HMRC" in
         new UkTaxRegistrationSetup(defaultAgentSession.copy(
           registeredWithHmrc = Some(No),
-          selfAssessmentAgentCode = None
+          agentCodes = None
         )) {
         result should containLink(
           expectedMessageKey = "button.back",
@@ -606,7 +606,7 @@ class ApplicationControllerISpec extends BaseISpec {
 
       status(result) shouldBe 303
 
-      redirectLocation(result) shouldBe Some(routes.ApplicationController.showCheckAnswers().url)
+      redirectLocation(result) shouldBe Some(routes.ApplicationController.showCheckYourAnswers().url)
       val modifiedApplication = sessionStoreService.currentSession.agentSession.get
 
       modifiedApplication.hasTaxRegNumbers shouldBe Some(false)
@@ -669,7 +669,7 @@ class ApplicationControllerISpec extends BaseISpec {
         Some(agentSession.copy(companyRegistrationNumber = None,
           registeredWithHmrc = Some(No),
           registeredForUkTax = Some(Yes),
-          selfAssessmentAgentCode = Some("code"),
+          agentCodes = None,
           personalDetails = Some(personalDetails)))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
@@ -769,6 +769,172 @@ class ApplicationControllerISpec extends BaseISpec {
 
       val taxRegNumbers = await(sessionStoreService.fetchAgentSession).get.taxRegistrationNumbers.get
       taxRegNumbers should contain("123456")
+    }
+  }
+
+  "GET /self-assessment-agent-code" should {
+    val defaultAgentSession = agentSession.copy(
+      registeredWithHmrc = Some(Yes),
+      agentCodes = None
+    )
+    class UkTaxRegistrationSetup(agentSession: AgentSession = defaultAgentSession) {
+      sessionStoreService.currentSession.agentSession = Some(agentSession)
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+      val result = await(controller.showAgentCodesForm(authenticatedRequest))
+      val doc = Jsoup.parse(bodyOf(result))
+    }
+
+    "contain page titles and header content" in new UkTaxRegistrationSetup {
+      result should containMessages(
+        "agentCodes.title",
+        "agentCodes.caption",
+        "agentCodes.p1",
+        "agentCodes.form.hint"
+      )
+    }
+
+    "ask for optional self-assessment, corporation-tax, vat, and paye agent codes" in new UkTaxRegistrationSetup {
+      Seq("self-assessment", "corporation-tax", "vat",  "paye").foreach{ agentCode =>
+        result should containMessages(
+          s"agentCodes.form.$agentCode.label",
+          s"agentCodes.form.$agentCode.inset"
+        )
+
+        result should containElement(
+          id = s"$agentCode-checkbox",
+          tag = "input",
+          attrs = Map(
+            "type" -> "checkbox",
+            "name" -> s"$agentCode-checkbox",
+            "value" -> "true"
+          )
+        )
+
+        result should containElement(
+          id = agentCode,
+          tag = "input",
+          attrs = Map(
+            "type" -> "text",
+            "name" -> agentCode
+          )
+        )
+      }
+    }
+
+    "show existing selection if session already contains choice" in
+      new UkTaxRegistrationSetup(defaultAgentSession.copy(
+        agentCodes = Some(AgentCodes(Some("saTestCode"), None, None, None))
+      )) {
+        result should containElement(
+          id = "self-assessment-checkbox",
+          tag = "input",
+          attrs = Map("checked" -> "checked")
+        )
+      }
+
+    "contain a continue button" in new UkTaxRegistrationSetup {
+      result should containSubmitButton(
+        expectedMessageKey = "button.continue",
+        expectedElementId = "continue"
+      )
+    }
+
+    "contain a back link to /registered-with-hmrc" in new UkTaxRegistrationSetup(defaultAgentSession.copy(
+      registeredWithHmrc = Some(Yes)
+    )) {
+      result should containLink(
+        expectedMessageKey = "button.back",
+        expectedHref = "/agent-services/apply-from-outside-uk/registered-with-hmrc"
+      )
+    }
+
+    "contain a form that would POST to /self-assessment-agent-code" in new UkTaxRegistrationSetup {
+      val elForm = doc.select("form")
+      elForm should not be null
+      elForm.attr("action") shouldBe "/agent-services/apply-from-outside-uk/self-assessment-agent-code"
+      elForm.attr("method") shouldBe "POST"
+    }
+
+    "redirect to /money-laundering when session not found" in {
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+      val result = await(controller.showUkTaxRegistrationForm(authenticatedRequest))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showAntiMoneyLaunderingForm().url
+    }
+  }
+
+  "POST /self-assessment-agent-code" should {
+    "store choice in session after successful submission and redirect to next page" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(
+        registeredWithHmrc = Some(Yes),
+        agentCodes = None
+      ))
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody(
+          "self-assessment-checkbox" -> "true",
+          "self-assessment" -> "saTestCode",
+          "corporation-tax-checkbox" -> "true",
+          "corporation-tax" -> "ctTestCode",
+          "vat-checkbox" -> "true",
+          "vat" -> "vatTestCode",
+          "paye-checkbox" -> "true",
+          "paye" -> "payeTestCode"
+        )
+
+      val result = await(controller.submitAgentCodes(authenticatedRequest))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showCheckYourAnswers().url
+
+      await(sessionStoreService.fetchAgentSession).get.agentCodes shouldBe Some(AgentCodes(
+        Some("saTestCode"),
+        Some("ctTestCode"),
+        Some("vatTestCode"),
+        Some("payeTestCode")
+      ))
+    }
+
+    "redirect to /uk-tax-registration if no agent code is selected" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(
+        registeredWithHmrc = Some(Yes),
+        agentCodes = None
+      ))
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody(
+          "self-assessment" -> "",
+          "corporation-tax" -> "",
+          "vat" -> "",
+          "paye" -> ""
+        )
+      val result = await(controller.submitAgentCodes(authenticatedRequest))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showUkTaxRegistrationForm().url
+
+      await(sessionStoreService.fetchAgentSession).get.agentCodes shouldBe Some(AgentCodes(None, None, None, None))
+    }
+
+    Seq("self-assessment", "corporation-tax", "vat", "paye" ).foreach { agentCode =>
+      s"show validation error if $agentCode checkbox was selected but the text does not pass validation" in {
+
+        sessionStoreService.currentSession.agentSession = Some(agentSession.copy(
+          registeredWithHmrc = Some(Yes),
+          agentCodes = None
+        ))
+        implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+          .withFormUrlEncodedBody(
+            s"$agentCode-checkbox" -> "true",
+            "self-assessment" -> "",
+            "corporation-tax" -> "",
+            "vat" -> "",
+            "paye" -> ""
+          )
+
+        await(controller.submitAgentCodes(authenticatedRequest)) should containMessages("error.required")
+
+        await(sessionStoreService.fetchAgentSession).get.agentCodes shouldBe None
+      }
     }
   }
 }
