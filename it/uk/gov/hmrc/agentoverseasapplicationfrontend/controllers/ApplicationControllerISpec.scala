@@ -595,6 +595,9 @@ class ApplicationControllerISpec extends BaseISpec {
       status(result) shouldBe 200
 
       result should containSubstrings("This field is required")
+
+      bodyOf(result).contains("""<input id="canProvideTaxRegNo_false" type="radio" name="canProvideTaxRegNo" value="false" checked>""") shouldBe false
+      bodyOf(result).contains("""<input id="canProvideTaxRegNo_true" type="radio" name="canProvideTaxRegNo" value="true" checked>""") shouldBe true
     }
 
     "Provided selected 'No' on radioButton submit and redirect to next page /your-tax-registration-number" in {

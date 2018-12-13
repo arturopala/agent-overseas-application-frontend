@@ -33,7 +33,7 @@
                 </div>
 
                 <div class="multiple-choice">
-                    <input id="canProvideTaxRegNo_false" type="radio" name="canProvideTaxRegNo" value="false" @if(taxRegistrationNumberForm.error("value").isDefined || taxRegistrationNumberForm.value.map(_.canProvideTaxRegNo == Some(false)).getOrElse(false)) {checked}>
+                    <input id="canProvideTaxRegNo_false" type="radio" name="canProvideTaxRegNo" value="false" @if(taxRegistrationNumberForm.value.map(_.canProvideTaxRegNo == Some(false)).getOrElse(false)) {checked}>
                     <label for="canProvideTaxRegNo_false">@Messages("taxRegNo.form.no")</label>
                 </div>
             </fieldset>
