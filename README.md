@@ -12,7 +12,7 @@
 
 ## Running the app locally
 
-    sm --start AGENT_MTD -f
+    sm --start AGENT_OVERSEAS -r
     sm --stop AGENTS_OVERSEAS_APPLICATION_FRONTEND
     sbt run
 
