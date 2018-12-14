@@ -178,7 +178,7 @@ class CommonRoutingSpec extends UnitSpec {
           hasTaxRegNumbers = Some(true)
         )))
 
-      await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showYourTaxRegNo()
+      await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showYourTaxRegNumbersForm()
     }
 
     "return showCheckYourAnswers when hasTaxRegNumbers equals Some(false)" in {

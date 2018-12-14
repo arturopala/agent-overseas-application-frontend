@@ -256,19 +256,45 @@ class ApplicationController @Inject()(
         .fold(
           formWithErrors => Ok(add_tax_registration_number(formWithErrors)),
           validForm => {
-            val trn = session.taxRegistrationNumbers match {
+            val trns = session.taxRegistrationNumbers match {
               case Some(numbers) => numbers :+ validForm
               case None          => Seq(validForm)
             }
             sessionStoreService
-              .cacheAgentSession(session.copy(taxRegistrationNumbers = Some(trn)))
-              .map(_ => Redirect(routes.ApplicationController.showYourTaxRegNo))
+              .cacheAgentSession(session.copy(taxRegistrationNumbers = Some(trns)))
+              .map(_ => Redirect(routes.ApplicationController.showYourTaxRegNumbersForm()))
           }
         )
     }
   }
 
-  def showYourTaxRegNo: Action[AnyContent] = validApplicantAction.async { implicit request =>
+  def showYourTaxRegNumbersForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { applicationSession =>
+      val trns = applicationSession.taxRegistrationNumbers.getOrElse(List.empty)
+      Ok(your_tax_registration_numbers(DoYouWantToAddAnotherTrnForm.form, trns))
+    }
+  }
+
+  def submitYourTaxRegNumbers: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { applicationSession =>
+      DoYouWantToAddAnotherTrnForm.form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => {
+            val trns = applicationSession.taxRegistrationNumbers.getOrElse(List.empty)
+            Ok(your_tax_registration_numbers(formWithErrors, trns))
+          },
+          validForm => {
+            validForm.value match {
+              case Some(true) => Redirect(routes.ApplicationController.showAddTaxRegNoForm().url)
+              case _          => Redirect(routes.ApplicationController.showCheckYourAnswers().url)
+            }
+          }
+        )
+    }
+  }
+
+  def showRemoveTaxRegNoForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { applicationSession =>
       NotImplemented
     }

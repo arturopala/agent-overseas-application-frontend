@@ -34,10 +34,13 @@ POST        /personal-details                    @uk.gov.hmrc.agentoverseasappli
 GET         /tax-registration-number             @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showTaxRegistrationNumberForm
 POST        /tax-registration-number             @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitTaxRegistrationNumber
 
-GET         /your-tax-registration-number        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showYourTaxRegNo
+GET         /your-tax-registration-numbers       @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showYourTaxRegNumbersForm
+POST        /your-tax-registration-numbers       @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitYourTaxRegNumbers
 
 GET         /add-tax-registration-number         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showAddTaxRegNoForm
 POST        /add-tax-registration-number         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitAddTaxRegNo
+
+GET         /remove-tax-registration-number      @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showRemoveTaxRegNoForm
 
 GET         /check-your-answers                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showCheckYourAnswers
 

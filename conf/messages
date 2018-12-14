@@ -123,3 +123,16 @@ companyRegistrationNumber.error.no-radio.selected=You must select one of the fol
 
 # Add tax registration number
 addTrn.title=What is your tax registration number?
+
+
+
+# Your tax registration numbers
+yourTaxRegistrationNumbers.caption=Other business details
+yourTaxRegistrationNumbers.title=Your tax registration numbers
+yourTaxRegistrationNumbers.body.text=You have added {0} tax registration numbers.
+yourTaxRegistrationNumbers.remove.button=Remove
+yourTaxRegistrationNumbers.edit.button=Edit
+yourTaxRegistrationNumbers.want.to.add.another=Do you want to add another tax registration number?
+yourTaxRegistrationNumbers.form.doYouWantToAddAnotherTrn.yes=Yes
+yourTaxRegistrationNumbers.form.doYouWantToAddAnotherTrn.no=No
+doYouWantToAddAnotherTrn.error.no-radio.selected=You must select one of the following to continue

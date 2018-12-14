@@ -52,7 +52,7 @@ trait CommonRouting {
 
   private def collectTaxRegNoOrContinue(agentSession: Option[AgentSession]): Call = agentSession match {
     case MissingHasTaxRegistrationNumber() => routes.ApplicationController.showTaxRegistrationNumberForm()
-    case HasTaxRegistrationNumber()        => routes.ApplicationController.showYourTaxRegNo()
+    case HasTaxRegistrationNumber()        => routes.ApplicationController.showYourTaxRegNumbersForm()
     case NoTaxRegistrationNumber()         => routes.ApplicationController.showCheckYourAnswers()
   }
 }

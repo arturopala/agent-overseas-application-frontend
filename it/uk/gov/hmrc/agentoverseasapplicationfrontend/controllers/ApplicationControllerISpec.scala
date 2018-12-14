@@ -3,6 +3,7 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 import org.jsoup.Jsoup
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{LOCATION, redirectLocation}
+import play.test.Helpers
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetails.RadioOption
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
@@ -577,7 +578,7 @@ class ApplicationControllerISpec extends BaseISpec {
 
       status(result) shouldBe 303
 
-      redirectLocation(result) shouldBe Some(routes.ApplicationController.showYourTaxRegNo().url)
+      redirectLocation(result) shouldBe Some(routes.ApplicationController.showYourTaxRegNumbersForm().url)
       val modifiedApplication = sessionStoreService.currentSession.agentSession.get
 
       modifiedApplication.hasTaxRegNumbers shouldBe Some(true)
@@ -733,7 +734,7 @@ class ApplicationControllerISpec extends BaseISpec {
 
       result should containLink(
         expectedMessageKey = "button.back",
-        expectedHref = "/agent-services/apply-from-outside-uk/your-tax-registration-number"
+        expectedHref = "/agent-services/apply-from-outside-uk/your-tax-registration-numbers"
       )
     }
 
@@ -768,7 +769,7 @@ class ApplicationControllerISpec extends BaseISpec {
       val result = await(controller.submitAddTaxRegNo(authenticatedRequest))
 
       status(result) shouldBe 303
-      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showYourTaxRegNo().url
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showYourTaxRegNumbersForm().url
 
       val taxRegNumbers = await(sessionStoreService.fetchAgentSession).get.taxRegistrationNumbers.get
       taxRegNumbers should contain("123456")
@@ -918,7 +919,7 @@ class ApplicationControllerISpec extends BaseISpec {
       await(sessionStoreService.fetchAgentSession).get.agentCodes shouldBe Some(AgentCodes(None, None, None, None))
     }
 
-    Seq("self-assessment", "corporation-tax", "vat", "paye" ).foreach { agentCode =>
+    Seq("self-assessment", "corporation-tax", "vat", "paye").foreach { agentCode =>
       s"show validation error if $agentCode checkbox was selected but the text does not pass validation" in {
 
         sessionStoreService.currentSession.agentSession = Some(agentSession.copy(
@@ -938,6 +939,85 @@ class ApplicationControllerISpec extends BaseISpec {
 
         await(sessionStoreService.fetchAgentSession).get.agentCodes shouldBe None
       }
+    }
+  }
+
+  "GET /your-tax-registration-numbers" should {
+    "display the /your-tax-registration-numbers page with DoYouWantToAddAnotherTrn form" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(taxRegistrationNumbers = Some(List("123"))))
+
+      val result = await(controller.showYourTaxRegNumbersForm(cleanCredsAgent(FakeRequest())))
+
+      status(result) shouldBe 200
+
+      result should containMessages(
+        "yourTaxRegistrationNumbers.caption",
+        "yourTaxRegistrationNumbers.title"
+      )
+
+      result should containLink(
+        expectedMessageKey = "button.back",
+        expectedHref = "/agent-services/apply-from-outside-uk/tax-registration-number"
+      )
+    }
+
+    "display the /your-tax-registration-numbers page with correct text if there are no stored tax registration numbers found in session" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession)
+
+      val result = await(controller.showYourTaxRegNumbersForm(cleanCredsAgent(FakeRequest())))
+
+      status(result) shouldBe 200
+
+      result should containSubstrings("You have added 0 tax registration numbers.")
+    }
+
+    "redirect to /money-laundering when session not found" in {
+
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+
+      val result = await(controller.showYourTaxRegNumbersForm(authenticatedRequest))
+
+      status(result) shouldBe 303
+
+      redirectLocation(result) shouldBe Some(routes.ApplicationController.showAntiMoneyLaunderingForm().url)
+    }
+  }
+
+  "POST /your-tax-registration-numbers" should {
+    "submit form and then redirect to /add-tax-registration-number page if user selects true" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession)
+
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("value" -> "true")
+
+      val result = await(controller.submitYourTaxRegNumbers(authenticatedRequest))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showAddTaxRegNoForm().url
+    }
+
+    "submit form and then redirect to /check-answers page if user selects false" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession)
+
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("value" -> "false")
+
+      val result = await(controller.submitYourTaxRegNumbers(authenticatedRequest))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showCheckYourAnswers().url
+    }
+
+    "display the page with form errors if no radio button is selected" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession)
+
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+
+      val result = await(controller.submitYourTaxRegNumbers(authenticatedRequest))
+
+      status(result) shouldBe 200
+
+      result should containMessages("doYouWantToAddAnotherTrn.error.no-radio.selected")
     }
   }
 }
