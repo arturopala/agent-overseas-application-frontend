@@ -17,6 +17,7 @@ error.telephone.invalid=You can only enter these characters: 0-9 ( ) space
 error.string.invalid=You can only enter these characters: a-z A-Z 0-9 ,.() - ! @ space
 error.maxLength=You can only enter up to {0} characters
 error.email=Enter a valid email address
+error.summary.heading=There is a problem
 
 # Service specific messages
 app.name=agent-services - apply-from-outside-uk
