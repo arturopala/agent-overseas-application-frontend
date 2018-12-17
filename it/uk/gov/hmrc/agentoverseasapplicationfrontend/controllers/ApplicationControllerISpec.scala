@@ -481,7 +481,8 @@ class ApplicationControllerISpec extends BaseISpec {
     "store choice in session after successful submission and redirect to next page" in {
       sessionStoreService.currentSession.agentSession = Some(agentSession.copy(
         registeredWithHmrc = Some(No),
-        registeredForUkTax = Some(Yes)
+        registeredForUkTax = Some(Yes),
+        personalDetails = None
       ))
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody("personalDetailsChoice" -> "nino", "nino" -> "AB123456A", "saUtr" -> "")
@@ -493,6 +494,45 @@ class ApplicationControllerISpec extends BaseISpec {
 
       val savedPersonalDetails = await(sessionStoreService.fetchAgentSession).get.personalDetails.get
       savedPersonalDetails shouldBe PersonalDetails(RadioOption.NinoChoice, Some(Nino("AB123456A")), None)
+    }
+
+    "show validation error if no options are selected" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(
+        registeredWithHmrc = Some(No),
+        registeredForUkTax = Some(Yes),
+        personalDetails = None
+      ))
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("personalDetailsChoice" -> "", "nino" -> "", "saUtr" -> "")
+
+      await(controller.submitPersonalDetails(authenticatedRequest)) should containSubstrings("This field is required")
+      await(sessionStoreService.fetchAgentSession).get.personalDetails shouldBe None
+    }
+
+    "show validation error if National Insurance number option is selected, but no value has been entered" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(
+        registeredWithHmrc = Some(No),
+        registeredForUkTax = Some(Yes),
+        personalDetails = None
+      ))
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("personalDetailsChoice" -> "nino", "nino" -> "", "saUtr" -> "")
+
+      await(controller.submitPersonalDetails(authenticatedRequest)) should containSubstrings("This field is required")
+      await(sessionStoreService.fetchAgentSession).get.personalDetails shouldBe None
+    }
+
+    "show validation error if SA UTR option is selected, but no value has been entered" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(
+        registeredWithHmrc = Some(No),
+        registeredForUkTax = Some(Yes),
+        personalDetails = None
+      ))
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("personalDetailsChoice" -> "saUtr", "nino" -> "", "saUtr" -> "")
+
+      await(controller.submitPersonalDetails(authenticatedRequest)) should containSubstrings("This field is required")
+      await(sessionStoreService.fetchAgentSession).get.personalDetails shouldBe None
     }
   }
 
