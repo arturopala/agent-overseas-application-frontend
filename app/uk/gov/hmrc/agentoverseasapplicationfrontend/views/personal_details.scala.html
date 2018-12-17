@@ -39,7 +39,7 @@
                 <input id="variant_utr" type="radio" name="personalDetailsChoice" @if(personalDetailsForm.value.exists(_.choice.value == "saUtr") || personalDetailsForm.error("saUtr").isDefined){checked} value="saUtr">
                 <label for="variant_utr">@Messages("personalDetails.form.sautr")</label>
             </div>
-            <div class="panel panel-border-narrow js-hidden" id="utrRadioInput">
+            <div class="panel panel-border-narrow js-hidden @if(personalDetailsForm.error("saUtr").isDefined){form-group-error}" id="utrRadioInput">
                 <label class="form-label" for="saUtr">@Messages("personalDetails.form.sautr")
                     <span class="form-hint">@Messages("personalDetails.form.helper.sautr")</span>
                 </label>
