@@ -10,14 +10,20 @@
 
     <a href="@routes.ApplicationController.showMainBusinessAddressForm" class="link-back">@Messages("button.back")</a>
 
-    <h1 class="heading-secondary">
-        <span class="pre-heading">@Messages("registeredWithHmrc.caption")</span>
-        @Messages("registeredWithHmrc.title")
-    </h1>
-
     @form(action = routes.ApplicationController.submitRegisteredWithHmrc, 'class -> "form js-form") {
 
-        <div class="form-group">
+        <fieldset>
+
+            <legend>
+                <h1 class="heading-xlarge margin-bottom-20">
+                    <span class="pre-heading">@Messages("registeredWithHmrc.caption")</span>
+                    @Messages("registeredWithHmrc.title")
+                </h1>
+            </legend>
+
+            <p>@Messages("registeredWithHmrc.form.title")</p>
+
+            <div class="form-group">
             @input_radio_group(
                 registeredWithHmrcForm("registeredWithHmrc"),
                 Seq(
@@ -25,12 +31,12 @@
                     "no" -> Messages("registeredWithHmrc.form.registered.no"),
                     "unsure" -> Messages("registeredWithHmrc.form.registered.unsure")
                 ),
-                '_legend -> Messages("registeredWithHmrc.form.title"),
                 '_groupDivClass -> "soft--ends",
                 '_fieldsetAttributes -> Html("""id='registeredWithHmrc'""")
             )
 
-        </div>
-        <button class="button" type="submit" id="continue">@Messages("button.continue")</button>
+            </div>
+            <button class="button margin-bottom-30" type="submit" id="continue">@Messages("button.continue")</button>
+        </fieldset>
     }
 }

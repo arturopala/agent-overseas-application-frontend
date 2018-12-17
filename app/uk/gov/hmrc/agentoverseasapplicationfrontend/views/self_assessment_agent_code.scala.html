@@ -12,37 +12,41 @@
 
     <a href="@routes.ApplicationController.showRegisteredWithHmrcForm" class="link-back">@Messages("button.back")</a>
 
-    <h1 class="heading-xlarge margin-bottom-20">
-        <span class="pre-heading">@Messages("agentCodes.caption")</span>
-        @Messages("agentCodes.title")
-    </h1>
-
-    <p>@Messages("agentCodes.p1")</p>
-
-    <p class="faded-text margin-bottom-10">@Messages("agentCodes.form.hint")</p>
-
     @form(
         action = routes.ApplicationController.submitAgentCodes,
         'class -> "form js-form"
     ) {
-        <div class="form-group margin-bottom-20">
-            @checkbox_with_conditional_text(agentCodesForm("self-assessment"),
-            '_labelCheckbox -> Messages("agentCodes.form.self-assessment.label"),
-            '_labelInset -> Messages("agentCodes.form.self-assessment.inset"))
+        <fieldset>
+            <legend>
+                <h1 class="heading-xlarge margin-bottom-20">
+                    <span class="pre-heading">@Messages("agentCodes.caption")</span>
+                    @Messages("agentCodes.title")
+                </h1>
+            </legend>
 
-            @checkbox_with_conditional_text(agentCodesForm("corporation-tax"),
-            '_labelCheckbox -> Messages("agentCodes.form.corporation-tax.label"),
-            '_labelInset -> Messages("agentCodes.form.corporation-tax.inset"))
+            <p>@Messages("agentCodes.p1")</p>
 
-            @checkbox_with_conditional_text(agentCodesForm("vat"),
-            '_labelCheckbox -> Messages("agentCodes.form.vat.label"),
-            '_labelInset -> Messages("agentCodes.form.vat.inset"))
+            <p class="faded-text margin-bottom-20">@Messages("agentCodes.form.hint")</p>
 
-            @checkbox_with_conditional_text(agentCodesForm("paye"),
-            '_labelCheckbox -> Messages("agentCodes.form.paye.label"),
-            '_labelInset -> Messages("agentCodes.form.paye.inset"))
-        </div>
+            <div class="panels-conditionals form-group margin-bottom-30">
+                @checkbox_with_conditional_text(agentCodesForm("self-assessment"),
+                    '_labelCheckbox -> Messages("agentCodes.form.self-assessment.label"),
+                    '_labelInset -> Messages("agentCodes.form.self-assessment.inset"))
 
-        <button class="button" type="submit" id="continue">@Messages("button.continue")</button>
+                @checkbox_with_conditional_text(agentCodesForm("corporation-tax"),
+                    '_labelCheckbox -> Messages("agentCodes.form.corporation-tax.label"),
+                    '_labelInset -> Messages("agentCodes.form.corporation-tax.inset"))
+
+                @checkbox_with_conditional_text(agentCodesForm("vat"),
+                    '_labelCheckbox -> Messages("agentCodes.form.vat.label"),
+                    '_labelInset -> Messages("agentCodes.form.vat.inset"))
+
+                @checkbox_with_conditional_text(agentCodesForm("paye"),
+                    '_labelCheckbox -> Messages("agentCodes.form.paye.label"),
+                    '_labelInset -> Messages("agentCodes.form.paye.inset"))
+            </div>
+
+            <button class="button margin-bottom-30" type="submit" id="continue">@Messages("button.continue")</button>
+        </fieldset>
     }
 }

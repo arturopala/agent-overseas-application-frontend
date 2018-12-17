@@ -11,12 +11,20 @@
 
     <a href="@backLinkRoute" class="link-back">@Messages("button.back")</a>
 
-    <h1 class="heading-xlarge margin-bottom-20">
-        <span class="pre-heading">@Messages("ukTaxRegistration.caption")</span>
-        @Messages("ukTaxRegistration.title")
-    </h1>
-
     @form(action = routes.ApplicationController.submitUkTaxRegistration, 'class -> "form js-form") {
+
+      <fieldset>
+
+          <legend>
+
+              <h1 class="heading-xlarge margin-bottom-20">
+                  <span class="pre-heading">@Messages("ukTaxRegistration.caption")</span>
+                  @Messages("ukTaxRegistration.title")
+              </h1>
+
+          </legend>
+
+          <p>@Messages("ukTaxRegistration.form.title")</p>
 
         <div class="form-group">
             @input_radio_group(
@@ -26,12 +34,13 @@
                     "no" -> Messages("ukTaxRegistration.form.registered.no"),
                     "unsure" -> Messages("ukTaxRegistration.form.registered.unsure")
                 ),
-                '_legend -> Messages("ukTaxRegistration.form.title"),
                 '_groupDivClass -> "soft--ends",
                 '_fieldsetAttributes -> Html("""id='registeredForUkTax'""")
             )
 
         </div>
-        <button class="button" type="submit" id="continue">@Messages("button.continue")</button>
+        <button class="button margin-bottom-30" type="submit" id="continue">@Messages("button.continue")</button>
+
+      </fieldset>
     }
 }

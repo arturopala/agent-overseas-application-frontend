@@ -10,14 +10,18 @@
 
     <a href="@routes.ApplicationController.showTradingNameForm" class="link-back">@Messages("button.back")</a>
 
-    <h1 class="heading-xlarge">
-        <span class="pre-heading">@Messages("mainBusinessAddress.caption")</span>
-        @Messages("mainBusinessAddress.title")
-    </h1>
-
     @form(action = routes.ApplicationController.submitMainBusinessAddress, 'class -> "form js-form") {
 
-        <span class="body-text">@Messages("mainBusinessAddress.body.text")</span>
+      <fieldset>
+
+        <legend class="margin-bottom-10">
+            <h1 class="heading-xlarge margin-bottom-20">
+                <span class="pre-heading">@Messages("mainBusinessAddress.caption")</span>
+                @Messages("mainBusinessAddress.title")
+            </h1>
+        </legend>
+
+        <p class="body-text">@Messages("mainBusinessAddress.body.text")</p>
 
         <div class="form-group">
         @input(
@@ -73,8 +77,8 @@
             )
         </div>
 
-        <div class="form-group">
-            <button class="button" type="submit" id="continue">@Messages("button.continue")</button>
-        </div>
+        <button class="button margin-bottom-30" type="submit" id="continue">@Messages("button.continue")</button>
+
+      </fieldset>
     }
 }

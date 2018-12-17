@@ -117,6 +117,7 @@ personalDetails.form.noDetails=I do not have these details
 
 # Has Tax Registration Number Radio Button
 taxRegNo.title=Do you have any tax registration numbers in your country?
+taxRegNo.caption=Other business details
 taxRegNo.p1=This information will help us to confirm who you are.
 taxRegNo.form.yes=Yes
 taxRegNo.form.yes.prompt=Enter your tax registration number

@@ -9,18 +9,21 @@
 
     <a href="@routes.ApplicationController.showCompanyRegistrationNumberForm()" class="link-back">@Messages("button.back")</a>
 
-    <h1 class="heading-large  @if(taxRegistrationNumberForm.hasErrors) {push--top}">@Messages("taxRegNo.title")</h1>
-
-    @if(taxRegistrationNumberForm.hasErrors) {
-        @errorSummary(Messages("error.summary.heading"), taxRegistrationNumberForm, Seq.empty, Some("enter-tax-registration-numbers"))
-    }
-
     @form(action = routes.ApplicationController.submitTaxRegistrationNumber(), 'class -> "form js-form") {
         <div class="form-group @if(taxRegistrationNumberForm.error("value").isDefined) {form-group-error}" id="radioResponse">
             <fieldset>
                 <legend>
-                    <p>@Messages("taxRegNo.p1")</p>
+                    <h1 class="heading-xlarge margin-bottom-20 @if(taxRegistrationNumberForm.hasErrors) {push--top}">
+                        <span class="pre-heading">@Messages("taxRegNo.caption")</span>
+                        @Messages("taxRegNo.title")
+                    </h1>
+
+                    @if(taxRegistrationNumberForm.hasErrors) {
+                        @errorSummary(Messages("error.summary.heading"), taxRegistrationNumberForm, Seq.empty, Some("enter-tax-registration-numbers"))
+                    }
                 </legend>
+
+                <p>@Messages("taxRegNo.p1")</p>
 
                 <div class="multiple-choice" data-target="taxRegNoFormTarget">
                     <input id="canProvideTaxRegNo_true" type="radio" name="canProvideTaxRegNo" value="true" @if(taxRegistrationNumberForm.error("value").isDefined || taxRegistrationNumberForm.value.map(_.canProvideTaxRegNo == Some(true)).getOrElse(false)) {checked}>
@@ -39,8 +42,6 @@
             </fieldset>
         </div>
 
-        <div class="form-group">
-            <button class="button" type="submit" id="continue">@Messages("button.continue")</button>
-        </div>
+        <button class="button margin-bottom-30" type="submit" id="continue">@Messages("button.continue")</button>
     }
 }
