@@ -218,13 +218,16 @@ class ApplicationController @Inject()(
 
   def showTaxRegistrationNumberForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { applicationSession =>
-      val prePopulate = TaxRegistrationNumber(
-        applicationSession.hasTaxRegNumbers,
-        applicationSession.taxRegistrationNumbers.getOrElse(List.empty).headOption)
+      val storedTrns = applicationSession.taxRegistrationNumbers.getOrElse(SortedSet.empty[String])
 
-      val form = TaxRegistrationNumberForm.form.fill(prePopulate)
+      val whichTrnToPopulate = if (storedTrns.size == 1) {
+        storedTrns.headOption
+      } else {
+        None
+      }
 
-      Ok(tax_registration_number(form))
+      val prePopulate = TaxRegistrationNumber(applicationSession.hasTaxRegNumbers, whichTrnToPopulate)
+      Ok(tax_registration_number(TaxRegistrationNumberForm.form.fill(prePopulate)))
     }
   }
 

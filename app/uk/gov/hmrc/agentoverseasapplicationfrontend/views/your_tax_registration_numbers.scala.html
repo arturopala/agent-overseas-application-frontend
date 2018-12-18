@@ -49,7 +49,7 @@
         <dd class="app-check-your-answers__change">
             @form(action = routes.ApplicationController.submitUpdateTaxRegNumber, 'class -> "form js-form actionButtons", 'id -> s"""updateTrn$trn""") {
                 <div class="form-group">
-                        <input data-uppercase="true" class="hidden" name="original" type="text" id="actual-trn" value="@trn" />
+                        <input data-uppercase="false" class="hidden" name="original" type="text" id="actual-trn" value="@trn" />
                     </div>
 
                 <button class="button--link-style" type="submit">
