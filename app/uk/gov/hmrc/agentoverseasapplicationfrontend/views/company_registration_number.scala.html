@@ -12,8 +12,8 @@
     @form(action = routes.ApplicationController.submitCompanyRegistrationNumber, 'class -> "form js-form") {
         <div class="form-group @if(companyRegistrationNumberForm.error("registrationNumber").isDefined) {form-group-error}" id="radioResponse">
             <fieldset>
-                <legend>
-                    <h1 class="heading-xlarge @if(companyRegistrationNumberForm.hasErrors) {push--top}">
+                <legend class="margin-bottom-10">
+                    <h1 class="heading-xlarge margin-bottom-20 @if(companyRegistrationNumberForm.hasErrors) {push--top}">
                         <span class="pre-heading">@Messages("companyRegistrationNumber.caption")</span>
                         @Messages("companyRegistrationNumber.title")
                     </h1>
