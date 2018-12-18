@@ -1,10 +1,9 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import javax.inject.{Inject, Singleton}
-
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, Result}
-import play.api.{Configuration, Environment}
+import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, No, Unsure, Yes}
@@ -18,6 +17,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
+import scala.collection.immutable.SortedSet
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -238,7 +238,7 @@ class ApplicationController @Inject()(
             updateSessionAndRedirect(
               applicationData.copy(
                 hasTaxRegNumbers = validForm.canProvideTaxRegNo,
-                taxRegistrationNumbers = validForm.value.flatMap(taxId => Some(List(taxId)))))
+                taxRegistrationNumbers = validForm.value.flatMap(taxId => Some(SortedSet(taxId)))))
         )
     }
   }
@@ -257,8 +257,8 @@ class ApplicationController @Inject()(
           formWithErrors => Ok(add_tax_registration_number(formWithErrors)),
           validForm => {
             val trns = session.taxRegistrationNumbers match {
-              case Some(numbers) => numbers :+ validForm
-              case None          => Seq(validForm)
+              case Some(numbers) => numbers + validForm
+              case None          => SortedSet(validForm)
             }
             sessionStoreService
               .cacheAgentSession(session.copy(taxRegistrationNumbers = Some(trns)))
@@ -270,7 +270,7 @@ class ApplicationController @Inject()(
 
   def showYourTaxRegNumbersForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { applicationSession =>
-      val trns = applicationSession.taxRegistrationNumbers.getOrElse(List.empty)
+      val trns = applicationSession.taxRegistrationNumbers.getOrElse(SortedSet.empty)
       Ok(your_tax_registration_numbers(DoYouWantToAddAnotherTrnForm.form, trns))
     }
   }
@@ -281,7 +281,7 @@ class ApplicationController @Inject()(
         .bindFromRequest()
         .fold(
           formWithErrors => {
-            val trns = applicationSession.taxRegistrationNumbers.getOrElse(List.empty)
+            val trns = applicationSession.taxRegistrationNumbers.getOrElse(SortedSet.empty)
             Ok(your_tax_registration_numbers(formWithErrors, trns))
           },
           validForm => {
@@ -294,15 +294,38 @@ class ApplicationController @Inject()(
     }
   }
 
-  def showRemoveTaxRegNoForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { applicationSession =>
-      NotImplemented
+  def submitUpdateTaxRegNumber: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { session =>
+      UpdateTrnForm.form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => {
+            Logger.warn(
+              s"error during updating tax registration number ${formWithErrors.errors.map(_.message).mkString(",")}")
+            InternalServerError
+          },
+          validForm =>
+            validForm.updated match {
+              case Some(updatedArn) =>
+                val updatedSet = session.taxRegistrationNumbers.fold[SortedSet[String]](SortedSet.empty)(trns =>
+                  trns - validForm.original + updatedArn)
+
+                sessionStoreService
+                  .cacheAgentSession(session.copy(taxRegistrationNumbers = Some(updatedSet)))
+                  .map(_ => Redirect(routes.ApplicationController.showYourTaxRegNumbersForm()))
+
+              case None =>
+                Ok(
+                  update_tax_registration_number(
+                    UpdateTrnForm.form.fill(validForm.copy(updated = Some(validForm.original)))))
+          }
+        )
     }
   }
 
   def showCheckYourAnswers: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { applicationSession =>
-      NotImplemented
+      Ok("Success")
     }
   }
 

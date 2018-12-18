@@ -10,6 +10,8 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 
+import scala.collection.immutable.SortedSet
+
 class ApplicationControllerISpec extends BaseISpec {
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
@@ -573,7 +575,7 @@ class ApplicationControllerISpec extends BaseISpec {
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
       val taxRegNo = "tax_reg_number_123"
       sessionStoreService.currentSession.agentSession = Some(currentApplication.copy(hasTaxRegNumbers = Some(true),
-        taxRegistrationNumbers = Some(List(taxRegNo))))
+        taxRegistrationNumbers = Some(SortedSet(taxRegNo))))
 
       val result = await(controller.showTaxRegistrationNumberForm(authenticatedRequest))
 
@@ -622,7 +624,7 @@ class ApplicationControllerISpec extends BaseISpec {
       val modifiedApplication = sessionStoreService.currentSession.agentSession.get
 
       modifiedApplication.hasTaxRegNumbers shouldBe Some(true)
-      modifiedApplication.taxRegistrationNumbers shouldBe Some(List(taxRegNo))
+      modifiedApplication.taxRegistrationNumbers shouldBe Some(Set(taxRegNo))
 
     }
 
@@ -793,14 +795,14 @@ class ApplicationControllerISpec extends BaseISpec {
   "POST /add-tax-registration-number" should {
     "submit form and then redirect to your-tax-registration-number page" when {
       "current session has some tax reg. numbers" in {
-        testSubmitAddTaxRegNo(Some(Seq("67890")))
+        testSubmitAddTaxRegNo(Some(SortedSet("67890")))
       }
       "current session does not have any tax reg numbers" in {
         testSubmitAddTaxRegNo()
       }
     }
 
-    def testSubmitAddTaxRegNo(numbers: Option[Seq[String]] = None) = {
+    def testSubmitAddTaxRegNo(numbers: Option[SortedSet[String]] = None) = {
       sessionStoreService.currentSession.agentSession = Some(agentSession.copy(taxRegistrationNumbers = numbers))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
@@ -984,7 +986,7 @@ class ApplicationControllerISpec extends BaseISpec {
 
   "GET /your-tax-registration-numbers" should {
     "display the /your-tax-registration-numbers page with DoYouWantToAddAnotherTrn form" in {
-      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(taxRegistrationNumbers = Some(List("123"))))
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet("123"))))
 
       val result = await(controller.showYourTaxRegNumbersForm(cleanCredsAgent(FakeRequest())))
 
@@ -1058,6 +1060,34 @@ class ApplicationControllerISpec extends BaseISpec {
       status(result) shouldBe 200
 
       result should containMessages("doYouWantToAddAnotherTrn.error.no-radio.selected")
+    }
+  }
+
+  "POST /update-tax-registration-number" should {
+
+    "submit the form (with original and updated trns populated) and should correctly update the trn stored in the session" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet("abc123"))))
+
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("original" -> "abc123", "updated" -> "abc12345")
+
+      val result = await(controller.submitUpdateTaxRegNumber(authenticatedRequest))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showYourTaxRegNumbersForm().url
+      sessionStoreService.fetchAgentSession.get.taxRegistrationNumbers shouldBe Some(Set("abc12345"))
+    }
+
+    "submit form and initially redirect to /update-tax-registration-number again with UpdateTrn form if 'updated' trn field is not set in the form" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession)
+
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("original" -> "ABC123")
+
+      val result = await(controller.submitUpdateTaxRegNumber(authenticatedRequest))
+
+      status(result) shouldBe 200
+      result should containMessages("updateTrn.title")
     }
   }
 }

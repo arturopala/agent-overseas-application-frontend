@@ -2,6 +2,8 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.models
 
 import play.api.libs.json.{Json, OFormat}
 
+import scala.collection.immutable.SortedSet
+
 case class AgentSession(
   amlsDetails: Option[AmlsDetails] = None,
   contactDetails: Option[ContactDetails] = None,
@@ -13,7 +15,7 @@ case class AgentSession(
   personalDetails: Option[PersonalDetails] = None,
   companyRegistrationNumber: Option[CompanyRegistrationNumber] = None,
   hasTaxRegNumbers: Option[Boolean] = None,
-  taxRegistrationNumbers: Option[Seq[String]] = None)
+  taxRegistrationNumbers: Option[SortedSet[String]] = None)
 
 object AgentSession {
   implicit val format: OFormat[AgentSession] = Json.format[AgentSession]

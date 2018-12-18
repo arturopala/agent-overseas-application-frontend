@@ -40,10 +40,10 @@ POST        /your-tax-registration-numbers       @uk.gov.hmrc.agentoverseasappli
 GET         /add-tax-registration-number         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showAddTaxRegNoForm
 POST        /add-tax-registration-number         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitAddTaxRegNo
 
-GET         /remove-tax-registration-number      @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showRemoveTaxRegNoForm
+POST        /update-tax-registration-number      @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitUpdateTaxRegNumber
 
 GET         /check-your-answers                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showCheckYourAnswers
 
-POST        /sign-out                @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.SignOutController.signOut
+POST        /sign-out                            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.SignOutController.signOut
 
 GET         /assets/*file                        controllers.Assets.at(path="/public", file)

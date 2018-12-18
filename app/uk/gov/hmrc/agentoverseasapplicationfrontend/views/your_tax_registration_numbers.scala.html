@@ -19,9 +19,10 @@
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
-@import uk.gov.hmrc.play.views.html.helpers.{form, input_radio_group, errorSummary}
+@import uk.gov.hmrc.play.views.html.helpers.{form, input_radio_group, errorSummary, input}
+@import scala.collection.immutable.SortedSet
 
-@(doYouWantToAddAnotherTrnForm: Form[DoYouWantToAddAnotherTrn], trnList: Seq[String])(implicit messages: Messages, request: Request[_], configuration: Configuration)
+@(doYouWantToAddAnotherTrnForm: Form[DoYouWantToAddAnotherTrn], trns: SortedSet[String])(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
 @uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("yourTaxRegistrationNumbers.title")) {
 
@@ -32,19 +33,29 @@
     <h1 class="heading-xlarge  @if(doYouWantToAddAnotherTrnForm.hasErrors){push--top}">@Messages("yourTaxRegistrationNumbers.title")</h1>
 </h1>
 
-<p>@Messages("yourTaxRegistrationNumbers.body.text", trnList.size)</p>
+<p>@Messages("yourTaxRegistrationNumbers.body.text", trns.size)</p>
 
 <dl class="app-check-your-answers app-check-your-answers--long margin-top-30">
-    @for(trn <- trnList) {
+    @for(trn <- trns) {
     <div class="app-check-your-answers__contents">
         <dd class="app-check-your-answers__question">
             @trn <br />
         </dd>
         <dd class="app-check-your-answers__answer">
-            <a href="@routes.ApplicationController.showRemoveTaxRegNoForm()">@Messages("yourTaxRegistrationNumbers.remove.button")</a>
+            <button class="button--link-style" type="submit">
+                @Messages("yourTaxRegistrationNumbers.remove.button")
+            </button>
         </dd>
         <dd class="app-check-your-answers__change">
-            <a href="@routes.ApplicationController.showTaxRegistrationNumberForm()">@Messages("yourTaxRegistrationNumbers.edit.button")</a>
+            @form(action = routes.ApplicationController.submitUpdateTaxRegNumber, 'class -> "form js-form actionButtons", 'id -> s"""updateTrn$trn""") {
+                <div class="form-group">
+                        <input data-uppercase="true" class="hidden" name="original" type="text" id="actual-trn" value="@trn" />
+                    </div>
+
+                <button class="button--link-style" type="submit">
+                    @Messages("yourTaxRegistrationNumbers.update.button")
+                </button>
+            }
         </dd>
     </div>
     }
