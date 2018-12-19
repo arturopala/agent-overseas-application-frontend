@@ -28,19 +28,21 @@
 
 <a href="@routes.ApplicationController.showTaxRegistrationNumberForm" class="link-back">@Messages("button.back")</a>
 
-<h1 class="heading-xlarge margin-bottom-20">
-    <span class="pre-heading">@Messages("yourTaxRegistrationNumbers.caption")</span>
-    <h1 class="heading-xlarge  @if(doYouWantToAddAnotherTrnForm.hasErrors){push--top}">@Messages("yourTaxRegistrationNumbers.title")</h1>
-</h1>
+<div class="margin-bottom-10">
+    <h1 class="heading-xlarge margin-bottom-20  @if(doYouWantToAddAnotherTrnForm.hasErrors){push--top}">
+        <span class="pre-heading">@Messages("yourTaxRegistrationNumbers.caption")</span>
+        @Messages("yourTaxRegistrationNumbers.title")
+    </h1>
+</div>
 
 <p>@Messages("yourTaxRegistrationNumbers.body.text", trns.size)</p>
 
 <dl class="app-check-your-answers app-check-your-answers--long margin-top-30">
     @for(trn <- trns) {
     <div class="app-check-your-answers__contents">
-        <dd class="app-check-your-answers__question">
-            @trn <br />
-        </dd>
+        <dt class="app-check-your-answers__question">
+            @trn
+        </dt>
         <dd class="app-check-your-answers__answer">
             <button class="button--link-style" type="submit">
                 @Messages("yourTaxRegistrationNumbers.remove.button")
@@ -48,10 +50,7 @@
         </dd>
         <dd class="app-check-your-answers__change">
             @form(action = routes.ApplicationController.submitUpdateTaxRegNumber, 'class -> "form js-form actionButtons", 'id -> s"""updateTrn$trn""") {
-                <div class="form-group">
-                        <input data-uppercase="false" class="hidden" name="original" type="text" id="actual-trn" value="@trn" />
-                    </div>
-
+                <input class="hidden" name="original" type="text" id="actual-trn" value="@trn" />
                 <button class="button--link-style" type="submit">
                     @Messages("yourTaxRegistrationNumbers.update.button")
                 </button>
@@ -70,7 +69,7 @@
 <p><span class="bold-small">@Messages("yourTaxRegistrationNumbers.want.to.add.another")</span></p>
 
 @form(action = routes.ApplicationController.submitYourTaxRegNumbers, 'class -> "form js-form") {
-    <div class="form-group">
+    <div class="form-group margin-bottom-30">
         @input_radio_group(
         doYouWantToAddAnotherTrnForm("value"),
         Seq(
@@ -83,6 +82,6 @@
         )
 
     </div>
-    <button class="button" type="submit" id="continue">@Messages("button.continue")</button>
+    <button class="button margin-bottom-30" type="submit" id="continue">@Messages("button.continue")</button>
 }
 }
