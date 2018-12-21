@@ -43,6 +43,18 @@ POST        /add-tax-registration-number         @uk.gov.hmrc.agentoverseasappli
 POST        /update-tax-registration-number      @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitUpdateTaxRegNumber
 
 GET         /check-your-answers                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showCheckYourAnswers
+POST        /check-your-answers                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitCheckYourAnswers
+
+GET         /change-amls-details                 @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeAmlsDetails
+GET         /change-contact-details              @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeContactDetails
+GET         /change-trading-name                 @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeTradingName
+GET         /change-trading-address              @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeTradingAddress
+GET         /change-registered-with-hmrc         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeRegisteredWithHmrc
+GET         /change-agent-codes                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeAgentCodes
+GET         /change-registered-for-uk-tax        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeRegisteredForUKTax
+GET         /change-personal-details             @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changePersonalDetails
+GET         /change-company-registration-number  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeCompanyRegistrationNumber
+GET         /change-your-tax-registration-numbers @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeYourTaxRegistrationNumbers
 
 POST        /sign-out                            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.SignOutController.signOut
 

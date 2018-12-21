@@ -57,9 +57,9 @@
 }
 
 .panels-conditionals .panel {
-    margin-left: 18px;
-    border-left-width: 4px;
-    padding-left: 34px;
+    margin-left: 15px;
+    border-left-width: 10px;
+    padding-left: 32px;
     padding-top: 3px;
 }
 
@@ -118,14 +118,6 @@
     .app-check-your-answers__contents {
         display: table-row;
         border-bottom-width: 0;
-    }
-}
-
-@media (min-width: 48.0625em) {
-    .app-check-your-answers__contents:first-child .app-check-your-answers__question,
-    .app-check-your-answers__contents:first-child .app-check-your-answers__answer,
-    .app-check-your-answers__contents:first-child .app-check-your-answers__change {
-        padding-top: 0;
     }
 }
 

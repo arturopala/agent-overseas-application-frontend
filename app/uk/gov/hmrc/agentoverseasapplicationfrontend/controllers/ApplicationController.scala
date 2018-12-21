@@ -2,23 +2,20 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Call, Result}
+import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, No, Unsure, Yes}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession.{IsRegisteredForUkTax, IsRegisteredWithHmrc}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession.IsRegisteredWithHmrc
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, No, Unsure, Yes, _}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.{CountryNamesLoader, toFuture}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.collection.immutable.SortedSet
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class ApplicationController @Inject()(
@@ -27,17 +24,23 @@ class ApplicationController @Inject()(
   val env: Environment,
   validApplicantAction: AgentAffinityNoHmrcAsAgentAuthAction,
   val sessionStoreService: SessionStoreService,
-  countryNamesLoader: CountryNamesLoader)(implicit val configuration: Configuration, ec: ExecutionContext)
-    extends FrontendController with I18nSupport with CommonRouting {
+  countryNamesLoader: CountryNamesLoader)(implicit val configuration: Configuration, override val ec: ExecutionContext)
+    extends FrontendController with SessionBehaviour with I18nSupport {
 
   private val countries = countryNamesLoader.load
   private val validCountryCodes = countries.keys.toSet
+
+  private val showCheckYourAnswersUrl = routes.ApplicationController.showCheckYourAnswers().url
 
   def showAntiMoneyLaunderingForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     val form = AmlsDetailsForm.form
     sessionStoreService.fetchAgentSession.map {
       case Some(session) =>
-        Ok(anti_money_laundering(session.amlsDetails.fold(form)(form.fill)))
+        if (session.changingAnswers) {
+          Ok(anti_money_laundering(session.amlsDetails.fold(form)(form.fill), Some(showCheckYourAnswersUrl)))
+        } else {
+          Ok(anti_money_laundering(session.amlsDetails.fold(form)(form.fill)))
+        }
 
       case _ => Ok(anti_money_laundering(form))
     }
@@ -47,11 +50,29 @@ class ApplicationController @Inject()(
     AmlsDetailsForm.form
       .bindFromRequest()
       .fold(
-        formWithErrors => Ok(anti_money_laundering(formWithErrors)),
+        formWithErrors => {
+          sessionStoreService.fetchAgentSession.map {
+            case Some(session) =>
+              if (session.changingAnswers) {
+                Ok(anti_money_laundering(formWithErrors, Some(showCheckYourAnswersUrl)))
+              } else {
+                Ok(anti_money_laundering(formWithErrors))
+              }
+            case None => Ok(anti_money_laundering(formWithErrors))
+          }
+        },
         validForm => {
           sessionStoreService.fetchAgentSession.flatMap {
-            case Some(session) => updateSessionAndRedirect(session.copy(amlsDetails = Some(validForm)))
-            case None          => updateSessionAndRedirect(AgentSession(Some(validForm)))
+            case Some(session) =>
+              if (session.changingAnswers) {
+                updateSessionAndRedirect(
+                  session.copy(amlsDetails = Some(validForm), changingAnswers = false),
+                  Some(showCheckYourAnswersUrl))
+              } else {
+                updateSessionAndRedirect(session.copy(amlsDetails = Some(validForm)))
+              }
+
+            case None => updateSessionAndRedirect(AgentSession(Some(validForm)))
           }
         }
       )
@@ -60,8 +81,11 @@ class ApplicationController @Inject()(
   def showContactDetailsForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { session =>
       val form = ContactDetailsForm.form
-
-      Ok(contact_details(session.contactDetails.fold(form)(form.fill)))
+      if (session.changingAnswers) {
+        Ok(contact_details(session.contactDetails.fold(form)(form.fill), Some(showCheckYourAnswersUrl)))
+      } else {
+        Ok(contact_details(session.contactDetails.fold(form)(form.fill)))
+      }
     }
   }
 
@@ -70,8 +94,22 @@ class ApplicationController @Inject()(
       ContactDetailsForm.form
         .bindFromRequest()
         .fold(
-          formWithErrors => Ok(contact_details(formWithErrors)),
-          validForm => updateSessionAndRedirect(session.copy(contactDetails = Some(validForm)))
+          formWithErrors => {
+            if (session.changingAnswers) {
+              Ok(contact_details(formWithErrors, Some(showCheckYourAnswersUrl)))
+            } else {
+              Ok(contact_details(formWithErrors))
+            }
+          },
+          validForm => {
+            if (session.changingAnswers) {
+              updateSessionAndRedirect(
+                session.copy(contactDetails = Some(validForm), changingAnswers = false),
+                Some(showCheckYourAnswersUrl))
+            } else {
+              updateSessionAndRedirect(session.copy(contactDetails = Some(validForm)))
+            }
+          }
         )
     }
   }
@@ -79,8 +117,11 @@ class ApplicationController @Inject()(
   def showTradingNameForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { session =>
       val form = TradingNameForm.form
-
-      Ok(trading_name(session.tradingName.fold(form)(form.fill)))
+      if (session.changingAnswers) {
+        Ok(trading_name(session.tradingName.fold(form)(form.fill), Some(showCheckYourAnswersUrl)))
+      } else {
+        Ok(trading_name(session.tradingName.fold(form)(form.fill)))
+      }
     }
   }
 
@@ -89,8 +130,21 @@ class ApplicationController @Inject()(
       TradingNameForm.form
         .bindFromRequest()
         .fold(
-          formWithErrors => Ok(trading_name(formWithErrors)),
-          validForm => updateSessionAndRedirect(session.copy(tradingName = Some(validForm)))
+          formWithErrors => {
+            if (session.changingAnswers) {
+              Ok(trading_name(formWithErrors, Some(showCheckYourAnswersUrl)))
+            } else {
+              Ok(trading_name(formWithErrors))
+            }
+          },
+          validForm =>
+            if (session.changingAnswers) {
+              updateSessionAndRedirect(
+                session.copy(tradingName = Some(validForm), changingAnswers = false),
+                Some(showCheckYourAnswersUrl))
+            } else {
+              updateSessionAndRedirect(session.copy(tradingName = Some(validForm)))
+          }
         )
     }
   }
@@ -98,7 +152,15 @@ class ApplicationController @Inject()(
   def showMainBusinessAddressForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { session =>
       val form = MainBusinessAddressForm.mainBusinessAddressForm(validCountryCodes)
-      Ok(main_business_address(session.mainBusinessAddress.fold(form)(form.fill), countries))
+      if (session.changingAnswers) {
+        Ok(
+          main_business_address(
+            session.mainBusinessAddress.fold(form)(form.fill),
+            countries,
+            Some(showCheckYourAnswersUrl)))
+      } else {
+        Ok(main_business_address(session.mainBusinessAddress.fold(form)(form.fill), countries))
+      }
     }
   }
 
@@ -108,8 +170,22 @@ class ApplicationController @Inject()(
         .mainBusinessAddressForm(validCountryCodes)
         .bindFromRequest()
         .fold(
-          formWithErrors => Ok(main_business_address(formWithErrors, countries)),
-          validForm => updateSessionAndRedirect(session.copy(mainBusinessAddress = Some(validForm)))
+          formWithErrors => {
+            if (session.changingAnswers) {
+              Ok(main_business_address(formWithErrors, countries, Some(showCheckYourAnswersUrl)))
+            } else {
+              Ok(main_business_address(formWithErrors, countries))
+            }
+          },
+          validForm => {
+            if (session.changingAnswers) {
+              updateSessionAndRedirect(
+                session.copy(mainBusinessAddress = Some(validForm), changingAnswers = false),
+                Some(showCheckYourAnswersUrl))
+            } else {
+              updateSessionAndRedirect(session.copy(mainBusinessAddress = Some(validForm)))
+            }
+          }
         )
     }
   }
@@ -118,7 +194,11 @@ class ApplicationController @Inject()(
     withAgentSession { session =>
       val form = RegisteredWithHmrcForm.form
 
-      Ok(registered_with_hmrc(session.registeredWithHmrc.fold(form)(form.fill)))
+      if (session.changingAnswers) {
+        Ok(registered_with_hmrc(session.registeredWithHmrc.fold(form)(form.fill), Some(showCheckYourAnswersUrl)))
+      } else {
+        Ok(registered_with_hmrc(session.registeredWithHmrc.fold(form)(form.fill)))
+      }
     }
   }
 
@@ -128,7 +208,13 @@ class ApplicationController @Inject()(
         .bindFromRequest()
         .fold(
           formWithErrors => Ok(registered_with_hmrc(formWithErrors)),
-          validFormValue => updateSessionAndRedirect(session.copy(registeredWithHmrc = Some(validFormValue)))
+          validFormValue => {
+            if (session.changingAnswers) {
+              updateSessionAndRedirect(session.copy(registeredWithHmrc = Some(validFormValue), changingAnswers = false))
+            } else {
+              updateSessionAndRedirect(session.copy(registeredWithHmrc = Some(validFormValue)))
+            }
+          }
         )
     }
   }
@@ -137,7 +223,11 @@ class ApplicationController @Inject()(
     withAgentSession { session =>
       val form = AgentCodesForm.form
 
-      Ok(self_assessment_agent_code(session.agentCodes.fold(form)(form.fill)))
+      if (session.changingAnswers) {
+        Ok(self_assessment_agent_code(session.agentCodes.fold(form)(form.fill), Some(showCheckYourAnswersUrl)))
+      } else {
+        Ok(self_assessment_agent_code(session.agentCodes.fold(form)(form.fill)))
+      }
     }
   }
 
@@ -146,8 +236,22 @@ class ApplicationController @Inject()(
       AgentCodesForm.form
         .bindFromRequest()
         .fold(
-          formWithErrors => Ok(self_assessment_agent_code(formWithErrors)),
-          validFormValue => updateSessionAndRedirect(session.copy(agentCodes = Some(validFormValue)))
+          formWithErrors => {
+            if (session.changingAnswers) {
+              Ok(self_assessment_agent_code(formWithErrors, Some(showCheckYourAnswersUrl)))
+            } else {
+              Ok(self_assessment_agent_code(formWithErrors))
+            }
+          },
+          validFormValue => {
+            if (session.changingAnswers && validFormValue.hasOneOrMoreCodes) {
+              updateSessionAndRedirect(
+                session.copy(agentCodes = Some(validFormValue), changingAnswers = false),
+                Some(showCheckYourAnswersUrl))
+            } else {
+              updateSessionAndRedirect(session.copy(agentCodes = Some(validFormValue), changingAnswers = false))
+            }
+          }
         )
     }
   }
@@ -155,8 +259,12 @@ class ApplicationController @Inject()(
   def showUkTaxRegistrationForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { session =>
       val form = RegisteredForUkTaxForm.form
-      val backLinkRoute: Call = ukTaxRegistrationBackLink(session)
-      Ok(uk_tax_registration(session.registeredForUkTax.fold(form)(form.fill), backLinkRoute))
+      if (session.changingAnswers) {
+        Ok(uk_tax_registration(session.registeredForUkTax.fold(form)(form.fill), showCheckYourAnswersUrl))
+      } else {
+        Ok(
+          uk_tax_registration(session.registeredForUkTax.fold(form)(form.fill), ukTaxRegistrationBackLink(session).url))
+      }
     }
   }
 
@@ -166,10 +274,19 @@ class ApplicationController @Inject()(
         .bindFromRequest()
         .fold(
           formWithErrors => {
-            val backLinkRoute: Call = ukTaxRegistrationBackLink(session)
-            Ok(uk_tax_registration(formWithErrors, backLinkRoute))
+            if (session.changingAnswers) {
+              Ok(uk_tax_registration(formWithErrors, showCheckYourAnswersUrl))
+            } else {
+              Ok(uk_tax_registration(formWithErrors, ukTaxRegistrationBackLink(session).url))
+            }
           },
-          validFormValue => updateSessionAndRedirect(session.copy(registeredForUkTax = Some(validFormValue)))
+          validFormValue => {
+            if (session.changingAnswers) {
+              updateSessionAndRedirect(session.copy(registeredForUkTax = Some(validFormValue), changingAnswers = false))
+            } else {
+              updateSessionAndRedirect(session.copy(registeredForUkTax = Some(validFormValue)))
+            }
+          }
         )
     }
   }
@@ -177,8 +294,11 @@ class ApplicationController @Inject()(
   def showPersonalDetailsForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { session =>
       val form = PersonalDetailsForm.form
-
-      Ok(personal_details(session.personalDetails.fold(form)(form.fill)))
+      if (session.changingAnswers) {
+        Ok(personal_details(session.personalDetails.fold(form)(form.fill), Some(showCheckYourAnswersUrl)))
+      } else {
+        Ok(personal_details(session.personalDetails.fold(form)(form.fill)))
+      }
     }
   }
 
@@ -187,9 +307,21 @@ class ApplicationController @Inject()(
       PersonalDetailsForm.form
         .bindFromRequest()
         .fold(
-          formWithErrors => Ok(personal_details(formWithErrors)),
+          formWithErrors => {
+            if (session.changingAnswers) {
+              Ok(personal_details(formWithErrors, Some(showCheckYourAnswersUrl)))
+            } else {
+              Ok(personal_details(formWithErrors))
+            }
+          },
           validForm => {
-            updateSessionAndRedirect(session.copy(personalDetails = Some(validForm)))
+            if (session.changingAnswers) {
+              updateSessionAndRedirect(
+                session.copy(personalDetails = Some(validForm), changingAnswers = false),
+                Some(showCheckYourAnswersUrl))
+            } else {
+              updateSessionAndRedirect(session.copy(personalDetails = Some(validForm)))
+            }
           }
         )
     }
@@ -198,10 +330,15 @@ class ApplicationController @Inject()(
   def showCompanyRegistrationNumberForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { session =>
       val form = CompanyRegistrationNumberForm.form
-      Ok(
-        company_registration_number(
-          session.companyRegistrationNumber.fold(form)(form.fill),
-          companyRegNumberBackLink(session)))
+      if (session.changingAnswers) {
+        Ok(
+          company_registration_number(session.companyRegistrationNumber.fold(form)(form.fill), showCheckYourAnswersUrl))
+      } else {
+        Ok(
+          company_registration_number(
+            session.companyRegistrationNumber.fold(form)(form.fill),
+            companyRegNumberBackLink(session)))
+      }
     }
   }
 
@@ -210,8 +347,22 @@ class ApplicationController @Inject()(
       CompanyRegistrationNumberForm.form
         .bindFromRequest()
         .fold(
-          formWithErrors => Ok(company_registration_number(formWithErrors, companyRegNumberBackLink(session))),
-          validFormValue => updateSessionAndRedirect(session.copy(companyRegistrationNumber = Some(validFormValue)))
+          formWithErrors => {
+            if (session.changingAnswers) {
+              Ok(company_registration_number(formWithErrors, showCheckYourAnswersUrl))
+            } else {
+              Ok(company_registration_number(formWithErrors, companyRegNumberBackLink(session)))
+            }
+          },
+          validFormValue => {
+            if (session.changingAnswers) {
+              updateSessionAndRedirect(
+                session.copy(companyRegistrationNumber = Some(validFormValue), changingAnswers = false),
+                Some(showCheckYourAnswersUrl))
+            } else {
+              updateSessionAndRedirect(session.copy(companyRegistrationNumber = Some(validFormValue)))
+            }
+          }
         )
     }
   }
@@ -263,29 +414,37 @@ class ApplicationController @Inject()(
               case Some(numbers) => numbers + validForm
               case None          => SortedSet(validForm)
             }
-            sessionStoreService
-              .cacheAgentSession(session.copy(taxRegistrationNumbers = Some(trns)))
-              .map(_ => Redirect(routes.ApplicationController.showYourTaxRegNumbersForm()))
+            updateSessionAndRedirect(
+              session.copy(taxRegistrationNumbers = Some(trns)),
+              Some(routes.ApplicationController.showYourTaxRegNumbersForm().url))
           }
         )
     }
   }
 
   def showYourTaxRegNumbersForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { applicationSession =>
-      val trns = applicationSession.taxRegistrationNumbers.getOrElse(SortedSet.empty)
-      Ok(your_tax_registration_numbers(DoYouWantToAddAnotherTrnForm.form, trns))
+    withAgentSession { session =>
+      val trns = session.taxRegistrationNumbers.getOrElse(SortedSet.empty)
+      if (session.changingAnswers) {
+        Ok(your_tax_registration_numbers(DoYouWantToAddAnotherTrnForm.form, trns, Some(showCheckYourAnswersUrl)))
+      } else {
+        Ok(your_tax_registration_numbers(DoYouWantToAddAnotherTrnForm.form, trns))
+      }
     }
   }
 
   def submitYourTaxRegNumbers: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { applicationSession =>
+    withAgentSession { session =>
       DoYouWantToAddAnotherTrnForm.form
         .bindFromRequest()
         .fold(
           formWithErrors => {
-            val trns = applicationSession.taxRegistrationNumbers.getOrElse(SortedSet.empty)
-            Ok(your_tax_registration_numbers(formWithErrors, trns))
+            val trns = session.taxRegistrationNumbers.getOrElse(SortedSet.empty)
+            if (session.changingAnswers) {
+              Ok(your_tax_registration_numbers(formWithErrors, trns, Some(showCheckYourAnswersUrl)))
+            } else {
+              Ok(your_tax_registration_numbers(formWithErrors, trns))
+            }
           },
           validForm => {
             validForm.value match {
@@ -313,9 +472,9 @@ class ApplicationController @Inject()(
                 val updatedSet = session.taxRegistrationNumbers.fold[SortedSet[String]](SortedSet.empty)(trns =>
                   trns - validForm.original + updatedArn)
 
-                sessionStoreService
-                  .cacheAgentSession(session.copy(taxRegistrationNumbers = Some(updatedSet)))
-                  .map(_ => Redirect(routes.ApplicationController.showYourTaxRegNumbersForm()))
+                updateSessionAndRedirect(
+                  session.copy(taxRegistrationNumbers = Some(updatedSet)),
+                  Some(routes.ApplicationController.showYourTaxRegNumbersForm().url))
 
               case None =>
                 Ok(
@@ -327,6 +486,12 @@ class ApplicationController @Inject()(
   }
 
   def showCheckYourAnswers: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { applicationSession =>
+      Ok(check_your_answers(applicationSession))
+    }
+  }
+
+  def submitCheckYourAnswers: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { applicationSession =>
       Ok("Success")
     }
@@ -341,13 +506,4 @@ class ApplicationController @Inject()(
     case IsRegisteredForUkTax(Yes)         => routes.ApplicationController.showPersonalDetailsForm().url
     case IsRegisteredForUkTax(No | Unsure) => routes.ApplicationController.showUkTaxRegistrationForm().url
   }
-
-  private def withAgentSession(body: AgentSession => Future[Result])(implicit hc: HeaderCarrier): Future[Result] =
-    sessionStoreService.fetchAgentSession.flatMap {
-      case Some(session) => body(session)
-      case None          => Redirect(routes.ApplicationController.showAntiMoneyLaunderingForm())
-    }
-
-  private def updateSessionAndRedirect(agentSession: AgentSession)(implicit hc: HeaderCarrier): Future[Result] =
-    sessionStoreService.cacheAgentSession(agentSession).flatMap(_ => lookupNextPage.map(Redirect))
 }

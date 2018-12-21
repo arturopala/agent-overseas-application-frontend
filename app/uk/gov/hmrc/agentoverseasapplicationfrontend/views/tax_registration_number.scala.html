@@ -3,11 +3,11 @@
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.models.TaxRegistrationNumber
 @import uk.gov.hmrc.play.views.html.helpers.{errorSummary, form}
 
-@(taxRegistrationNumberForm: Form[TaxRegistrationNumber])(implicit messages: Messages, request: Request[_], configuration: Configuration)
+@(taxRegistrationNumberForm: Form[TaxRegistrationNumber], backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
 @uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("taxRegNo.title")) {
 
-    <a href="@routes.ApplicationController.showCompanyRegistrationNumberForm()" class="link-back">@Messages("button.back")</a>
+    <a href="@backLink.getOrElse(routes.ApplicationController.showCompanyRegistrationNumberForm())" class="link-back">@Messages("button.back")</a>
 
     @form(action = routes.ApplicationController.submitTaxRegistrationNumber(), 'class -> "form js-form") {
         <div class="form-group @if(taxRegistrationNumberForm.error("value").isDefined) {form-group-error}" id="radioResponse">

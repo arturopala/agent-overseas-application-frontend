@@ -1,0 +1,291 @@
+@*
+* Copyright 2018 HM Revenue & Customs
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*@
+@import play.api.Configuration
+@import play.mvc.Call
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.models.Yes
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
+@import uk.gov.hmrc.play.views.html.helpers.{form, input_radio_group, errorSummary, input}
+
+@(agentSession: AgentSession)(implicit request: Request[_], messages: Messages, configuration: Configuration)
+
+@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("checkAnswers.title"), bodyClasses = None) {
+
+    <a href="@routes.ApplicationController.showYourTaxRegNumbersForm" class="link-back">@Messages("button.back")</a>
+
+    <h1 class="heading-xlarge margin-bottom-30">@Messages("checkAnswers.title")</h1>
+
+    @agentSession.amlsDetails.map { details =>
+
+        <h2 class="heading-medium margin-bottom-10">@Messages("checkAnswers.amlsDetails.title")</h2>
+
+        <dl class="app-check-your-answers app-check-your-answers--long">
+            <div class="app-check-your-answers__contents">
+                <dt class="app-check-your-answers__question">
+                    @Messages("checkAnswers.amlsDetails.supervisoryBody") <br>
+                @Messages("checkAnswers.amlsDetails.memebershipNumber")
+                </dt>
+                <dd class="app-check-your-answers__answer" id="amls-details">
+                    @details.supervisoryBody<br>
+                    @details.membershipNumber
+                </dd>
+                <dd class="app-check-your-answers__change">
+                    <a href="@routes.ChangingAnswersController.changeAmlsDetails()">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @Messages("checkAnswers.change.button")</span></a>
+                </dd>
+            </div>
+        </dl>
+    }
+
+    @agentSession.contactDetails.map { details =>
+
+        <h2 class="heading-medium margin-bottom-10">@Messages("checkAnswers.contactDetails.title")</h2>
+
+        <dl class="app-check-your-answers app-check-your-answers--long">
+            <div class="app-check-your-answers__contents">
+                <dt class="app-check-your-answers__question">
+                    @Messages("checkAnswers.contactDetails.name") <br>
+                    @Messages("checkAnswers.contactDetails.jobTitle") <br>
+                    @Messages("checkAnswers.contactDetails.businessTelephone") <br>
+                @Messages("checkAnswers.contactDetails.businessEmail")
+                </dt>
+                <dd class="app-check-your-answers__answer" id="contact-details">
+                    @details.firstName &nbsp;&nbsp;
+                    @details.lastName <br>
+                    @details.jobTitle <br>
+                    @details.businessTelephone <br>
+                    @details.businessEmail <br>
+                </dd>
+                <dd class="app-check-your-answers__change">
+                    <a href="@routes.ChangingAnswersController.changeContactDetails()">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @Messages("checkAnswers.change.button")</span></a>
+                </dd>
+            </div>
+        </dl>
+    }
+
+    <h2 class="heading-medium margin-bottom-10">@Messages("checkAnswers.BusinessDetails.title")</h2>
+
+    @agentSession.tradingName.map { name =>
+
+        <dl class="app-check-your-answers app-check-your-answers--long">
+            <div class="app-check-your-answers__contents">
+                <dt class="app-check-your-answers__question">
+                    @Messages("checkAnswers.tradingName.title")
+                </dt>
+                <dd class="app-check-your-answers__answer" id="trading-name">
+                @name
+                </dd>
+                <dd class="app-check-your-answers__change">
+                    <a href="@routes.ChangingAnswersController.changeTradingName()">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @Messages("checkAnswers.change.button")</span></a>
+                </dd>
+            </div>
+        </dl>
+    }
+
+    @agentSession.mainBusinessAddress.map { address =>
+
+        <dl class="app-check-your-answers app-check-your-answers--long">
+            <div class="app-check-your-answers__contents">
+                <dt class="app-check-your-answers__question">
+                    @Messages("checkAnswers.mainBusinessAddress.title")
+                </dt>
+                <dd class="app-check-your-answers__answer" id="trading-address">
+                    @address.addressLine1 <br>
+                    @address.addressLine2 <br>
+                    @address.addressLine3 <br>
+                    @address.addressLine4 <br>
+                    @address.countryCode <br>
+                </dd>
+                <dd class="app-check-your-answers__change">
+                    <a href="@routes.ChangingAnswersController.changeTradingAddress()">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @Messages("checkAnswers.change.button")</span></a>
+                </dd>
+            </div>
+        </dl>
+    }
+
+    <h2 class="heading-medium margin-bottom-10">@Messages("checkAnswers.OtherBusinessDetails.title")</h2>
+
+    @agentSession.registeredWithHmrc.map { isRegistered =>
+
+        <dl class="app-check-your-answers app-check-your-answers--long">
+            <div class="app-check-your-answers__contents">
+                <dt class="app-check-your-answers__question">
+                    @Messages("checkAnswers.registeredWithHmrc.title")
+                </dt>
+                <dd class="app-check-your-answers__answer" id="registered-with-hmrc">
+                @isRegistered
+                </dd>
+                <dd class="app-check-your-answers__change">
+                    <a href="@routes.ChangingAnswersController.changeRegisteredWithHmrc()">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @Messages("checkAnswers.change.button")</span></a>
+                </dd>
+            </div>
+
+            @if(isRegistered == Yes) {
+
+                @agentSession.agentCodes.flatMap(_.selfAssessment).map { sa =>
+                    <div class="app-check-your-answers__contents">
+                        <dt class="app-check-your-answers__question">
+                            @Messages("checkAnswers.agentCode.selfAssessment")
+                        </dt>
+                        <dd class="app-check-your-answers__answer" id="agentCodes-sa">
+                        @sa
+                        </dd>
+                        <dd class="app-check-your-answers__change">
+                            <a href="@routes.ChangingAnswersController.changeAgentCodes()">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @Messages("checkAnswers.change.button")</span></a>
+                        </dd>
+                    </div>
+                }
+
+                @agentSession.agentCodes.flatMap(_.corporationTax).map { ct =>
+                    <div class="app-check-your-answers__contents">
+                        <dt class="app-check-your-answers__question">
+                            @Messages("checkAnswers.agentCode.corporationTax")
+                        </dt>
+                        <dd class="app-check-your-answers__answer" id="agentCodes-ct">
+                        @ct
+                        </dd>
+                        <dd class="app-check-your-answers__change">
+                            <a href="@routes.ChangingAnswersController.changeAgentCodes()">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @Messages("checkAnswers.change.button")</span></a>
+                        </dd>
+                    </div>
+                }
+
+                @agentSession.agentCodes.flatMap(_.vat).map { vat =>
+                    <div class="app-check-your-answers__contents">
+                        <dt class="app-check-your-answers__question">
+                            @Messages("checkAnswers.agentCode.vat")
+                        </dt>
+                        <dd class="app-check-your-answers__answer" id="agentCodes-vat">
+                        @vat
+                        </dd>
+                        <dd class="app-check-your-answers__change">
+                            <a href="@routes.ChangingAnswersController.changeAgentCodes()">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @Messages("checkAnswers.change.button")</span></a>
+                        </dd>
+                    </div>
+                }
+
+                @agentSession.agentCodes.flatMap(_.paye).map { paye =>
+                    <div class="app-check-your-answers__contents">
+                        <dt class="app-check-your-answers__question">
+                            @Messages("checkAnswers.agentCode.paye")
+                        </dt>
+                        <dd class="app-check-your-answers__answer" id="agentCodes-paye">
+                        @paye
+                        </dd>
+                        <dd class="app-check-your-answers__change">
+                            <a href="@routes.ChangingAnswersController.changeAgentCodes()">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @Messages("checkAnswers.change.button")</span></a>
+                        </dd>
+                    </div>
+                }
+            }
+        </dl>
+    }
+
+    @agentSession.registeredForUkTax.map { isRegisteredForUKTax =>
+        <dl class="app-check-your-answers app-check-your-answers--long">
+            <div class="app-check-your-answers__contents">
+                <dt class="app-check-your-answers__question">
+                    @Messages("checkAnswers.registeredForUKTax.title")
+                </dt>
+                <dd class="app-check-your-answers__answer" id="registered-for-uk-tax">
+                @isRegisteredForUKTax
+                </dd>
+                <dd class="app-check-your-answers__change">
+                    <a href="@routes.ChangingAnswersController.changeRegisteredForUKTax()">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @Messages("checkAnswers.change.button")</span></a>
+                </dd>
+            </div>
+
+            @if(isRegisteredForUKTax == Yes) {
+
+                @agentSession.personalDetails.flatMap(_.nino).map { nino =>
+                    <div class="app-check-your-answers__contents">
+                        <dt class="app-check-your-answers__question">
+                            @Messages("checkAnswers.personalDetails.nino.title")
+                        </dt>
+                        <dd class="app-check-your-answers__answer" id="personal-details-nino">
+                        @nino
+                        </dd>
+                        <dd class="app-check-your-answers__change">
+                            <a href="@routes.ChangingAnswersController.changePersonalDetails()">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @Messages("checkAnswers.change.button")</span></a>
+                        </dd>
+                    </div>
+                }
+
+                @agentSession.personalDetails.flatMap(_.saUtr).map { saUtr =>
+                    <div class="app-check-your-answers__contents">
+                        <dt class="app-check-your-answers__question">
+                            @Messages("checkAnswers.personalDetails.saUtr.title")
+                        </dt>
+                        <dd class="app-check-your-answers__answer" id="personal-details-saUtr">
+                        @saUtr
+                        </dd>
+                        <dd class="app-check-your-answers__change">
+                            <a href="@routes.ChangingAnswersController.changePersonalDetails()">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @Messages("checkAnswers.change.button")</span></a>
+                        </dd>
+                    </div>
+                }
+            }
+        </dl>
+    }
+
+    @agentSession.companyRegistrationNumber.flatMap(_.registrationNumber).map { crn =>
+        <dl class="app-check-your-answers app-check-your-answers--long">
+            <div class="app-check-your-answers__contents">
+                <dt class="app-check-your-answers__question">
+                    @Messages("checkAnswers.companyRegistrationNumber.title")
+                </dt>
+                <dd class="app-check-your-answers__answer" id="company-registration-number">
+                @crn
+                </dd>
+                <dd class="app-check-your-answers__change">
+                    <a href="@routes.ChangingAnswersController.changeCompanyRegistrationNumber()">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @Messages("checkAnswers.change.button")</span></a>
+                </dd>
+            </div>
+        </dl>
+    }
+
+    @agentSession.hasTaxRegNumbers.map { hasTrn =>
+
+        @if(hasTrn == true) {
+            <dl class="app-check-your-answers app-check-your-answers--long">
+                <div class="app-check-your-answers__contents">
+                    <dt class="app-check-your-answers__question">
+                    @Messages("checkAnswers.taxRegistrationNumbers.title")
+                    </dt>
+                    <dd class="app-check-your-answers__answer" id="tax-registration-number">
+                    @agentSession.taxRegistrationNumbers.map { trns =>
+                        @for(trn <- trns) {
+                            @trn <br>
+                            }
+                    }
+                    </dd>
+                    <dd class="app-check-your-answers__change">
+                        <a href="@routes.ChangingAnswersController.changeYourTaxRegistrationNumbers()">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @Messages("checkAnswers.change.button")</span></a>
+                    </dd>
+                </div>
+            </dl>
+        }
+    }
+
+    @form(
+        action = routes.ApplicationController.submitCheckYourAnswers(),
+        'class -> "form js-form") {
+
+        <div class="form-group">
+            <button class="button margin-top-30" type="submit" id="continue" >@Messages("checkAnswers.confirm.button")</button>
+        </div>
+    }
+}

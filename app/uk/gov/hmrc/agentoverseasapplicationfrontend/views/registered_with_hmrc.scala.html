@@ -4,11 +4,11 @@
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
 @import uk.gov.hmrc.play.views.html.helpers.{form, input_radio_group}
 
-@(registeredWithHmrcForm: Form[YesNoUnsure])(implicit messages: Messages, request: Request[_], configuration: Configuration)
+@(registeredWithHmrcForm: Form[YesNoUnsure], backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
 @uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("registeredWithHmrc.title")) {
 
-    <a href="@routes.ApplicationController.showMainBusinessAddressForm" class="link-back">@Messages("button.back")</a>
+    <a href="@backLink.getOrElse(routes.ApplicationController.showMainBusinessAddressForm)" class="link-back">@Messages("button.back")</a>
 
     @form(action = routes.ApplicationController.submitRegisteredWithHmrc, 'class -> "form js-form") {
 

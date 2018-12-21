@@ -151,3 +151,38 @@ yourTaxRegistrationNumbers.want.to.add.another=Do you want to add another tax re
 yourTaxRegistrationNumbers.form.doYouWantToAddAnotherTrn.yes=Yes
 yourTaxRegistrationNumbers.form.doYouWantToAddAnotherTrn.no=No
 doYouWantToAddAnotherTrn.error.no-radio.selected=You must select one of the following to continue
+
+# Check Answers
+checkAnswers.title=Check your answers before sending your application
+checkAnswers.change.button=Change
+checkAnswers.amlsDetails.title=Money laundering compliance details
+checkAnswers.amlsDetails.supervisoryBody=Supervisory body
+checkAnswers.amlsDetails.memebershipNumber=Membership number
+
+checkAnswers.contactDetails.title=Your details
+checkAnswers.contactDetails.name=Name
+checkAnswers.contactDetails.jobTitle=Job title
+checkAnswers.contactDetails.businessTelephone=Business telephone number
+checkAnswers.contactDetails.businessEmail=Business email address
+
+checkAnswers.BusinessDetails.title=Your business details
+checkAnswers.tradingName.title=Trading name
+checkAnswers.mainBusinessAddress.title=Main trading address
+
+checkAnswers.registeredWithHmrc.title=Registered as agent with HMRC?
+checkAnswers.agentCode.selfAssessment=Self Assessment agent code
+checkAnswers.agentCode.corporationTax=Corporation Tax agent code
+checkAnswers.agentCode.paye=PAYE agent code
+checkAnswers.agentCode.vat=VAT agent code
+
+checkAnswers.registeredForUKTax.title=Registered as agent with UK Tax?
+
+checkAnswers.personalDetails.nino.title=National Insurance number
+checkAnswers.personalDetails.saUtr.title=Self Assessment UTR
+
+checkAnswers.companyRegistrationNumber.title=Company Registration number
+checkAnswers.taxRegistrationNumbers.title=Tax Registration numbers
+
+checkAnswers.OtherBusinessDetails.title=Other business details
+
+checkAnswers.confirm.button=Confirm answers and send application
