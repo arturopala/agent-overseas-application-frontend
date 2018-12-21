@@ -487,7 +487,19 @@ class ApplicationController @Inject()(
 
   def showCheckYourAnswers: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { applicationSession =>
-      Ok(check_your_answers(applicationSession))
+      //make sure user has gone through all the required pages, if not redirect to appropriate page
+      lookupNextPage.map { call =>
+        if (call == routes.ApplicationController.showCheckYourAnswers() || call == routes.ApplicationController
+              .showYourTaxRegNumbersForm()) {
+          val countryCode = applicationSession.mainBusinessAddress.map(_.countryCode)
+          val countryName = countryCode
+            .flatMap(countries.get)
+            .getOrElse(sys.error(s"No country found for code: '${countryCode.getOrElse("")}'"))
+          Ok(check_your_answers(applicationSession, countryName))
+        } else {
+          Redirect(call)
+        }
+      }
     }
   }
 
