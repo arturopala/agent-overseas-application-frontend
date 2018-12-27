@@ -4,9 +4,9 @@ import javax.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.config.CountryNamesLoader
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
-import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.CountryNamesLoader
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 

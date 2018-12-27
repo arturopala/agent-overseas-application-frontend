@@ -4,12 +4,13 @@ import javax.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment, Logger}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.config.{AMLSLoader, CountryNamesLoader}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession.{IsRegisteredForUkTax, IsRegisteredWithHmrc}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, No, Unsure, Yes, _}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
-import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.{CountryNamesLoader, toFuture}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
@@ -29,6 +30,7 @@ class ApplicationController @Inject()(
 
   private val countries = countryNamesLoader.load
   private val validCountryCodes = countries.keys.toSet
+  private val amlsBodies: Map[String, String] = AMLSLoader.load("/amls.csv")
 
   private val showCheckYourAnswersUrl = routes.ApplicationController.showCheckYourAnswers().url
 
@@ -37,12 +39,13 @@ class ApplicationController @Inject()(
     sessionStoreService.fetchAgentSession.map {
       case Some(session) =>
         if (session.changingAnswers) {
-          Ok(anti_money_laundering(session.amlsDetails.fold(form)(form.fill), Some(showCheckYourAnswersUrl)))
+          Ok(
+            anti_money_laundering(session.amlsDetails.fold(form)(form.fill), amlsBodies, Some(showCheckYourAnswersUrl)))
         } else {
-          Ok(anti_money_laundering(session.amlsDetails.fold(form)(form.fill)))
+          Ok(anti_money_laundering(session.amlsDetails.fold(form)(form.fill), amlsBodies))
         }
 
-      case _ => Ok(anti_money_laundering(form))
+      case _ => Ok(anti_money_laundering(form, amlsBodies))
     }
   }
 
@@ -54,11 +57,11 @@ class ApplicationController @Inject()(
           sessionStoreService.fetchAgentSession.map {
             case Some(session) =>
               if (session.changingAnswers) {
-                Ok(anti_money_laundering(formWithErrors, Some(showCheckYourAnswersUrl)))
+                Ok(anti_money_laundering(formWithErrors, amlsBodies, Some(showCheckYourAnswersUrl)))
               } else {
-                Ok(anti_money_laundering(formWithErrors))
+                Ok(anti_money_laundering(formWithErrors, amlsBodies))
               }
-            case None => Ok(anti_money_laundering(formWithErrors))
+            case None => Ok(anti_money_laundering(formWithErrors, amlsBodies))
           }
         },
         validForm => {

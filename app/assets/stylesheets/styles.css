@@ -39,6 +39,14 @@
     clear: both;
 }
 
+.js-enabled .autocomplete-wrapper select{
+ visibility: hidden;
+}
+
+.js-enabled #amlsForm{
+ visibility: hidden;
+}
+
 .app-check-your-answers {
     font-family: "nta", Arial, sans-serif;
     -webkit-font-smoothing: antialiased;

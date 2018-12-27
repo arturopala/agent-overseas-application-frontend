@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.agentoverseasapplicationfrontend.utils
+package uk.gov.hmrc.agentoverseasapplicationfrontend.config
 
 import javax.inject.{Inject, Named, Singleton}
 

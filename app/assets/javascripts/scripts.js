@@ -47,13 +47,13 @@ $(function() {
 
         });
 
-       var selectEl = document.querySelector('#country-auto-complete')
-          if(selectEl){
+       var selectCountryEl = document.querySelector('#country-auto-complete')
+          if(selectCountryEl){
               accessibleAutocomplete.enhanceSelectElement({
                 autoselect: true,
-                defaultValue: selectEl.options[selectEl.options.selectedIndex].innerHTML,
+                defaultValue: selectCountryEl.options[selectCountryEl.options.selectedIndex].innerHTML,
                 minLength: 2,
-                selectElement: selectEl
+                selectElement: selectCountryEl
               })
           }
 
@@ -79,5 +79,47 @@ $(function() {
             }
 
         });
+
+
+       var selectAmlsEl = document.querySelector('#amls-auto-complete')
+
+          if(selectAmlsEl){
+              accessibleAutocomplete.enhanceSelectElement({
+                autoselect: true,
+                defaultValue: selectAmlsEl.options[selectAmlsEl.options.selectedIndex].innerHTML,
+                minLength: 2,
+                selectElement: selectAmlsEl
+              })
+          }
+
+        //custom handler for AMLS auto-complete dropdown
+        $('#amls-auto-complete').change(function(){
+            var changedValue = $(this).val()
+            var array = [];
+
+            $('.autocomplete__menu li').each(function(){
+                array.push($(this).text())
+            })
+
+            if(array == "No results found"){
+                $('#amls-auto-complete-select').append('<option id="notFound" value="NOTFOUND">No results found</option>')
+                $('#amls-auto-complete-select').val('NOTFOUND').attr("selected", "selected");
+
+            }else if(array == ""){
+                $('#amls-auto-complete-select').val('').attr("selected", "selected");
+            }
+
+        });
+
+         $('.form-date label.form-field--error').each(function () {
+
+                    $(this).closest('div').addClass('form-field--error')
+                    var $relocate = $(this).closest('fieldset').find('legend')
+                    $(this).find('.error-notification').appendTo($relocate)
+
+            })
+
+        //by default the amlsForm will be hidden so we we need this to make the form visible after loaded
+        $('#amlsForm').css('visibility', 'visible')
 
 });
