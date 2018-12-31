@@ -1,7 +1,8 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.i18n.{I18nSupport, MessagesApi}
+
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.config.{AMLSLoader, CountryNamesLoader}
@@ -471,9 +472,9 @@ class ApplicationController @Inject()(
           },
           validForm =>
             validForm.updated match {
-              case Some(updatedArn) =>
+              case Some(updatedTrn) =>
                 val updatedSet = session.taxRegistrationNumbers.fold[SortedSet[String]](SortedSet.empty)(trns =>
-                  trns - validForm.original + updatedArn)
+                  trns - validForm.original + updatedTrn)
 
                 updateSessionAndRedirect(
                   session.copy(taxRegistrationNumbers = Some(updatedSet)),
@@ -483,6 +484,37 @@ class ApplicationController @Inject()(
                 Ok(
                   update_tax_registration_number(
                     UpdateTrnForm.form.fill(validForm.copy(updated = Some(validForm.original)))))
+          }
+        )
+    }
+  }
+
+  def showRemoveTaxRegNumber(trn: String): Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { applicantSession =>
+      if (applicantSession.taxRegistrationNumbers.exists(_.contains(trn)))
+        Ok(remove_tax_reg_number(RemoveTrnForm.form, trn))
+      else
+        Ok(error_template("global.error.404.title", "global.error.404.heading", "global.error.404.message"))
+    }
+  }
+
+  def submitRemoveTaxRegNumber(trn: String): Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { applicantSession =>
+      RemoveTrnForm.form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Ok(remove_tax_reg_number(formWithErrors, trn)),
+          validForm => {
+            validForm match {
+              case Yes => {
+                val updatedSet = applicantSession.taxRegistrationNumbers
+                  .fold[SortedSet[String]](SortedSet.empty)(trns => trns - trn)
+                updateSessionAndRedirect(
+                  applicantSession.copy(taxRegistrationNumbers = Some(updatedSet)),
+                  Some(routes.ApplicationController.showYourTaxRegNumbersForm().url))
+              }
+              case _ => Redirect(routes.ApplicationController.showYourTaxRegNumbersForm())
+            }
           }
         )
     }

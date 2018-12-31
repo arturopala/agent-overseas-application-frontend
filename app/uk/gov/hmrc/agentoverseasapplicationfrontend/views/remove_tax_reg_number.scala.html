@@ -1,0 +1,40 @@
+@import play.api.Configuration
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
+@import uk.gov.hmrc.play.views.html.helpers.{form, input_radio_group}
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.models.YesNoUnsure
+
+
+@(trnForm: Form[YesNoUnsure], trn: String)(implicit messages: Messages, request: Request[_], configuration: Configuration)
+@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("removeTrn.title")) {
+
+
+    <a href="@routes.ApplicationController.showYourTaxRegNumbersForm" class="link-back">@Messages("button.back")</a>
+
+    @form(action = routes.ApplicationController.submitRemoveTaxRegNumber(trn), 'class -> "form js-form") {
+
+        <fieldset>
+
+            <legend class="margin-bottom-10">
+                <h1 class="heading-xlarge margin-bottom-20">@Messages("removeTrn.title")</h1>
+            </legend>
+
+            <div class="form-group">
+            @input_radio_group(
+                trnForm("isRemovingTrn"),
+                Seq(
+                    "yes" -> Messages("removeTrn.form.yes"),
+                    "no" -> Messages("removeTrn.form.no")
+                ),
+                '_groupDivClass -> "soft--ends",
+                '_fieldsetAttributes -> Html("""id='removeTrn'""")
+            )
+
+            </div>
+
+            <div class="form-group">
+                <button class="button" type="submit" id="continue">@Messages("button.continue")</button>
+            </div>
+
+        </fieldset>
+    }
+}

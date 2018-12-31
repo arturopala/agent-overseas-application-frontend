@@ -44,9 +44,7 @@
             @trn
         </dt>
         <dd class="app-check-your-answers__answer">
-            <button class="button--link-style" type="submit">
-                @Messages("yourTaxRegistrationNumbers.remove.button")
-            </button>
+            <a href="@routes.ApplicationController.showRemoveTaxRegNumber(trn)" class="button--link-style" type="submit"> @Messages("yourTaxRegistrationNumbers.remove.button")</a>
         </dd>
         <dd class="app-check-your-answers__change">
             @form(action = routes.ApplicationController.submitUpdateTaxRegNumber, 'class -> "form js-form actionButtons", 'id -> s"""updateTrn$trn""") {

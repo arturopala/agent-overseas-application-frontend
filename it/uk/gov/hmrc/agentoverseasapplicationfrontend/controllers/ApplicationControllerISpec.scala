@@ -1372,6 +1372,104 @@ class ApplicationControllerISpec extends BaseISpec {
     }
   }
 
+  "GET remove-tax-registration-number/:trn" should {
+    "display the remove-tax-registration-number form" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet("abc123"))))
+
+      val result = await(controller.showRemoveTaxRegNumber("abc123")(cleanCredsAgent(FakeRequest())))
+
+      status(result) shouldBe 200
+
+      result should containMessages(
+        "removeTrn.title",
+        "removeTrn.form.yes",
+        "removeTrn.form.no",
+        "button.continue"
+      )
+    }
+
+    "contain back button in the remove-tax-registration-number form" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet("abc123"))))
+
+      val result = await(controller.showRemoveTaxRegNumber("abc123")(cleanCredsAgent(FakeRequest())))
+
+      status(result) shouldBe 200
+
+      result should containLink(
+        expectedMessageKey = "button.back",
+        expectedHref = "/agent-services/apply-from-outside-uk/your-tax-registration-numbers"
+      )
+    }
+
+    "redirect to /money-laundering when session not found" in {
+      val result = await(controller.showRemoveTaxRegNumber("abc123")(cleanCredsAgent(FakeRequest())))
+
+      status(result) shouldBe 303
+
+      redirectLocation(result) shouldBe Some(routes.ApplicationController.showAntiMoneyLaunderingForm().url)
+    }
+
+    "return 404 error page when the remove-tax-registration-number is called without trn" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet("abc123"))))
+
+      val result = await(controller.showRemoveTaxRegNumber("")(cleanCredsAgent(FakeRequest())))
+
+      status(result) shouldBe 200
+
+      result should containMessages(
+        "global.error.404.title",
+        "global.error.404.heading",
+        "global.error.404.message"
+      )
+    }
+  }
+
+  "POST /remove-tax-registration-number/:trn" should {
+
+    "submit the form and should correctly remove the trn stored in the session" in {
+      sessionStoreService.currentSession.agentSession =
+        Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet("abc123"))))
+
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("isRemovingTrn" -> "yes", "value" -> "abc123")
+
+      val result = await(controller.submitRemoveTaxRegNumber("abc123")(authenticatedRequest))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showYourTaxRegNumbersForm().url
+      sessionStoreService.fetchAgentSession.get.taxRegistrationNumbers shouldBe Some(SortedSet.empty)
+    }
+
+    "redirect to showYourTaxRegNumbersForm page when the choice selected is No and the trn should not be removed" in {
+      sessionStoreService.currentSession.agentSession =
+        Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet("abc123"))))
+
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("isRemovingTrn" -> "no", "value" -> "abc123")
+
+      val result = await(controller.submitRemoveTaxRegNumber("abc123")(authenticatedRequest))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showYourTaxRegNumbersForm().url
+      sessionStoreService.fetchAgentSession.get.taxRegistrationNumbers shouldBe Some(SortedSet("abc123"))
+    }
+
+    "return validation error when the form is submitted without a choice selection" in {
+      sessionStoreService.currentSession.agentSession =
+        Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet("abc123"))))
+
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("isRemovingTrn" -> "", "value" -> "abc123")
+
+      val result = await(controller.submitRemoveTaxRegNumber("abc123")(authenticatedRequest))
+
+      status(result) shouldBe 200
+
+      result should containSubstrings("This field is required")
+    }
+  }
+
+
   "GET /check-your-answers" should {
     "should display the form with all data as expected when user goes through 'RegsiteredWithHmrc=Yes' flow" in {
       val registeredWithHmrc = Some(Yes)

@@ -137,6 +137,11 @@ companyRegistrationNumber.error.no-radio.selected=You must select one of the fol
 # Add tax registration number
 addTrn.title=What is your tax registration number?
 
+# Remove tax registration number
+removeTrn.title=Are you sure you want to remove this tax registration number?
+removeTrn.form.yes=Yes
+removeTrn.form.no=No
+
 # Update tax registration number
 updateTrn.title=Update your tax registration number
 

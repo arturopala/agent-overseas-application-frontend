@@ -38,11 +38,7 @@ class ErrorHandler @Inject()(
       case _: NoActiveSession        => toGGLogin(if (isDevEnv) s"http://${request.host}${request.uri}" else s"${request.uri}")
       case _: InsufficientEnrolments => Forbidden
       case _ =>
-        Ok(
-          standardErrorTemplate(
-            Messages("global.error.500.title"),
-            Messages("global.error.500.heading"),
-            Messages("global.error.500.message")))
+        Ok(standardErrorTemplate("global.error.500.title", "global.error.500.heading", "global.error.500.message"))
     }
   }
 

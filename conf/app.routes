@@ -1,61 +1,63 @@
 # microservice specific routes
 
-GET         /                                    @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.StartController.root
+GET         /                                            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.StartController.root
 
-GET         /not-agent                           @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.StartController.showNotAgent
+GET         /not-agent                                   @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.StartController.showNotAgent
 
-GET         /money-laundering                    @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showAntiMoneyLaunderingForm
-POST        /money-laundering                    @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitAntiMoneyLaundering
+GET         /money-laundering                            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showAntiMoneyLaunderingForm
+POST        /money-laundering                            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitAntiMoneyLaundering
 
-GET         /contact-details                     @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showContactDetailsForm
-POST        /contact-details                     @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitContactDetails
+GET         /contact-details                             @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showContactDetailsForm
+POST        /contact-details                             @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitContactDetails
 
-GET         /trading-name                        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showTradingNameForm
-POST        /trading-name                        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitTradingName
+GET         /trading-name                                @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showTradingNameForm
+POST        /trading-name                                @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitTradingName
 
-GET         /main-business-address               @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showMainBusinessAddressForm
-POST        /main-business-address               @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitMainBusinessAddress
+GET         /main-business-address                       @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showMainBusinessAddressForm
+POST        /main-business-address                       @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitMainBusinessAddress
 
-GET         /registered-with-hmrc                @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showRegisteredWithHmrcForm
-POST        /registered-with-hmrc                @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitRegisteredWithHmrc
+GET         /registered-with-hmrc                        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showRegisteredWithHmrcForm
+POST        /registered-with-hmrc                        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitRegisteredWithHmrc
 
-GET         /self-assessment-agent-code          @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showAgentCodesForm
-POST        /self-assessment-agent-code          @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitAgentCodes
+GET         /self-assessment-agent-code                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showAgentCodesForm
+POST        /self-assessment-agent-code                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitAgentCodes
 
-GET         /company-registration-number         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showCompanyRegistrationNumberForm
-POST        /company-registration-number         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitCompanyRegistrationNumber
+GET         /company-registration-number                 @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showCompanyRegistrationNumberForm
+POST        /company-registration-number                 @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitCompanyRegistrationNumber
 
-GET         /uk-tax-registration                 @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showUkTaxRegistrationForm
-POST        /uk-tax-registration                 @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitUkTaxRegistration
+GET         /uk-tax-registration                         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showUkTaxRegistrationForm
+POST        /uk-tax-registration                         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitUkTaxRegistration
 
-GET         /personal-details                    @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showPersonalDetailsForm
-POST        /personal-details                    @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitPersonalDetails
+GET         /personal-details                            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showPersonalDetailsForm
+POST        /personal-details                            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitPersonalDetails
 
-GET         /tax-registration-number             @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showTaxRegistrationNumberForm
-POST        /tax-registration-number             @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitTaxRegistrationNumber
+GET         /tax-registration-number                     @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showTaxRegistrationNumberForm
+POST        /tax-registration-number                     @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitTaxRegistrationNumber
 
-GET         /your-tax-registration-numbers       @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showYourTaxRegNumbersForm
-POST        /your-tax-registration-numbers       @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitYourTaxRegNumbers
+GET         /your-tax-registration-numbers               @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showYourTaxRegNumbersForm
+POST        /your-tax-registration-numbers               @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitYourTaxRegNumbers
 
-GET         /add-tax-registration-number         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showAddTaxRegNoForm
-POST        /add-tax-registration-number         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitAddTaxRegNo
+GET         /add-tax-registration-number                 @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showAddTaxRegNoForm
+POST        /add-tax-registration-number                 @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitAddTaxRegNo
 
-POST        /update-tax-registration-number      @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitUpdateTaxRegNumber
+POST        /update-tax-registration-number              @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitUpdateTaxRegNumber
+GET         /remove-tax-registration-number/:trn         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showRemoveTaxRegNumber(trn: String)
+POST        /remove-tax-registration-number/:trn              @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitRemoveTaxRegNumber(trn: String)
 
-GET         /check-your-answers                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showCheckYourAnswers
-POST        /check-your-answers                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitCheckYourAnswers
+GET         /check-your-answers                          @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showCheckYourAnswers
+POST        /check-your-answers                          @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitCheckYourAnswers
 
-GET         /change-amls-details                 @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeAmlsDetails
-GET         /change-contact-details              @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeContactDetails
-GET         /change-trading-name                 @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeTradingName
-GET         /change-trading-address              @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeTradingAddress
-GET         /change-registered-with-hmrc         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeRegisteredWithHmrc
-GET         /change-agent-codes                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeAgentCodes
-GET         /change-registered-for-uk-tax        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeRegisteredForUKTax
-GET         /change-personal-details             @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changePersonalDetails
-GET         /change-company-registration-number  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeCompanyRegistrationNumber
-GET         /change-your-tax-registration-numbers @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeYourTaxRegistrationNumbers
+GET         /change-amls-details                         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeAmlsDetails
+GET         /change-contact-details                      @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeContactDetails
+GET         /change-trading-name                         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeTradingName
+GET         /change-trading-address                      @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeTradingAddress
+GET         /change-registered-with-hmrc                 @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeRegisteredWithHmrc
+GET         /change-agent-codes                          @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeAgentCodes
+GET         /change-registered-for-uk-tax                @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeRegisteredForUKTax
+GET         /change-personal-details                     @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changePersonalDetails
+GET         /change-company-registration-number          @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeCompanyRegistrationNumber
+GET         /change-your-tax-registration-numbers        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeYourTaxRegistrationNumbers
 
-POST        /sign-out                            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.SignOutController.signOut
+POST        /sign-out                                    @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.SignOutController.signOut
 
-GET         /assets/*file                        controllers.Assets.at(path="/public", file)
+GET         /assets/*file                                controllers.Assets.at(path="/public", file)
