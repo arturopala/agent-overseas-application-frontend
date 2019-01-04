@@ -430,6 +430,24 @@ class ApplicationControllerISpec extends BaseISpec {
       session.changingAnswers shouldBe false
     }
 
+    "show /check-your-answers page when the user in the amending state but clicks Continue without making any changes to the state" in {
+      sessionStoreService.currentSession.agentSession =
+        Some(agentSession.copy(registeredWithHmrc = Some(Yes), changingAnswers = true))
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("registeredWithHmrc" -> "yes")
+
+      val result = await(controller.submitRegisteredWithHmrc(authenticatedRequest))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showCheckYourAnswers().url
+
+      val session = await(sessionStoreService.fetchAgentSession).get
+
+      session.registeredWithHmrc shouldBe Some(Yes)
+
+      session.changingAnswers shouldBe false
+    }
+
     "show validation error if no choice was selected" in {
       sessionStoreService.currentSession.agentSession = Some(agentSession.copy(registeredWithHmrc = None))
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
@@ -569,6 +587,27 @@ class ApplicationControllerISpec extends BaseISpec {
 
       val session = await(sessionStoreService.fetchAgentSession).get
       session.registeredForUkTax shouldBe Some(Yes)
+      session.changingAnswers shouldBe false
+    }
+
+    "show /check-your-answers page when the user in the amending state but clicks Continue without making any changes to the state" in {
+      sessionStoreService.currentSession.agentSession = Some(
+        agentSession.copy(
+          registeredWithHmrc = Some(No),
+          registeredForUkTax = Some(No),
+          personalDetails = None,
+          changingAnswers = true
+        ))
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("registeredForUkTax" -> "no")
+
+      val result = await(controller.submitUkTaxRegistration(authenticatedRequest))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showCheckYourAnswers().url
+
+      val session = await(sessionStoreService.fetchAgentSession).get
+      session.registeredForUkTax shouldBe Some(No)
       session.changingAnswers shouldBe false
     }
 

@@ -214,7 +214,20 @@ class ApplicationController @Inject()(
           formWithErrors => Ok(registered_with_hmrc(formWithErrors)),
           validFormValue => {
             if (session.changingAnswers) {
-              updateSessionAndRedirect(session.copy(registeredWithHmrc = Some(validFormValue), changingAnswers = false))
+              session.registeredWithHmrc match {
+                case Some(oldValue) =>
+                  if (oldValue == validFormValue) {
+                    updateSessionAndRedirect(
+                      session.copy(changingAnswers = false),
+                      Some(routes.ApplicationController.showCheckYourAnswers().url))
+                  } else {
+                    updateSessionAndRedirect(
+                      session.copy(registeredWithHmrc = Some(validFormValue), changingAnswers = false))
+                  }
+                case None =>
+                  updateSessionAndRedirect(
+                    session.copy(registeredWithHmrc = Some(validFormValue), changingAnswers = false))
+              }
             } else {
               updateSessionAndRedirect(session.copy(registeredWithHmrc = Some(validFormValue)))
             }
@@ -286,7 +299,20 @@ class ApplicationController @Inject()(
           },
           validFormValue => {
             if (session.changingAnswers) {
-              updateSessionAndRedirect(session.copy(registeredForUkTax = Some(validFormValue), changingAnswers = false))
+              session.registeredForUkTax match {
+                case Some(oldValue) =>
+                  if (oldValue == validFormValue) {
+                    updateSessionAndRedirect(
+                      session.copy(changingAnswers = false),
+                      Some(routes.ApplicationController.showCheckYourAnswers().url))
+                  } else {
+                    updateSessionAndRedirect(
+                      session.copy(registeredForUkTax = Some(validFormValue), changingAnswers = false))
+                  }
+                case None =>
+                  updateSessionAndRedirect(
+                    session.copy(registeredForUkTax = Some(validFormValue), changingAnswers = false))
+              }
             } else {
               updateSessionAndRedirect(session.copy(registeredForUkTax = Some(validFormValue)))
             }

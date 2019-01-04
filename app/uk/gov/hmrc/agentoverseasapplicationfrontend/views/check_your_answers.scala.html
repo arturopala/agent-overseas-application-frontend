@@ -115,44 +115,36 @@
                 @agentSession.agentCodes.flatMap(_.paye).map { paye =>
                      @check_answers_div(Messages("checkAnswers.agentCode.paye"),  paye, routes.ChangingAnswersController.changeAgentCodes())
                 }
-            }
-        </dl>
-    }
+            } else {
+                @agentSession.registeredForUkTax.map { isRegisteredForUKTax =>
+                        @check_answers_div(Messages("checkAnswers.registeredForUKTax.title"),  isRegisteredForUKTax, routes.ChangingAnswersController.changeRegisteredForUKTax())
 
-    @agentSession.registeredForUkTax.map { isRegisteredForUKTax =>
-        <dl class="app-check-your-answers app-check-your-answers--long">
-            @check_answers_div(Messages("checkAnswers.registeredForUKTax.title"),  isRegisteredForUKTax, routes.ChangingAnswersController.changeRegisteredForUKTax())
+                        @if(isRegisteredForUKTax == Yes) {
+                            @agentSession.personalDetails.flatMap(_.nino).map { nino =>
+                                @check_answers_div(Messages("checkAnswers.personalDetails.nino.title"),  nino, routes.ChangingAnswersController.changePersonalDetails())
+                            }
 
-            @if(isRegisteredForUKTax == Yes) {
-
-                @agentSession.personalDetails.flatMap(_.nino).map { nino =>
-                    @check_answers_div(Messages("checkAnswers.personalDetails.nino.title"),  nino, routes.ChangingAnswersController.changePersonalDetails())
+                            @agentSession.personalDetails.flatMap(_.saUtr).map { saUtr =>
+                                @check_answers_div(Messages("checkAnswers.personalDetails.saUtr.title"),  saUtr, routes.ChangingAnswersController.changePersonalDetails())
+                            }
+                        }
                 }
 
-                @agentSession.personalDetails.flatMap(_.saUtr).map { saUtr =>
-                    @check_answers_div(Messages("checkAnswers.personalDetails.saUtr.title"),  saUtr, routes.ChangingAnswersController.changePersonalDetails())
+                @agentSession.companyRegistrationNumber.flatMap(_.registrationNumber).map { crn =>
+                    @check_answers_div(Messages("checkAnswers.companyRegistrationNumber.title"),  crn, routes.ChangingAnswersController.changeCompanyRegistrationNumber())
                 }
-            }
-        </dl>
-    }
 
-    @agentSession.companyRegistrationNumber.flatMap(_.registrationNumber).map { crn =>
-        <dl class="app-check-your-answers app-check-your-answers--long">
-            @check_answers_div(Messages("checkAnswers.companyRegistrationNumber.title"),  crn, routes.ChangingAnswersController.changeCompanyRegistrationNumber())
-        </dl>
-    }
-
-    @agentSession.hasTaxRegNumbers.map { hasTrn =>
-
-        @if(hasTrn == true) {
-            <dl class="app-check-your-answers app-check-your-answers--long">
-                @check_answers_div(
+                @agentSession.hasTaxRegNumbers.map { hasTrn =>
+                    @if(hasTrn == true) {
+                        @check_answers_div(
                         Messages("checkAnswers.taxRegistrationNumbers.title"),
                         Html(agentSession.taxRegistrationNumbers.getOrElse(SortedSet.empty[String]).mkString("<br>")),
                         routes.ChangingAnswersController.changeYourTaxRegistrationNumbers()
-                )
-            </dl>
-        }
+                        )
+                    }
+                }
+            }
+        </dl>
     }
 
     @form(
