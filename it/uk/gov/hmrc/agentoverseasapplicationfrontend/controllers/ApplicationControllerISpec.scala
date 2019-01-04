@@ -1465,7 +1465,7 @@ class ApplicationControllerISpec extends BaseISpec {
 
   "POST /remove-tax-registration-number/:trn" should {
 
-    "submit the form and should correctly remove the trn stored in the session" in {
+    "submit the form and should correctly remove the trn stored in the session & redirect to ask whether user does poses any taxRegNumber" in {
       sessionStoreService.currentSession.agentSession =
         Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet("abc123"))))
 
@@ -1475,8 +1475,23 @@ class ApplicationControllerISpec extends BaseISpec {
       val result = await(controller.submitRemoveTaxRegNumber("abc123")(authenticatedRequest))
 
       status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showTaxRegistrationNumberForm().url
+      sessionStoreService.fetchAgentSession.get.taxRegistrationNumbers shouldBe None
+      sessionStoreService.fetchAgentSession.get.hasTaxRegNumbers shouldBe None
+    }
+
+    "submit the form and should correctly remove the trn stored in the session" in {
+      sessionStoreService.currentSession.agentSession =
+        Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet("abc123", "anotherRegNumber"))))
+
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("isRemovingTrn" -> "yes", "value" -> "abc123")
+
+      val result = await(controller.submitRemoveTaxRegNumber("abc123")(authenticatedRequest))
+
+      status(result) shouldBe 303
       result.header.headers(LOCATION) shouldBe routes.ApplicationController.showYourTaxRegNumbersForm().url
-      sessionStoreService.fetchAgentSession.get.taxRegistrationNumbers shouldBe Some(SortedSet.empty)
+      sessionStoreService.fetchAgentSession.get.taxRegistrationNumbers shouldBe Some(SortedSet("anotherRegNumber"))
     }
 
     "redirect to showYourTaxRegNumbersForm page when the choice selected is No and the trn should not be removed" in {

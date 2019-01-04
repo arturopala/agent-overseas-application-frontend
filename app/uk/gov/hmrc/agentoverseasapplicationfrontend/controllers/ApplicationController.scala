@@ -535,9 +535,16 @@ class ApplicationController @Inject()(
               case Yes => {
                 val updatedSet = applicantSession.taxRegistrationNumbers
                   .fold[SortedSet[String]](SortedSet.empty)(trns => trns - trn)
+
+                val updateSession: AgentSession =
+                  if (updatedSet.isEmpty) applicantSession.copy(hasTaxRegNumbers = None, taxRegistrationNumbers = None)
+                  else applicantSession.copy(taxRegistrationNumbers = Some(updatedSet))
+
                 updateSessionAndRedirect(
-                  applicantSession.copy(taxRegistrationNumbers = Some(updatedSet)),
-                  Some(routes.ApplicationController.showYourTaxRegNumbersForm().url))
+                  updateSession,
+                  if (updatedSet.nonEmpty) Some(routes.ApplicationController.showYourTaxRegNumbersForm().url)
+                  else Some(routes.ApplicationController.showTaxRegistrationNumberForm().url)
+                )
               }
               case _ => Redirect(routes.ApplicationController.showYourTaxRegNumbersForm())
             }
