@@ -573,7 +573,13 @@ class ApplicationController @Inject()(
 
   def submitCheckYourAnswers: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { applicationSession =>
-      Ok("Success")
+      Redirect(routes.ApplicationController.showApplicationComplete())
+    }
+  }
+
+  def showApplicationComplete: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    withAgentSession { applicationSession =>
+      Ok(application_complete(applicationSession))
     }
   }
 

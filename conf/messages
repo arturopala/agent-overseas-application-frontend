@@ -191,3 +191,21 @@ checkAnswers.taxRegistrationNumbers.title=Tax Registration numbers
 checkAnswers.OtherBusinessDetails.title=Other business details
 
 checkAnswers.confirm.button=Confirm answers and send application
+
+# Application Complete
+applicationComplete.title=Application Complete
+applicationComplete.panel.body=We received your application for
+applicationComplete.whatHappensNext.heading=What happens next
+applicationComplete.whatHappensNext.para1=We will send a confirmation email to {0}.
+applicationComplete.whatHappensNext.para2=We may get in touch with you to discuss your application.
+applicationComplete.whatHappensNext.para3=We will tell you within 28 calendar days if your application has been approved. We will also tell you how to set up your account.
+applicationComplete.whatHappensNext.para4=If your application is rejected we will tell you why.
+applicationComplete.whatYouCanDoNext.heading=What you can do next
+applicationComplete.whatYouCanDoNext.link=Check the guidance
+applicationComplete.whatYouCanDoNext.text=to find out how to track the progress of your application.
+applicationComplete.help.heading=If you need help
+applicationComplete.help.text=If you need help using this service, use the ''get help with this page'' link at the bottom of the page.
+applicationComplete.print=Print this page
+applicationComplete.feedback.link=What did you think of this service?
+applicationComplete.feedback.text=(takes 30 seconds)
+

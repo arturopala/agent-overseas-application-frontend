@@ -1613,4 +1613,39 @@ class ApplicationControllerISpec extends BaseISpec {
       body.contains("trn2") shouldBe true
     }
   }
+
+  "GET / application-complete" should {
+    "should display the page data as expected" in {
+
+      sessionStoreService.currentSession.agentSession = Some(
+        AgentSession(
+         contactDetails = Some(contactDetails),
+          tradingName = Some("tradingName")
+        ))
+
+      val result = await(controller.showApplicationComplete(cleanCredsAgent(FakeRequest())))
+
+      status(result) shouldBe 200
+      result should containMessages(
+        "applicationComplete.title",
+          "applicationComplete.panel.body",
+        "applicationComplete.whatHappensNext.heading",
+        "applicationComplete.whatHappensNext.para2",
+        "applicationComplete.whatHappensNext.para3",
+        "applicationComplete.whatHappensNext.para4",
+        "applicationComplete.whatYouCanDoNext.heading",
+        "applicationComplete.whatYouCanDoNext.link",
+        "applicationComplete.whatYouCanDoNext.text",
+        "applicationComplete.help.heading",
+        "applicationComplete.help.text",
+        "applicationComplete.print",
+        "applicationComplete.feedback.link",
+        "applicationComplete.feedback.text"
+      )
+
+      bodyOf(result).contains(htmlEscapedMessage( "applicationComplete.whatHappensNext.para1", contactDetails.businessEmail))
+      result should containSubstrings("We will send a confirmation email to","test@email.com", "tradingName")
+
+    }
+  }
 }
