@@ -1,7 +1,6 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import javax.inject.{Inject, Singleton}
-
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment, Logger}
@@ -10,7 +9,7 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffini
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession.{IsRegisteredForUkTax, IsRegisteredWithHmrc}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, No, Unsure, Yes, _}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
+import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -26,6 +25,7 @@ class ApplicationController @Inject()(
   val env: Environment,
   validApplicantAction: AgentAffinityNoHmrcAsAgentAuthAction,
   val sessionStoreService: SessionStoreService,
+  val applicationService: ApplicationService,
   countryNamesLoader: CountryNamesLoader)(implicit val configuration: Configuration, override val ec: ExecutionContext)
     extends FrontendController with SessionBehaviour with I18nSupport {
 
@@ -573,7 +573,9 @@ class ApplicationController @Inject()(
 
   def submitCheckYourAnswers: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { applicationSession =>
-      Redirect(routes.ApplicationController.showApplicationComplete())
+      applicationService.createApplication(applicationSession).map { _ =>
+        Redirect(routes.ApplicationController.showApplicationComplete())
+      }
     }
   }
 

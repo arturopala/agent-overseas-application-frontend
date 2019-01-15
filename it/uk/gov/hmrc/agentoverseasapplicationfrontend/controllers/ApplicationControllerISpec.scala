@@ -1,17 +1,19 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import org.jsoup.Jsoup
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{LOCATION, redirectLocation}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetails.RadioOption
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
+import uk.gov.hmrc.agentoverseasapplicationfrontend.stubs.AgentOverseasApplicationStubs
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.collection.immutable.SortedSet
 
-class ApplicationControllerISpec extends BaseISpec {
+class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplicationStubs {
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
   private val contactDetails = ContactDetails("test", "last", "senior agent", "12345", "test@email.com")
@@ -1611,6 +1613,55 @@ class ApplicationControllerISpec extends BaseISpec {
       body.contains("crnCode") shouldBe true
       body.contains("trn1") shouldBe true
       body.contains("trn2") shouldBe true
+    }
+  }
+
+  "POST /check-your-answers" should {
+
+    def initialTestSetup = {
+      val registeredWithHmrc = Some(Yes)
+      val agentCodes =
+        AgentCodes(Some("selfAssessmentCode"), Some("corporationTaxCode"), Some("vatCode"), Some("payeCode"))
+
+      val agentSession =  AgentSession(
+        amlsDetails = Some(amlsDetails),
+        contactDetails = Some(contactDetails),
+        tradingName = Some("tradingName"),
+        mainBusinessAddress = Some(mainBusinessAddress),
+        registeredWithHmrc = registeredWithHmrc,
+        agentCodes = Some(agentCodes))
+
+      sessionStoreService.currentSession.agentSession = Some(agentSession)
+      agentSession
+    }
+
+    "submit the application and redirect to application-complete" in {
+      val agentSession = initialTestSetup
+
+      givenPostOverseasApplication(201, Json.toJson(CreateApplicationRequest(agentSession)).toString())
+
+      val result = await(controller.submitCheckYourAnswers(cleanCredsAgent(FakeRequest())))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showApplicationComplete().url
+    }
+
+    "return exception when agent-overseas-application backend is unavailable" in {
+      val agentSession = initialTestSetup
+
+      sessionStoreService.currentSession.agentSession = Some(agentSession)
+
+      givenPostOverseasApplication(503, Json.toJson(CreateApplicationRequest(agentSession)).toString())
+
+      an[Exception] should be thrownBy(await(controller.submitCheckYourAnswers(cleanCredsAgent(FakeRequest()))))
+    }
+
+    "redirect to /money-laundering when session not found" in {
+      val result = await(controller.submitCheckYourAnswers()(cleanCredsAgent(FakeRequest())))
+
+      status(result) shouldBe 303
+
+      redirectLocation(result) shouldBe Some(routes.ApplicationController.showAntiMoneyLaunderingForm().url)
     }
   }
 

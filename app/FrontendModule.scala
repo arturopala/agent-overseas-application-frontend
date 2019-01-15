@@ -5,8 +5,9 @@ import com.google.inject.name.Names
 import javax.inject.{Inject, Named, Provider, Singleton}
 import org.slf4j.MDC
 import play.api.{Configuration, Environment, Logger}
+import uk.gov.hmrc.http.HttpPost
 import uk.gov.hmrc.http.cache.client.SessionCache
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
+import uk.gov.hmrc.play.bootstrap.http.{DefaultHttpClient, HttpClient}
 import uk.gov.hmrc.play.config.ServicesConfig
 
 class FrontendModule(val environment: Environment, val configuration: Configuration)
@@ -24,6 +25,9 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
     MDC.put("appName", appName)
     loggerDateFormat.foreach(str => MDC.put("logger.json.dateformat", str))
 
+    bind(classOf[HttpClient]).to(classOf[DefaultHttpClient])
+    bind(classOf[HttpPost]).to(classOf[DefaultHttpClient])
+
     bindProperty("appName")
     bindProperty("country.list.location")
 
@@ -34,6 +38,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 
     bindBaseUrl("auth")
     bindBaseUrl("cachable.session-cache")
+    bindBaseUrl("agent-overseas-application")
   }
 
   private def bindBaseUrl(serviceName: String) =

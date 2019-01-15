@@ -16,7 +16,36 @@ case class AgentSession(
   companyRegistrationNumber: Option[CompanyRegistrationNumber] = None,
   hasTaxRegNumbers: Option[Boolean] = None,
   taxRegistrationNumbers: Option[SortedSet[String]] = None,
-  changingAnswers: Boolean = false)
+  changingAnswers: Boolean = false) {
+
+  def sanitize: AgentSession = {
+    val agentCodes = if (this.registeredWithHmrc.contains(Yes)) this.agentCodes else None
+
+    val registeredForUkTax = this.registeredWithHmrc match {
+      case Some(Yes) if !this.agentCodes.exists(_.hasOneOrMoreCodes) => this.registeredForUkTax
+      case Some(No | Unsure)                                         => this.registeredForUkTax
+      case _                                                         => None
+    }
+    val personalDetails = if (registeredForUkTax.contains(Yes)) this.personalDetails else None
+    val companyRegistrationNumber = registeredForUkTax.flatMap(_ => this.companyRegistrationNumber)
+    val taxRegistrationNumbers = registeredForUkTax.flatMap(_ => this.taxRegistrationNumbers)
+
+    AgentSession(
+      this.amlsDetails,
+      this.contactDetails,
+      this.tradingName,
+      this.mainBusinessAddress,
+      this.registeredWithHmrc,
+      agentCodes,
+      registeredForUkTax,
+      personalDetails,
+      companyRegistrationNumber,
+      this.hasTaxRegNumbers,
+      taxRegistrationNumbers,
+      this.changingAnswers
+    )
+  }
+}
 
 object AgentSession {
   implicit val format: OFormat[AgentSession] = Json.format[AgentSession]

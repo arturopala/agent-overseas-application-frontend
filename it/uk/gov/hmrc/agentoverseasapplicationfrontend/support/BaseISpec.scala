@@ -28,6 +28,8 @@ class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with A
         "appName" -> "agent-overseas-application-frontend",
         "microservice.services.auth.port" -> wireMockPort,
         "microservice.services.companyAuthSignInUrl" -> "/baseISpec/gg/sign-in",
+        "microservice.services.agent-overseas-application.host" -> wireMockHost,
+        "microservice.services.agent-overseas-application.port" -> wireMockPort,
         "cachable.session-cache.port" -> wireMockPort,
         "cachable.session-cache.domain" -> "keystore",
         "metrics.enabled" -> true,

@@ -14,7 +14,7 @@ class SessionStoreService @Inject()(val sessionCache: SessionCache) {
     sessionCache.fetchAndGetEntry[AgentSession]("agentSession")
 
   def cacheAgentSession(agentSession: AgentSession)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
-    sessionCache.cache("agentSession", agentSession).map(_ => ())
+    sessionCache.cache("agentSession", agentSession.sanitize).map(_ => ())
 
   def remove()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
     sessionCache.remove().map(_ => ())

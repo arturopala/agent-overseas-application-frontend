@@ -1,19 +1,27 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.services
 
+import org.scalatest.mockito.MockitoSugar
+import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.{any, eq => eqs}
+import org.scalatest.BeforeAndAfterEach
+import uk.gov.hmrc.agentoverseasapplicationfrontend.connectors.AgentOverseasApplicationConnector
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetails.RadioOption
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
-import uk.gov.hmrc.agentoverseasapplicationfrontend.support.TestSessionCache
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.collection.immutable.SortedSet
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class SessionStoreServiceSpec extends UnitSpec {
+class ApplicationServiceSpec extends UnitSpec with MockitoSugar with BeforeAndAfterEach {
 
-  implicit val hc = HeaderCarrier(sessionId = Some(SessionId("sessionId123456")))
+  val connector = mock[AgentOverseasApplicationConnector]
+
+  val service = new ApplicationService(connector)
+
+  private implicit val hc = HeaderCarrier()
 
   private val contactDetails = ContactDetails("test", "last", "senior agent", "12345", "test@email.com")
   private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
@@ -29,50 +37,34 @@ class SessionStoreServiceSpec extends UnitSpec {
     tradingName = Some("Trading name"),
     mainBusinessAddress = Some(mainBusinessAddress),
     registeredWithHmrc = Some(Yes),
-    agentCodes = None,
+    agentCodes = Some(agentCodes),
     registeredForUkTax = Some(No),
-    personalDetails = None,
+    personalDetails = Some(personalDetails),
     companyRegistrationNumber = Some(crn),
     hasTaxRegNumbers = Some(true),
     taxRegistrationNumbers = Some(SortedSet("123", "456")),
     changingAnswers = false
   )
 
-  "SessionStoreService" should {
+  "ApplicationService" should {
 
-    "store agent details" in {
-      val store = new SessionStoreService(new TestSessionCache())
+    "create new application" in {
+      when(
+        connector
+          .createOverseasApplication(any[CreateApplicationRequest])(eqs(hc), any[ExecutionContext]))
+        .thenReturn(Future.successful(()))
 
-      await(store.cacheAgentSession(agentSession))
-
-      await(store.fetchAgentSession) shouldBe Some(agentSession)
+      await(service.createApplication(agentSession)) shouldBe (())
     }
 
-    "always sanitise data when stored" in {
-      val store = new SessionStoreService(new TestSessionCache())
+    "returns exception when fails to create new application" in {
+      when(
+        connector
+          .createOverseasApplication(any[CreateApplicationRequest])(eqs(hc), any[ExecutionContext]))
+        .thenReturn(Future.failed(new Exception("Something went wrong! Please try again later.")))
 
-      await(
-        store.cacheAgentSession(agentSession
-          .copy(registeredWithHmrc = Some(No), agentCodes = Some(agentCodes), personalDetails = Some(personalDetails))))
-
-      await(store.fetchAgentSession).get.agentCodes shouldBe None
-      await(store.fetchAgentSession).get.personalDetails shouldBe None
-    }
-
-    "return None when no application details have been stored" in {
-      val store = new SessionStoreService(new TestSessionCache())
-
-      await(store.fetchAgentSession) shouldBe None
-    }
-
-    "remove the underlying storage for the current session when remove is called" in {
-      val store = new SessionStoreService(new TestSessionCache())
-
-      await(store.cacheAgentSession(agentSession))
-
-      await(store.remove())
-
-      await(store.fetchAgentSession) shouldBe None
+      an[Exception] should be thrownBy (await(service.createApplication(agentSession)))
     }
   }
+
 }
