@@ -209,3 +209,11 @@ applicationComplete.print=Print this page
 applicationComplete.feedback.link=What did you think of this service?
 applicationComplete.feedback.text=(takes 30 seconds)
 
+# Status rejected
+statusRejected.title=Application rejected
+statusRejected.para1=We have rejected your application for an agent services account for {0}.
+statusRejected.para2=We have sent an email to {0} to confirm our decision.
+statusRejected.heading=If you want to apply again
+statusRejected.para3=Before you apply again, you should read the decision to find out why your application was rejected.
+statusRejected.link=If you want to apply again, you will need to {0}
+statusRejected.link.text=start a new application

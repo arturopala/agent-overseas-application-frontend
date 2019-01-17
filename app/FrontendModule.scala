@@ -5,8 +5,8 @@ import com.google.inject.name.Names
 import javax.inject.{Inject, Named, Provider, Singleton}
 import org.slf4j.MDC
 import play.api.{Configuration, Environment, Logger}
-import uk.gov.hmrc.http.HttpPost
 import uk.gov.hmrc.http.cache.client.SessionCache
+import uk.gov.hmrc.http.{HttpPost, _}
 import uk.gov.hmrc.play.bootstrap.http.{DefaultHttpClient, HttpClient}
 import uk.gov.hmrc.play.config.ServicesConfig
 
@@ -27,6 +27,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 
     bind(classOf[HttpClient]).to(classOf[DefaultHttpClient])
     bind(classOf[HttpPost]).to(classOf[DefaultHttpClient])
+    bind(classOf[HttpGet]).to(classOf[DefaultHttpClient])
 
     bindProperty("appName")
     bindProperty("country.list.location")

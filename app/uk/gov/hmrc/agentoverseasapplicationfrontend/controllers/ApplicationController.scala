@@ -454,7 +454,7 @@ class ApplicationController @Inject()(
 
   def showYourTaxRegNumbersForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     withAgentSession { session =>
-      val trns = session.taxRegistrationNumbers.getOrElse(SortedSet.empty)
+      val trns = session.taxRegistrationNumbers.getOrElse(SortedSet.empty[String])
       if (session.changingAnswers) {
         Ok(your_tax_registration_numbers(DoYouWantToAddAnotherTrnForm.form, trns, Some(showCheckYourAnswersUrl)))
       } else {
@@ -469,7 +469,7 @@ class ApplicationController @Inject()(
         .bindFromRequest()
         .fold(
           formWithErrors => {
-            val trns = session.taxRegistrationNumbers.getOrElse(SortedSet.empty)
+            val trns = session.taxRegistrationNumbers.getOrElse(SortedSet.empty[String])
             if (session.changingAnswers) {
               Ok(your_tax_registration_numbers(formWithErrors, trns, Some(showCheckYourAnswersUrl)))
             } else {

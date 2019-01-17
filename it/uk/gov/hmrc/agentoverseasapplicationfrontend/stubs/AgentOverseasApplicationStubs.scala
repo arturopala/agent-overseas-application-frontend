@@ -2,7 +2,7 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.stubs
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.libs.json.Json
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.CreateApplicationRequest
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{ApplicationStatus, CreateApplicationRequest}
 
 trait AgentOverseasApplicationStubs {
 
@@ -56,4 +56,28 @@ trait AgentOverseasApplicationStubs {
 
   val defaultCreateApplicationRequest: CreateApplicationRequest = Json.parse(defaultRequestBody).as[CreateApplicationRequest]
 
+  def given200GetOverseasApplications(allRejected: Boolean): Unit = {
+    val allStatuses = ApplicationStatus.allStatuses.map(status => s"statusIdentifier=${status.key}").mkString("&")
+    val requestBody = if (allRejected) TestData.allRejected else TestData.notAllRejected
+
+    stubFor(get(urlEqualTo(s"/agent-overseas-application/application?$allStatuses"))
+      .willReturn(aResponse()
+        .withBody(requestBody)
+        .withStatus(200))
+    )
+  }
+
+  def given404GetOverseasApplication: Unit = {
+    val allStatuses = ApplicationStatus.allStatuses.map(status => s"statusIdentifier=${status.key}").mkString("&")
+    stubFor(get(urlEqualTo(s"/agent-overseas-application/application?$allStatuses"))
+      .willReturn(aResponse()
+        .withStatus(404)))
+  }
+
+  def given500GetOverseasApplication: Unit = {
+    val allStatuses = ApplicationStatus.allStatuses.map(status => s"statusIdentifier=${status.key}").mkString("&")
+    stubFor(get(urlEqualTo(s"/agent-overseas-application/application?$allStatuses"))
+      .willReturn(aResponse()
+        .withStatus(500)))
+  }
 }
