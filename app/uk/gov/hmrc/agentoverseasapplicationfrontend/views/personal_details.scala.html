@@ -47,10 +47,7 @@
                 @personalDetailsForm.error("saUtr").map{formError => <span class="error-message"> @Messages(formError.message)</span>}
                 <input class="form-control" name="saUtr" type="text" id="saUtr" @if(personalDetailsForm.value.exists(_.choice.value == "saUtr")) { value="@personalDetailsForm.value.flatMap(_.saUtr.map(_.utr)).getOrElse("")" }>
             </div>
-            <div class="multiple-choice">
-                <input id="variant_cannotProvide" type="radio" name="personalDetailsChoice" value="unsure" @if(personalDetailsForm.value.exists(_.choice.value == "unsure")){checked}>
-                <label for="variant_cannotProvide">@Messages("personalDetails.form.noDetails")</label>
-            </div>
+
         </fieldset>
         </div>
         <div class="form-group">

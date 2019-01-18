@@ -80,161 +80,27 @@ class CommonRoutingSpec extends UnitSpec {
         }
       }
 
-      Seq(No, Unsure).foreach { registeredWithHmrcChoice =>
-        s"RegisteredWithHmrc choice is $registeredWithHmrcChoice" should {
-          "return showUkTaxRegistrationForm when uk tax registration details are not in session" in {
-            await(
-              FakeRouting.sessionStoreService.cacheAgentSession(detailsUpToRegisteredWithHmrc.copy(
-                registeredWithHmrc = Some(registeredWithHmrcChoice)
-              )))
-
-            await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showUkTaxRegistrationForm()
-          }
-        }
-      }
-    }
-
-    "return correct branching page after having decided if they are registered for UK tax" when {
-      "RegisteredForUkTax choice is Yes" should {
-        "return showPersonalDetailsForm when personal details are not in session" in {
+      s"RegisteredWithHmrc choice is No" should {
+        "return showUkTaxRegistrationForm when uk tax registration details are not in session" in {
           await(
             FakeRouting.sessionStoreService.cacheAgentSession(
               detailsUpToRegisteredWithHmrc.copy(
-                registeredWithHmrc = Some(Unsure),
-                registeredForUkTax = Some(Yes),
-                personalDetails = None
+                registeredWithHmrc = Some(No)
               )))
 
-          await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showPersonalDetailsForm()
-        }
-
-        "return showCompanyRegistrationNumberForm when personal details are in session" in {
-          await(
-            FakeRouting.sessionStoreService.cacheAgentSession(
-              detailsUpToRegisteredWithHmrc.copy(
-                registeredWithHmrc = Some(Unsure),
-                registeredForUkTax = Some(Yes),
-                personalDetails = Some(personalDetails)
-              )))
-
-          await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showCompanyRegistrationNumberForm()
-        }
-      }
-
-      Seq(No, Unsure).foreach { negativeChoice =>
-        s"RegisteredForUkTax choice is $negativeChoice" should {
-          "return showCompanyRegistrationNumberForm when company registration number is not in session" in {
-            await(
-              FakeRouting.sessionStoreService.cacheAgentSession(
-                detailsUpToRegisteredWithHmrc.copy(
-                  registeredWithHmrc = Some(Unsure),
-                  registeredForUkTax = Some(negativeChoice),
-                  personalDetails = None
-                )))
-
-            await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController
-              .showCompanyRegistrationNumberForm()
-          }
+          await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showUkTaxRegistrationForm()
         }
       }
     }
+  }
 
-    "return showTaxRegistrationNumberForm when AgentSession collected prerequisites" when {
-      "RegisteredForUkTax choice is Yes and personal details have been submitted" in {
-        await(
-          FakeRouting.sessionStoreService.cacheAgentSession(detailsUpToRegisteredWithHmrc.copy(
-            registeredWithHmrc = Some(No),
-            registeredForUkTax = Some(Yes),
-            personalDetails = Some(personalDetails),
-            companyRegistrationNumber = Some(companyRegistrationNumber)
-          )))
-
-        await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showTaxRegistrationNumberForm()
-      }
-    }
-
-    Seq(No, Unsure).foreach { negativeChoice =>
-      s"RegisteredForUkTax choice is $negativeChoice and personal details were not submitted" in {
+  "return correct branching page after having decided if they are registered for UK tax" when {
+    "RegisteredForUkTax choice is Yes" should {
+      "return showPersonalDetailsForm when personal details are not in session" in {
         await(
           FakeRouting.sessionStoreService.cacheAgentSession(
             detailsUpToRegisteredWithHmrc.copy(
               registeredWithHmrc = Some(No),
-              registeredForUkTax = Some(negativeChoice),
-              personalDetails = None,
-              companyRegistrationNumber = Some(companyRegistrationNumber)
-            )))
-
-        await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showTaxRegistrationNumberForm()
-      }
-    }
-
-    "return showYourTaxRegNo when hasTaxRegNumbers equals Some(true)" in {
-      await(
-        FakeRouting.sessionStoreService.cacheAgentSession(detailsUpToRegisteredWithHmrc.copy(
-          registeredWithHmrc = Some(No),
-          registeredForUkTax = Some(No),
-          personalDetails = None,
-          companyRegistrationNumber = Some(companyRegistrationNumber),
-          hasTaxRegNumbers = Some(true)
-        )))
-
-      await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showYourTaxRegNumbersForm()
-    }
-
-    "return showCheckYourAnswers when hasTaxRegNumbers equals Some(false)" in {
-      await(
-        FakeRouting.sessionStoreService.cacheAgentSession(detailsUpToRegisteredWithHmrc.copy(
-          registeredWithHmrc = Some(No),
-          registeredForUkTax = Some(No),
-          personalDetails = None,
-          companyRegistrationNumber = Some(companyRegistrationNumber),
-          hasTaxRegNumbers = Some(false)
-        )))
-
-      await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showCheckYourAnswers()
-    }
-
-    "return showAgentCodesForm when registered with HMRC and no answer for agent codes has yet been given" in {
-      await(
-        FakeRouting.sessionStoreService.cacheAgentSession(
-          detailsUpToRegisteredWithHmrc.copy(
-            registeredWithHmrc = Some(Yes),
-            agentCodes = None
-          )))
-
-      await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showAgentCodesForm()
-    }
-
-    "return showCheckYourAnswers when one or more agent codes have been given" in {
-      await(
-        FakeRouting.sessionStoreService.cacheAgentSession(
-          detailsUpToRegisteredWithHmrc.copy(
-            registeredWithHmrc = Some(Yes),
-            agentCodes = Some(AgentCodes(Some("saCode"), None, None, None))
-          )))
-
-      await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showCheckYourAnswers()
-    }
-
-    "return correct branching page after having submitted no agent codes" when {
-      "return showUkTaxRegistrationForm when they have not yet made a choice for whether they are registered for UK tax" in {
-        await(
-          FakeRouting.sessionStoreService.cacheAgentSession(
-            detailsUpToRegisteredWithHmrc.copy(
-              registeredWithHmrc = Some(Yes),
-              agentCodes = Some(AgentCodes(None, None, None, None)),
-              registeredForUkTax = None
-            )))
-
-        await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showUkTaxRegistrationForm()
-      }
-
-      "return showPersonalDetailsForm when an answer for agent codes was given, but no agent codes were supplied, and they've answered yes to UK Tax registration" in {
-        await(
-          FakeRouting.sessionStoreService.cacheAgentSession(
-            detailsUpToRegisteredWithHmrc.copy(
-              registeredWithHmrc = Some(Yes),
-              agentCodes = Some(AgentCodes(None, None, None, None)),
               registeredForUkTax = Some(Yes),
               personalDetails = None
             )))
@@ -242,25 +108,152 @@ class CommonRoutingSpec extends UnitSpec {
         await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showPersonalDetailsForm()
       }
 
-      Seq(No, Unsure).foreach { negativeChoice =>
-        s"return showCompanyRegistrationNumberForm when Uk Tax registered choice was $negativeChoice" in {
-          await(
-            FakeRouting.sessionStoreService.cacheAgentSession(detailsUpToRegisteredWithHmrc.copy(
-              registeredWithHmrc = Some(Yes),
-              agentCodes = Some(AgentCodes(None, None, None, None)),
-              registeredForUkTax = Some(negativeChoice),
-              personalDetails = None,
-              companyRegistrationNumber = None
+      "return showCompanyRegistrationNumberForm when personal details are in session" in {
+        await(
+          FakeRouting.sessionStoreService.cacheAgentSession(
+            detailsUpToRegisteredWithHmrc.copy(
+              registeredWithHmrc = Some(No),
+              registeredForUkTax = Some(Yes),
+              personalDetails = Some(personalDetails)
             )))
 
-          await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showCompanyRegistrationNumberForm()
-        }
+        await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showCompanyRegistrationNumberForm()
+      }
+    }
+
+    s"RegisteredForUkTax choice is No" should {
+      "return showCompanyRegistrationNumberForm when company registration number is not in session" in {
+        await(
+          FakeRouting.sessionStoreService.cacheAgentSession(
+            detailsUpToRegisteredWithHmrc.copy(
+              registeredWithHmrc = Some(No),
+              registeredForUkTax = Some(No),
+              personalDetails = None
+            )))
+
+        await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController
+          .showCompanyRegistrationNumberForm()
       }
     }
   }
 
-  object FakeRouting extends CommonRouting with Results {
-    override val sessionStoreService = new SessionStoreService(new TestSessionCache())
+  "return showTaxRegistrationNumberForm when AgentSession collected prerequisites" when {
+    "RegisteredForUkTax choice is Yes and personal details have been submitted" in {
+      await(
+        FakeRouting.sessionStoreService.cacheAgentSession(detailsUpToRegisteredWithHmrc.copy(
+          registeredWithHmrc = Some(No),
+          registeredForUkTax = Some(Yes),
+          personalDetails = Some(personalDetails),
+          companyRegistrationNumber = Some(companyRegistrationNumber)
+        )))
+
+      await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showTaxRegistrationNumberForm()
+    }
   }
 
+  s"RegisteredForUkTax choice is no and personal details were not submitted" in {
+    await(
+      FakeRouting.sessionStoreService.cacheAgentSession(
+        detailsUpToRegisteredWithHmrc.copy(
+          registeredWithHmrc = Some(No),
+          registeredForUkTax = Some(No),
+          personalDetails = None,
+          companyRegistrationNumber = Some(companyRegistrationNumber)
+        )))
+
+    await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showTaxRegistrationNumberForm()
+  }
+
+  "return showYourTaxRegNo when hasTaxRegNumbers equals Some(true)" in {
+    await(
+      FakeRouting.sessionStoreService.cacheAgentSession(detailsUpToRegisteredWithHmrc.copy(
+        registeredWithHmrc = Some(No),
+        registeredForUkTax = Some(No),
+        personalDetails = None,
+        companyRegistrationNumber = Some(companyRegistrationNumber),
+        hasTaxRegNumbers = Some(true)
+      )))
+
+    await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showYourTaxRegNumbersForm()
+  }
+
+  "return showCheckYourAnswers when hasTaxRegNumbers equals Some(false)" in {
+    await(
+      FakeRouting.sessionStoreService.cacheAgentSession(detailsUpToRegisteredWithHmrc.copy(
+        registeredWithHmrc = Some(No),
+        registeredForUkTax = Some(No),
+        personalDetails = None,
+        companyRegistrationNumber = Some(companyRegistrationNumber),
+        hasTaxRegNumbers = Some(false)
+      )))
+
+    await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showCheckYourAnswers()
+  }
+
+  "return showAgentCodesForm when registered with HMRC and no answer for agent codes has yet been given" in {
+    await(
+      FakeRouting.sessionStoreService.cacheAgentSession(
+        detailsUpToRegisteredWithHmrc.copy(
+          registeredWithHmrc = Some(Yes),
+          agentCodes = None
+        )))
+
+    await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showAgentCodesForm()
+  }
+
+  "return showCheckYourAnswers when one or more agent codes have been given" in {
+    await(
+      FakeRouting.sessionStoreService.cacheAgentSession(
+        detailsUpToRegisteredWithHmrc.copy(
+          registeredWithHmrc = Some(Yes),
+          agentCodes = Some(AgentCodes(Some("saCode"), None, None, None))
+        )))
+
+    await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showCheckYourAnswers()
+  }
+
+  "return correct branching page after having submitted no agent codes" when {
+    "return showUkTaxRegistrationForm when they have not yet made a choice for whether they are registered for UK tax" in {
+      await(
+        FakeRouting.sessionStoreService.cacheAgentSession(
+          detailsUpToRegisteredWithHmrc.copy(
+            registeredWithHmrc = Some(Yes),
+            agentCodes = Some(AgentCodes(None, None, None, None)),
+            registeredForUkTax = None
+          )))
+
+      await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showUkTaxRegistrationForm()
+    }
+
+    "return showPersonalDetailsForm when an answer for agent codes was given, but no agent codes were supplied, and they've answered yes to UK Tax registration" in {
+      await(
+        FakeRouting.sessionStoreService.cacheAgentSession(
+          detailsUpToRegisteredWithHmrc.copy(
+            registeredWithHmrc = Some(Yes),
+            agentCodes = Some(AgentCodes(None, None, None, None)),
+            registeredForUkTax = Some(Yes),
+            personalDetails = None
+          )))
+
+      await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showPersonalDetailsForm()
+    }
+
+    s"return showCompanyRegistrationNumberForm when Uk Tax registered choice was No" in {
+      await(
+        FakeRouting.sessionStoreService.cacheAgentSession(detailsUpToRegisteredWithHmrc.copy(
+          registeredWithHmrc = Some(Yes),
+          agentCodes = Some(AgentCodes(None, None, None, None)),
+          registeredForUkTax = Some(No),
+          personalDetails = None,
+          companyRegistrationNumber = None
+        )))
+
+      await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showCompanyRegistrationNumberForm()
+    }
+  }
+
+}
+
+object FakeRouting extends CommonRouting with Results {
+  override val sessionStoreService = new SessionStoreService(new TestSessionCache())
 }

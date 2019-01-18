@@ -9,9 +9,9 @@ case class AgentSession(
   contactDetails: Option[ContactDetails] = None,
   tradingName: Option[String] = None,
   mainBusinessAddress: Option[MainBusinessAddress] = None,
-  registeredWithHmrc: Option[YesNoUnsure] = None,
+  registeredWithHmrc: Option[YesNo] = None,
   agentCodes: Option[AgentCodes] = None,
-  registeredForUkTax: Option[YesNoUnsure] = None,
+  registeredForUkTax: Option[YesNo] = None,
   personalDetails: Option[PersonalDetails] = None,
   companyRegistrationNumber: Option[CompanyRegistrationNumber] = None,
   hasTaxRegNumbers: Option[Boolean] = None,
@@ -71,7 +71,7 @@ object AgentSession {
   }
 
   object IsRegisteredWithHmrc {
-    def unapply(session: Option[AgentSession]): Option[YesNoUnsure] = session.flatMap(_.registeredWithHmrc)
+    def unapply(session: Option[AgentSession]): Option[YesNo] = session.flatMap(_.registeredWithHmrc)
   }
 
   object MissingAgentCodes {
@@ -92,7 +92,7 @@ object AgentSession {
   }
 
   object IsRegisteredForUkTax {
-    def unapply(session: Option[AgentSession]): Option[YesNoUnsure] = session.flatMap(_.registeredForUkTax)
+    def unapply(session: Option[AgentSession]): Option[YesNo] = session.flatMap(_.registeredForUkTax)
   }
 
   object MissingPersonalDetails {

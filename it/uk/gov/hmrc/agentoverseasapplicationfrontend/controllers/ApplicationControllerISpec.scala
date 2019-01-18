@@ -349,8 +349,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
     "ask for whether they are registered with HMRC" in new RegisteredWithHmrcSetup {
       val expectedRadios = Map(
         "yes"    -> "registeredWithHmrc.form.registered.yes",
-        "no"     -> "registeredWithHmrc.form.registered.no",
-        "unsure" -> "registeredWithHmrc.form.registered.unsure"
+        "no"     -> "registeredWithHmrc.form.registered.no"
       )
 
       expectedRadios.foreach {
@@ -370,9 +369,9 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
     }
 
     "show existing selection if session already contains choice" in
-      new RegisteredWithHmrcSetup(agentSession.copy(registeredWithHmrc = Some(Unsure))) {
+      new RegisteredWithHmrcSetup(agentSession.copy(registeredWithHmrc = Some(Yes))) {
 
-        doc.getElementById("registeredWithHmrc-unsure").attr("checked") shouldBe "checked"
+        doc.getElementById("registeredWithHmrc-yes").attr("checked") shouldBe "checked"
       }
 
     "contain a continue button" in new RegisteredWithHmrcSetup {
@@ -483,8 +482,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
     "ask for whether they are registered for UK tax" in new UkTaxRegistrationSetup {
       val expectedRadios = Map(
         "yes"    -> "ukTaxRegistration.form.registered.yes",
-        "no"     -> "ukTaxRegistration.form.registered.no",
-        "unsure" -> "ukTaxRegistration.form.registered.unsure"
+        "no"     -> "ukTaxRegistration.form.registered.no"
       )
 
       expectedRadios.foreach {
@@ -504,8 +502,8 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
     }
 
     "show existing selection if session already contains choice" in
-      new UkTaxRegistrationSetup(defaultAgentSession.copy(registeredForUkTax = Some(Unsure))) {
-        doc.getElementById("registeredForUkTax-unsure").attr("checked") shouldBe "checked"
+      new UkTaxRegistrationSetup(defaultAgentSession.copy(registeredForUkTax = Some(Yes))) {
+        doc.getElementById("registeredForUkTax-yes").attr("checked") shouldBe "checked"
       }
 
     "contain a continue button" in new UkTaxRegistrationSetup {
@@ -649,8 +647,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
         "personalDetails.form.helper.nino",
         "personalDetails.form.sautr",
         "personalDetails.form.input.label.sautr",
-        "personalDetails.form.helper.sautr",
-        "personalDetails.form.noDetails"
+        "personalDetails.form.helper.sautr"
       )
     }
 

@@ -79,7 +79,6 @@ registeredWithHmrc.caption=Other business details
 registeredWithHmrc.form.title=We need to know if you are registered, so we can confirm who you are.
 registeredWithHmrc.form.registered.yes=Yes
 registeredWithHmrc.form.registered.no=No
-registeredWithHmrc.form.registered.unsure=I am not sure
 
 # Registered for UK Tax
 ukTaxRegistration.title=Are you registered to pay UK tax or National Insurance?
@@ -87,7 +86,6 @@ ukTaxRegistration.caption=Your details
 ukTaxRegistration.form.title=We need to know if you are registered, so we can confirm who you are.
 ukTaxRegistration.form.registered.yes=Yes
 ukTaxRegistration.form.registered.no=No
-ukTaxRegistration.form.registered.unsure=I am not sure
 
 # Agent codes
 agentCodes.title=Tell us about any HMRC agent codes you have for these services
@@ -113,7 +111,6 @@ personalDetails.form.helper.nino=For example, QQ 12 34 56 C
 personalDetails.form.sautr=Self Assessment UTR
 personalDetails.form.input.label.sautr=Self Assessment UTR
 personalDetails.form.helper.sautr=For example, 12345 67890
-personalDetails.form.noDetails=I do not have these details
 
 # Has Tax Registration Number Radio Button
 taxRegNo.title=Do you have any tax registration numbers in your country?

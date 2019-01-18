@@ -9,8 +9,8 @@ case class CreateApplicationRequest(
   contactDetails: ContactDetails,
   tradingName: String,
   businessAddress: MainBusinessAddress,
-  isUkRegisteredTaxOrNino: Option[YesNoUnsure],
-  isHmrcAgentRegistered: YesNoUnsure,
+  isUkRegisteredTaxOrNino: Option[YesNo],
+  isHmrcAgentRegistered: YesNo,
   saAgentCode: Option[String],
   ctAgentCode: Option[String],
   vatAgentCode: Option[String],
@@ -53,8 +53,8 @@ object CreateApplicationRequest {
       (__ \ "contactDetails").write[ContactDetails] and
       (__ \ "businessDetail" \ "tradingName").write[String] and
       (__ \ "businessDetail" \ "businessAddress").write[MainBusinessAddress] and
-      (__ \ "businessDetail" \ "extraInfo" \ "isUkRegisteredTaxOrNino").write[Option[YesNoUnsure]] and
-      (__ \ "businessDetail" \ "extraInfo" \ "isHmrcAgentRegistered").write[YesNoUnsure] and
+      (__ \ "businessDetail" \ "extraInfo" \ "isUkRegisteredTaxOrNino").write[Option[YesNo]] and
+      (__ \ "businessDetail" \ "extraInfo" \ "isHmrcAgentRegistered").write[YesNo] and
       (__ \ "businessDetail" \ "extraInfo" \ "saAgentCode").write[Option[String]] and
       (__ \ "businessDetail" \ "extraInfo" \ "ctAgentCode").write[Option[String]] and
       (__ \ "businessDetail" \ "extraInfo" \ "vatAgentCode").write[Option[String]] and
@@ -88,8 +88,8 @@ object CreateApplicationRequest {
       (__ \ "contactDetails").read[ContactDetails] and
       (__ \ "businessDetail" \ "tradingName").read[String] and
       (__ \ "businessDetail" \ "businessAddress").read[MainBusinessAddress] and
-      (__ \ "businessDetail" \ "extraInfo" \ "isUkRegisteredTaxOrNino").readNullable[YesNoUnsure] and
-      (__ \ "businessDetail" \ "extraInfo" \ "isHmrcAgentRegistered").read[YesNoUnsure] and
+      (__ \ "businessDetail" \ "extraInfo" \ "isUkRegisteredTaxOrNino").readNullable[YesNo] and
+      (__ \ "businessDetail" \ "extraInfo" \ "isHmrcAgentRegistered").read[YesNo] and
       (__ \ "businessDetail" \ "extraInfo" \ "saAgentCode").readNullable[String] and
       (__ \ "businessDetail" \ "extraInfo" \ "ctAgentCode").readNullable[String] and
       (__ \ "businessDetail" \ "extraInfo" \ "vatAgentCode").readNullable[String] and
