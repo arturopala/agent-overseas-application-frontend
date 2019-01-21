@@ -23,7 +23,7 @@ case class AgentSession(
 
     val registeredForUkTax = this.registeredWithHmrc match {
       case Some(Yes) if !this.agentCodes.exists(_.hasOneOrMoreCodes) => this.registeredForUkTax
-      case Some(No | Unsure)                                         => this.registeredForUkTax
+      case Some(No)                                                  => this.registeredForUkTax
       case _                                                         => None
     }
     val personalDetails = if (registeredForUkTax.contains(Yes)) this.personalDetails else None
@@ -98,9 +98,8 @@ object AgentSession {
   object MissingPersonalDetails {
     def unapply(session: Option[AgentSession]): Boolean =
       session.flatMap(_.registeredForUkTax) match {
-        case Some(No)     => false
-        case Some(Unsure) => false
-        case _            => session.exists(_.personalDetails.isEmpty)
+        case Some(No) => false
+        case _        => session.exists(_.personalDetails.isEmpty)
       }
   }
 

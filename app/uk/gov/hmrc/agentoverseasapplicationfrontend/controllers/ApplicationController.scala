@@ -1,14 +1,14 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.i18n.{I18nSupport, Messages, MessagesApi}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.config.{AMLSLoader, CountryNamesLoader}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession.{IsRegisteredForUkTax, IsRegisteredWithHmrc}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, No, Unsure, Yes, _}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, No, Yes, _}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
@@ -586,12 +586,12 @@ class ApplicationController @Inject()(
   }
 
   private def ukTaxRegistrationBackLink(session: AgentSession) = Some(session) match {
-    case IsRegisteredWithHmrc(Yes)         => routes.ApplicationController.showAgentCodesForm()
-    case IsRegisteredWithHmrc(No | Unsure) => routes.ApplicationController.showRegisteredWithHmrcForm()
+    case IsRegisteredWithHmrc(Yes) => routes.ApplicationController.showAgentCodesForm()
+    case IsRegisteredWithHmrc(No)  => routes.ApplicationController.showRegisteredWithHmrcForm()
   }
 
   private def companyRegNumberBackLink(session: AgentSession) = Some(session) match {
-    case IsRegisteredForUkTax(Yes)         => routes.ApplicationController.showPersonalDetailsForm().url
-    case IsRegisteredForUkTax(No | Unsure) => routes.ApplicationController.showUkTaxRegistrationForm().url
+    case IsRegisteredForUkTax(Yes) => routes.ApplicationController.showPersonalDetailsForm().url
+    case IsRegisteredForUkTax(No)  => routes.ApplicationController.showUkTaxRegistrationForm().url
   }
 }

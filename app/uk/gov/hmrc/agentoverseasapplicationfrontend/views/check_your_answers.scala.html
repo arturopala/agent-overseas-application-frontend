@@ -25,6 +25,46 @@
 
 @(agentSession: AgentSession, countryName: String)(implicit request: Request[_], messages: Messages, configuration: Configuration)
 
+@showFullBusinessDetails = {
+    @agentSession.registeredForUkTax.map { isRegisteredForUKTax =>
+        @check_answers_div(Messages("checkAnswers.registeredForUKTax.title"),  isRegisteredForUKTax, routes.ChangingAnswersController.changeRegisteredForUKTax())
+
+        @if(isRegisteredForUKTax == Yes) {
+            @agentSession.personalDetails.flatMap(_.nino).map { nino =>
+                @check_answers_div(Messages("checkAnswers.personalDetails.nino.title"),  nino, routes.ChangingAnswersController.changePersonalDetails())
+            }
+
+            @agentSession.personalDetails.flatMap(_.saUtr).map { saUtr =>
+                @check_answers_div(Messages("checkAnswers.personalDetails.saUtr.title"),  saUtr, routes.ChangingAnswersController.changePersonalDetails())
+            }
+        }
+    }
+
+    @agentSession.companyRegistrationNumber.map(_.registrationNumber).map { crn =>
+        @if(crn.nonEmpty) {
+            @check_answers_div(Messages("checkAnswers.companyRegistrationNumber.title"), crn.get, routes.ChangingAnswersController.changeCompanyRegistrationNumber())
+        } else {
+            @check_answers_div(Messages("checkAnswers.companyRegistrationNumber.title"), Messages("checkAnswers.companyRegistrationNumber.empty"),
+            routes.ChangingAnswersController.changeCompanyRegistrationNumber())
+        }
+    }
+
+    @agentSession.taxRegistrationNumbers match {
+        case Some(trns) if trns.nonEmpty => {
+            @check_answers_div(
+                Messages("checkAnswers.taxRegistrationNumbers.title"),
+                Html(agentSession.taxRegistrationNumbers.getOrElse(SortedSet.empty[String]).mkString("<br>")),
+                routes.ChangingAnswersController.changeYourTaxRegistrationNumbers())
+        }
+        case _ => {
+            @check_answers_div(
+                Messages("checkAnswers.taxRegistrationNumbers.title"),
+                Messages("checkAnswers.taxRegistrationNumbers.empty"),
+                routes.ChangingAnswersController.changeYourTaxRegistrationNumbers() )
+        }
+    }
+}
+
 @uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("checkAnswers.title"), bodyClasses = None) {
 
     <a href="@routes.ApplicationController.showYourTaxRegNumbersForm" class="link-back">@Messages("button.back")</a>
@@ -99,7 +139,7 @@
         <dl class="app-check-your-answers app-check-your-answers--long">
             @check_answers_div(Messages("checkAnswers.registeredWithHmrc.title"),  isRegistered, routes.ChangingAnswersController.changeRegisteredWithHmrc())
 
-            @if(isRegistered == Yes) {
+            @if(isRegistered == Yes && agentSession.agentCodes.map(_.hasOneOrMoreCodes).contains(true)) {
                 @agentSession.agentCodes.flatMap(_.selfAssessment).map { sa =>
                     @check_answers_div(Messages("checkAnswers.agentCode.selfAssessment"),  sa, routes.ChangingAnswersController.changeAgentCodes())
                 }
@@ -115,37 +155,20 @@
                 @agentSession.agentCodes.flatMap(_.paye).map { paye =>
                      @check_answers_div(Messages("checkAnswers.agentCode.paye"),  paye, routes.ChangingAnswersController.changeAgentCodes())
                 }
-            } else {
-                @agentSession.registeredForUkTax.map { isRegisteredForUKTax =>
-                        @check_answers_div(Messages("checkAnswers.registeredForUKTax.title"),  isRegisteredForUKTax, routes.ChangingAnswersController.changeRegisteredForUKTax())
+            }
 
-                        @if(isRegisteredForUKTax == Yes) {
-                            @agentSession.personalDetails.flatMap(_.nino).map { nino =>
-                                @check_answers_div(Messages("checkAnswers.personalDetails.nino.title"),  nino, routes.ChangingAnswersController.changePersonalDetails())
-                            }
+            @if(isRegistered == Yes && agentSession.agentCodes.map(_.isEmpty).contains(true)) {
+                @check_answers_div(Messages("checkAnswers.agentCode.title"),  Messages("checkAnswers.agentCode.empty"), routes.ChangingAnswersController.changeAgentCodes())
+                @showFullBusinessDetails
+            }
 
-                            @agentSession.personalDetails.flatMap(_.saUtr).map { saUtr =>
-                                @check_answers_div(Messages("checkAnswers.personalDetails.saUtr.title"),  saUtr, routes.ChangingAnswersController.changePersonalDetails())
-                            }
-                        }
-                }
-
-                @agentSession.companyRegistrationNumber.flatMap(_.registrationNumber).map { crn =>
-                    @check_answers_div(Messages("checkAnswers.companyRegistrationNumber.title"),  crn, routes.ChangingAnswersController.changeCompanyRegistrationNumber())
-                }
-
-                @agentSession.hasTaxRegNumbers.map { hasTrn =>
-                    @if(hasTrn == true) {
-                        @check_answers_div(
-                        Messages("checkAnswers.taxRegistrationNumbers.title"),
-                        Html(agentSession.taxRegistrationNumbers.getOrElse(SortedSet.empty[String]).mkString("<br>")),
-                        routes.ChangingAnswersController.changeYourTaxRegistrationNumbers()
-                        )
-                    }
-                }
+            @if(isRegistered == No){
+               @showFullBusinessDetails
             }
         </dl>
     }
+
+    <p class="margin-top-30">@Messages("checkAnswers.confirm.p1")</p>
 
     @form(
         action = routes.ApplicationController.submitCheckYourAnswers(),

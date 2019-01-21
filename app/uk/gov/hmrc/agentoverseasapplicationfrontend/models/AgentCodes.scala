@@ -11,6 +11,8 @@ case class AgentCodes(
     case AgentCodes(None, None, None, None) => false
     case _                                  => true
   }
+
+  def isEmpty: Boolean = !hasOneOrMoreCodes
 }
 
 object AgentCodes {

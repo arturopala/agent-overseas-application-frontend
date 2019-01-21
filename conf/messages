@@ -155,38 +155,43 @@ yourTaxRegistrationNumbers.form.doYouWantToAddAnotherTrn.no=No
 doYouWantToAddAnotherTrn.error.no-radio.selected=You must select one of the following to continue
 
 # Check Answers
-checkAnswers.title=Check your answers before sending your application
+checkAnswers.title=Check your details before sending your application
 checkAnswers.change.button=Change
 checkAnswers.amlsDetails.title=Money laundering compliance details
-checkAnswers.amlsDetails.supervisoryBody=Supervisory body
+checkAnswers.amlsDetails.supervisoryBody=Name of supervisory body
 checkAnswers.amlsDetails.memebershipNumber=Membership number
 
-checkAnswers.contactDetails.title=Your details
+checkAnswers.contactDetails.title=Your contact details
 checkAnswers.contactDetails.name=Name
 checkAnswers.contactDetails.jobTitle=Job title
 checkAnswers.contactDetails.businessTelephone=Business telephone number
 checkAnswers.contactDetails.businessEmail=Business email address
 
 checkAnswers.BusinessDetails.title=Your business details
-checkAnswers.tradingName.title=Trading name
+checkAnswers.tradingName.title=Main Trading name
 checkAnswers.mainBusinessAddress.title=Main trading address
 
 checkAnswers.registeredWithHmrc.title=Registered as agent with HMRC?
+checkAnswers.agentCode.title=Agent Codes
+checkAnswers.agentCode.empty=No Codes given
 checkAnswers.agentCode.selfAssessment=Self Assessment agent code
 checkAnswers.agentCode.corporationTax=Corporation Tax agent code
 checkAnswers.agentCode.paye=PAYE agent code
 checkAnswers.agentCode.vat=VAT agent code
 
-checkAnswers.registeredForUKTax.title=Registered as agent with UK Tax?
+checkAnswers.registeredForUKTax.title=Registered to pay UK tax or National Insurance?
 
 checkAnswers.personalDetails.nino.title=National Insurance number
 checkAnswers.personalDetails.saUtr.title=Self Assessment UTR
 
 checkAnswers.companyRegistrationNumber.title=Company Registration number
+checkAnswers.companyRegistrationNumber.empty=None
 checkAnswers.taxRegistrationNumbers.title=Tax Registration numbers
+checkAnswers.taxRegistrationNumbers.empty=
 
-checkAnswers.OtherBusinessDetails.title=Other business details
+checkAnswers.OtherBusinessDetails.title=Other business or personal details
 
+checkAnswers.confirm.p1=By submitting this application you are confirming that, to the best of your knowledge, the details you providing are correct.
 checkAnswers.confirm.button=Confirm answers and send application
 
 # Application Complete

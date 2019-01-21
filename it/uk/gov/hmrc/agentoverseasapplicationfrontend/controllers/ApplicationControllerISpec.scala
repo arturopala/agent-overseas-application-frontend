@@ -2,13 +2,15 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import org.jsoup.Jsoup
 import play.api.libs.json.Json
+import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{LOCATION, redirectLocation}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetails.RadioOption
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetails.RadioOption.SaUtrChoice
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.stubs.AgentOverseasApplicationStubs
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
-import uk.gov.hmrc.domain.Nino
+import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.collection.immutable.SortedSet
@@ -934,7 +936,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       result should containSubstrings(backButtonUrl)
     }
 
-    "display the company-registration-number form with correct back button link in case user selects No|Unsure option in the /uk-tax-registration page" in {
+    "display the company-registration-number form with correct back button link in case user selects No option in the /uk-tax-registration page" in {
       sessionStoreService.currentSession.agentSession =
         Some(agentSession.copy(registeredForUkTax = Some(No), companyRegistrationNumber = None))
 
@@ -1524,23 +1526,15 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
 
   "GET /check-your-answers" should {
-    "should display the form with all data as expected when user goes through 'RegsiteredWithHmrc=Yes' flow" in {
-      val registeredWithHmrc = Some(Yes)
-      val agentCodes =
-        AgentCodes(Some("selfAssessmentCode"), Some("corporationTaxCode"), Some("vatCode"), Some("payeCode"))
 
-      sessionStoreService.currentSession.agentSession = Some(
-        AgentSession(
-          Some(amlsDetails),
-          Some(contactDetails),
-          Some("tradingName"),
-          Some(mainBusinessAddress),
-          registeredWithHmrc,
-          Some(agentCodes)))
+    def testAgentCodes(body: String, result: Boolean) = {
+      body.contains("selfAssessmentCode") shouldBe result
+      body.contains("corporationTaxCode") shouldBe result
+      body.contains("vatCode") shouldBe result
+      body.contains("payeCode") shouldBe result
+    }
 
-      val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
-
-      status(result) shouldBe 200
+    def testMandatoryContent(result: Result) = {
       result should containMessages(
         "checkAnswers.title",
         "checkAnswers.change.button",
@@ -1550,20 +1544,227 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
         "checkAnswers.tradingName.title",
         "checkAnswers.mainBusinessAddress.title",
         "checkAnswers.registeredWithHmrc.title",
-        "checkAnswers.agentCode.selfAssessment",
-        "checkAnswers.agentCode.corporationTax",
-        "checkAnswers.agentCode.paye",
-        "checkAnswers.agentCode.vat",
-        "checkAnswers.confirm.button"
-      )
+        "checkAnswers.confirm.p1",
+        "checkAnswers.confirm.button")
+    }
 
-      val body = bodyOf(result)
+    "display the form with all data as expected when user goes through 'RegsiteredWithHmrc=Yes' flow" when {
+      "agent codes are available" in {
+        val registeredWithHmrc = Some(Yes)
+        val agentCodes =
+          AgentCodes(Some("selfAssessmentCode"), Some("corporationTaxCode"), Some("vatCode"), Some("payeCode"))
 
-      body.contains("Yes") shouldBe true
-      body.contains("selfAssessmentCode") shouldBe true
-      body.contains("corporationTaxCode") shouldBe true
-      body.contains("vatCode") shouldBe true
-      body.contains("payeCode") shouldBe true
+        sessionStoreService.currentSession.agentSession = Some(
+          AgentSession(
+            Some(amlsDetails),
+            Some(contactDetails),
+            Some("tradingName"),
+            Some(mainBusinessAddress),
+            registeredWithHmrc,
+            Some(agentCodes)))
+
+        val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
+
+        status(result) shouldBe 200
+
+        testMandatoryContent(result)
+        result should containMessages(
+
+          "checkAnswers.agentCode.selfAssessment",
+          "checkAnswers.agentCode.corporationTax",
+          "checkAnswers.agentCode.paye",
+          "checkAnswers.agentCode.vat"
+        )
+
+        result shouldNot containMessages(
+          "checkAnswers.companyRegistrationNumber.title",
+          "checkAnswers.taxRegistrationNumbers.title",
+          "checkAnswers.registeredForUKTax.title",
+          "checkAnswers.personalDetails.nino.title")
+
+        testAgentCodes(bodyOf(result), true)
+      }
+
+      "agents codes are not available" when {
+        "UkTaxRegistration is Yes" when {
+          "CompanyRegistrationNumber is empty" in {
+            val registeredWithHmrc = Some(Yes)
+            val agentCodes =
+              AgentCodes(None, None, None, None)
+
+            sessionStoreService.currentSession.agentSession = Some(
+              AgentSession(
+                Some(amlsDetails),
+                Some(contactDetails),
+                Some("tradingName"),
+                Some(mainBusinessAddress),
+                registeredWithHmrc,
+                Some(agentCodes),
+                registeredForUkTax = Some(Yes),
+                personalDetails = Some(PersonalDetails(SaUtrChoice, None, Some(SaUtr("SA12345")))),
+                companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(false), None)),
+                hasTaxRegNumbers = Some(false)))
+
+            val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
+
+            status(result) shouldBe 200
+
+            testMandatoryContent(result)
+            result should containMessages(
+              "checkAnswers.agentCode.title",
+              "checkAnswers.agentCode.empty",
+              "checkAnswers.companyRegistrationNumber.title",
+              "checkAnswers.companyRegistrationNumber.empty"
+            )
+
+            testAgentCodes(bodyOf(result), false)
+          }
+
+          "CompanyRegistrationNumber is non empty" in {
+            val registeredWithHmrc = Some(Yes)
+            val agentCodes =
+              AgentCodes(None, None, None, None)
+
+            sessionStoreService.currentSession.agentSession = Some(
+              AgentSession(
+                Some(amlsDetails),
+                Some(contactDetails),
+                Some("tradingName"),
+                Some(mainBusinessAddress),
+                registeredWithHmrc,
+                Some(agentCodes),
+                registeredForUkTax = Some(Yes),
+                personalDetails = Some(PersonalDetails(SaUtrChoice, None, Some(SaUtr("SA12345")))),
+                companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some("999999"))),
+                hasTaxRegNumbers = Some(false)))
+
+            val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
+
+            status(result) shouldBe 200
+            testMandatoryContent(result)
+
+            result should containMessages(
+              "checkAnswers.agentCode.title",
+              "checkAnswers.agentCode.empty",
+              "checkAnswers.companyRegistrationNumber.title"
+            )
+
+            testAgentCodes(bodyOf(result), false)
+            bodyOf(result).contains("999999") shouldBe true
+          }
+
+          "TaxRegistrationNumbers is empty" in {
+            val registeredWithHmrc = Some(Yes)
+            val agentCodes =
+              AgentCodes(None, None, None, None)
+
+            sessionStoreService.currentSession.agentSession = Some(
+              AgentSession(
+                Some(amlsDetails),
+                Some(contactDetails),
+                Some("tradingName"),
+                Some(mainBusinessAddress),
+                registeredWithHmrc,
+                Some(agentCodes),
+                registeredForUkTax = Some(Yes),
+                personalDetails = Some(PersonalDetails(SaUtrChoice, None, Some(SaUtr("SA12345")))),
+                companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(false), None)),
+                hasTaxRegNumbers = Some(false),
+                taxRegistrationNumbers = None))
+
+            val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
+
+            status(result) shouldBe 200
+            testMandatoryContent(result)
+
+            result should containMessages(
+              "checkAnswers.agentCode.title",
+              "checkAnswers.agentCode.empty",
+              "checkAnswers.companyRegistrationNumber.title",
+              "checkAnswers.companyRegistrationNumber.empty",
+              "checkAnswers.taxRegistrationNumbers.title",
+              "checkAnswers.taxRegistrationNumbers.empty"
+            )
+
+            testAgentCodes(bodyOf(result), false)
+          }
+
+          "TaxRegistrationNumbers is non empty" in {
+            val registeredWithHmrc = Some(Yes)
+            val agentCodes =
+              AgentCodes(None, None, None, None)
+
+            sessionStoreService.currentSession.agentSession = Some(
+              AgentSession(
+                Some(amlsDetails),
+                Some(contactDetails),
+                Some("tradingName"),
+                Some(mainBusinessAddress),
+                registeredWithHmrc,
+                Some(agentCodes),
+                registeredForUkTax = Some(Yes),
+                personalDetails = Some(PersonalDetails(SaUtrChoice, None, Some(SaUtr("SA12345")))),
+                companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some("123456"))),
+                hasTaxRegNumbers = Some(true),
+                taxRegistrationNumbers = Some(SortedSet("TX12345"))))
+
+            val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
+
+            status(result) shouldBe 200
+
+            testMandatoryContent(result)
+            result should containMessages(
+              "checkAnswers.registeredWithHmrc.title",
+              "checkAnswers.agentCode.title",
+              "checkAnswers.agentCode.empty",
+              "checkAnswers.companyRegistrationNumber.title",
+              "checkAnswers.taxRegistrationNumbers.title"
+            )
+
+            testAgentCodes(bodyOf(result), false)
+            bodyOf(result).contains("TX12345") shouldBe true
+          }
+        }
+        "UkTaxRegistration is No" in {
+          val registeredWithHmrc = Some(Yes)
+          val agentCodes =
+            AgentCodes(None, None, None, None)
+
+          sessionStoreService.currentSession.agentSession = Some(
+            AgentSession(
+              Some(amlsDetails),
+              Some(contactDetails),
+              Some("tradingName"),
+              Some(mainBusinessAddress),
+              registeredWithHmrc,
+              Some(agentCodes),
+              registeredForUkTax = Some(No),
+              companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(false), None)),
+              hasTaxRegNumbers = Some(false)))
+
+          val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
+
+          status(result) shouldBe 200
+
+          testMandatoryContent(result)
+          result should containMessages(
+            "checkAnswers.title",
+            "checkAnswers.change.button",
+            "checkAnswers.amlsDetails.title",
+            "checkAnswers.contactDetails.title",
+            "checkAnswers.BusinessDetails.title",
+            "checkAnswers.tradingName.title",
+            "checkAnswers.mainBusinessAddress.title",
+            "checkAnswers.registeredWithHmrc.title",
+            "checkAnswers.agentCode.title",
+            "checkAnswers.agentCode.empty"
+          )
+
+          result shouldNot containMessages("checkAnswers.personalDetails.nino.title")
+
+          testAgentCodes(bodyOf(result), false)
+        }
+      }
     }
 
     "should display the form with all data as expected when user goes through 'RegsiteredWithHmrc=No' flow" in {
@@ -1586,21 +1787,18 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
 
       status(result) shouldBe 200
+
+      testMandatoryContent(result)
       result should containMessages(
-        "checkAnswers.title",
-        "checkAnswers.change.button",
-        "checkAnswers.amlsDetails.title",
-        "checkAnswers.contactDetails.title",
-        "checkAnswers.BusinessDetails.title",
-        "checkAnswers.tradingName.title",
-        "checkAnswers.mainBusinessAddress.title",
-        "checkAnswers.registeredWithHmrc.title",
         "checkAnswers.registeredForUKTax.title",
         "checkAnswers.personalDetails.nino.title",
         "checkAnswers.companyRegistrationNumber.title",
-        "checkAnswers.taxRegistrationNumbers.title",
-        "checkAnswers.confirm.button"
+        "checkAnswers.taxRegistrationNumbers.title"
       )
+
+      result shouldNot containMessages(
+        "checkAnswers.agentCode.title",
+        "checkAnswers.agentCode.empty")
 
       val body = bodyOf(result)
 
