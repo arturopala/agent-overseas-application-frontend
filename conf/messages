@@ -168,12 +168,12 @@ checkAnswers.contactDetails.businessTelephone=Business telephone number
 checkAnswers.contactDetails.businessEmail=Business email address
 
 checkAnswers.BusinessDetails.title=Your business details
-checkAnswers.tradingName.title=Main Trading name
+checkAnswers.tradingName.title=Main trading name
 checkAnswers.mainBusinessAddress.title=Main trading address
 
 checkAnswers.registeredWithHmrc.title=Registered as agent with HMRC?
 checkAnswers.agentCode.title=Agent Codes
-checkAnswers.agentCode.empty=No Codes given
+checkAnswers.agentCode.empty=No codes given
 checkAnswers.agentCode.selfAssessment=Self Assessment agent code
 checkAnswers.agentCode.corporationTax=Corporation Tax agent code
 checkAnswers.agentCode.paye=PAYE agent code
@@ -184,10 +184,10 @@ checkAnswers.registeredForUKTax.title=Registered to pay UK tax or National Insur
 checkAnswers.personalDetails.nino.title=National Insurance number
 checkAnswers.personalDetails.saUtr.title=Self Assessment UTR
 
-checkAnswers.companyRegistrationNumber.title=Company Registration number
+checkAnswers.companyRegistrationNumber.title=Company registration number
 checkAnswers.companyRegistrationNumber.empty=None
-checkAnswers.taxRegistrationNumbers.title=Tax Registration numbers
-checkAnswers.taxRegistrationNumbers.empty=
+checkAnswers.taxRegistrationNumbers.title=Tax registration numbers
+checkAnswers.taxRegistrationNumbers.empty=None
 
 checkAnswers.OtherBusinessDetails.title=Other business or personal details
 
