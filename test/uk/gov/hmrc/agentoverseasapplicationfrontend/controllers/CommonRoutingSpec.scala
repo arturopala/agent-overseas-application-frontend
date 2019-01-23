@@ -18,7 +18,7 @@ class CommonRoutingSpec extends UnitSpec {
   private val contactDetails = ContactDetails("test", "last", "senior agent", "12345", "test@email.com")
   private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
   private val mainBusinessAddress = MainBusinessAddress("line1", "line2", None, None, "IE")
-  private val personalDetails = PersonalDetails(RadioOption.NinoChoice, Some(Nino("AB123456A")), None)
+  private val personalDetails = PersonalDetails(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
   private val companyRegistrationNumber = CompanyRegistrationNumber(Some(true), Some("123"))
 
   private val detailsUpToRegisteredWithHmrc =

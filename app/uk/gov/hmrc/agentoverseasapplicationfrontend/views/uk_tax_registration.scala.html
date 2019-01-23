@@ -3,13 +3,17 @@
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
-@import uk.gov.hmrc.play.views.html.helpers.{form, input_radio_group}
+@import uk.gov.hmrc.play.views.html.helpers.{form, input_radio_group, errorSummary}
 
-@(registeredForUkTaxForm: Form[YesNo], backLinkRoute: String)(implicit messages: Messages, request: Request[_], configuration: Configuration)
+@(registeredForUkTaxForm: Form[RadioConfirm], backLinkRoute: String)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
 @uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("ukTaxRegistration.title")) {
 
     <a href="@backLinkRoute" class="link-back">@Messages("button.back")</a>
+
+    @if(registeredForUkTaxForm.hasErrors) {
+        @errorSummary(Messages("error.summary.heading"),registeredForUkTaxForm, Seq.empty, Some("registered-uk-tax-form"))
+    }
 
     @form(action = routes.ApplicationController.submitUkTaxRegistration, 'class -> "form js-form") {
 
@@ -30,8 +34,8 @@
             @input_radio_group(
                 registeredForUkTaxForm("registeredForUkTax"),
                 Seq(
-                    "yes" -> Messages("ukTaxRegistration.form.registered.yes"),
-                    "no" -> Messages("ukTaxRegistration.form.registered.no")
+                    "true" -> Messages("ukTaxRegistration.form.registered.yes"),
+                    "false" -> Messages("ukTaxRegistration.form.registered.no")
                 ),
                 '_groupDivClass -> "soft--ends",
                 '_fieldsetAttributes -> Html("""id='registeredForUkTax'""")

@@ -5,7 +5,7 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetails.Radio
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 import uk.gov.hmrc.http.BadRequestException
 
-case class PersonalDetails(choice: RadioOption, nino: Option[Nino], saUtr: Option[SaUtr])
+case class PersonalDetails(choice: Option[RadioOption], nino: Option[Nino], saUtr: Option[SaUtr])
 
 object PersonalDetails {
   sealed trait RadioOption { val value: String }
@@ -32,7 +32,7 @@ object PersonalDetails {
       case RadioOption.SaUtrChoice => (None, saUtrOpt.map(SaUtr))
     }
 
-    PersonalDetails(RadioOption(choice), nino, saUtr)
+    PersonalDetails(Some(RadioOption(choice)), nino, saUtr)
   }
 
   implicit val personalDetailsFormat = Json.format[PersonalDetails]

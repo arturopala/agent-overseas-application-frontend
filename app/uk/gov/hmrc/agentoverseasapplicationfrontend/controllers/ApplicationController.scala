@@ -36,7 +36,7 @@ class ApplicationController @Inject()(
   private val showCheckYourAnswersUrl = routes.ApplicationController.showCheckYourAnswers().url
 
   def showAntiMoneyLaunderingForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    val form = AmlsDetailsForm.form
+    val form = AmlsDetailsForm.form(amlsBodies.values.toSet)
     sessionStoreService.fetchAgentSession.map {
       case Some(session) =>
         if (session.changingAnswers) {
@@ -51,7 +51,8 @@ class ApplicationController @Inject()(
   }
 
   def submitAntiMoneyLaundering: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    AmlsDetailsForm.form
+    AmlsDetailsForm
+      .form(amlsBodies.values.toSet)
       .bindFromRequest()
       .fold(
         formWithErrors => {
@@ -199,9 +200,12 @@ class ApplicationController @Inject()(
       val form = RegisteredWithHmrcForm.form
 
       if (session.changingAnswers) {
-        Ok(registered_with_hmrc(session.registeredWithHmrc.fold(form)(form.fill), Some(showCheckYourAnswersUrl)))
+        Ok(
+          registered_with_hmrc(
+            session.registeredWithHmrc.fold(form)(x => form.fill(YesNo.toRadioConfirm(x))),
+            Some(showCheckYourAnswersUrl)))
       } else {
-        Ok(registered_with_hmrc(session.registeredWithHmrc.fold(form)(form.fill)))
+        Ok(registered_with_hmrc(session.registeredWithHmrc.fold(form)(x => form.fill(YesNo.toRadioConfirm(x)))))
       }
     }
   }
@@ -216,20 +220,20 @@ class ApplicationController @Inject()(
             if (session.changingAnswers) {
               session.registeredWithHmrc match {
                 case Some(oldValue) =>
-                  if (oldValue == validFormValue) {
+                  if (oldValue == YesNo(validFormValue)) {
                     updateSessionAndRedirect(
                       session.copy(changingAnswers = false),
                       Some(routes.ApplicationController.showCheckYourAnswers().url))
                   } else {
                     updateSessionAndRedirect(
-                      session.copy(registeredWithHmrc = Some(validFormValue), changingAnswers = false))
+                      session.copy(registeredWithHmrc = Some(YesNo(validFormValue)), changingAnswers = false))
                   }
                 case None =>
                   updateSessionAndRedirect(
-                    session.copy(registeredWithHmrc = Some(validFormValue), changingAnswers = false))
+                    session.copy(registeredWithHmrc = Some(YesNo(validFormValue)), changingAnswers = false))
               }
             } else {
-              updateSessionAndRedirect(session.copy(registeredWithHmrc = Some(validFormValue)))
+              updateSessionAndRedirect(session.copy(registeredWithHmrc = Some(YesNo(validFormValue))))
             }
           }
         )
@@ -277,10 +281,15 @@ class ApplicationController @Inject()(
     withAgentSession { session =>
       val form = RegisteredForUkTaxForm.form
       if (session.changingAnswers) {
-        Ok(uk_tax_registration(session.registeredForUkTax.fold(form)(form.fill), showCheckYourAnswersUrl))
+        Ok(
+          uk_tax_registration(
+            session.registeredForUkTax.fold(form)(x => form.fill(YesNo.toRadioConfirm(x))),
+            showCheckYourAnswersUrl))
       } else {
         Ok(
-          uk_tax_registration(session.registeredForUkTax.fold(form)(form.fill), ukTaxRegistrationBackLink(session).url))
+          uk_tax_registration(
+            session.registeredForUkTax.fold(form)(x => form.fill(YesNo.toRadioConfirm(x))),
+            ukTaxRegistrationBackLink(session).url))
       }
     }
   }
@@ -301,20 +310,20 @@ class ApplicationController @Inject()(
             if (session.changingAnswers) {
               session.registeredForUkTax match {
                 case Some(oldValue) =>
-                  if (oldValue == validFormValue) {
+                  if (oldValue == YesNo(validFormValue)) {
                     updateSessionAndRedirect(
                       session.copy(changingAnswers = false),
                       Some(routes.ApplicationController.showCheckYourAnswers().url))
                   } else {
                     updateSessionAndRedirect(
-                      session.copy(registeredForUkTax = Some(validFormValue), changingAnswers = false))
+                      session.copy(registeredForUkTax = Some(YesNo(validFormValue)), changingAnswers = false))
                   }
                 case None =>
                   updateSessionAndRedirect(
-                    session.copy(registeredForUkTax = Some(validFormValue), changingAnswers = false))
+                    session.copy(registeredForUkTax = Some(YesNo(validFormValue)), changingAnswers = false))
               }
             } else {
-              updateSessionAndRedirect(session.copy(registeredForUkTax = Some(validFormValue)))
+              updateSessionAndRedirect(session.copy(registeredForUkTax = Some(YesNo(validFormValue))))
             }
           }
         )
@@ -494,7 +503,7 @@ class ApplicationController @Inject()(
           formWithErrors => {
             Logger.warn(
               s"error during updating tax registration number ${formWithErrors.errors.map(_.message).mkString(",")}")
-            InternalServerError
+            Ok(update_tax_registration_number(formWithErrors))
           },
           validForm =>
             validForm.updated match {
@@ -531,8 +540,8 @@ class ApplicationController @Inject()(
         .fold(
           formWithErrors => Ok(remove_tax_reg_number(formWithErrors, trn)),
           validForm => {
-            validForm match {
-              case Yes => {
+            validForm.value match {
+              case Some(true) => {
                 val updatedSet = applicantSession.taxRegistrationNumbers
                   .fold[SortedSet[String]](SortedSet.empty)(trns => trns - trn)
 

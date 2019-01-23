@@ -26,7 +26,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with BeforeAndAf
   private val contactDetails = ContactDetails("test", "last", "senior agent", "12345", "test@email.com")
   private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
   private val mainBusinessAddress = MainBusinessAddress("line 1", "line 2", None, None, countryCode = "IE")
-  private val personalDetails = PersonalDetails(RadioOption.NinoChoice, Some(Nino("AB123456A")), None)
+  private val personalDetails = PersonalDetails(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
   private val agentCodes = AgentCodes(Some("SA123456"), Some("CT123456"), Some("VAT123456"), Some("PAYE123456"))
 
   private val crn = CompanyRegistrationNumber(Some(true), Some("123456"))

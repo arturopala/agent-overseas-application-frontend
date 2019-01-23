@@ -1,13 +1,17 @@
 @import play.api.Configuration
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AmlsDetails
-@import uk.gov.hmrc.play.views.html.helpers.{form, input}
+@import uk.gov.hmrc.play.views.html.helpers.{form, input, errorSummary}
 
 @(trnForm: Form[String])(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
 @uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("addTrn.title")) {
 
     <a href="@routes.ApplicationController.showYourTaxRegNumbersForm" class="link-back">@Messages("button.back")</a>
+
+    @if(trnForm.hasErrors) {
+        @errorSummary(Messages("error.summary.heading"),trnForm, Seq.empty, Some("add-trn"))
+    }
 
     @form(action = routes.ApplicationController.submitAddTaxRegNo, 'class -> "form js-form") {
 

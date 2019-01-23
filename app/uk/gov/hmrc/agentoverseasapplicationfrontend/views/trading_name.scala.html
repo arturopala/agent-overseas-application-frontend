@@ -1,13 +1,17 @@
 @import play.api.Configuration
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AmlsDetails
-@import uk.gov.hmrc.play.views.html.helpers.{form, input}
+@import uk.gov.hmrc.play.views.html.helpers.{form, input, errorSummary}
 
 @(tradingNameForm: Form[String], backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
 @uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("tradingName.title")) {
 
     <a href="@backLink.getOrElse(routes.ApplicationController.showContactDetailsForm)" class="link-back">@Messages("button.back")</a>
+
+    @if(tradingNameForm.hasErrors) {
+        @errorSummary(Messages("error.summary.heading"),tradingNameForm, Seq.empty, Some("trading-name"))
+    }
 
     @form(action = routes.ApplicationController.submitTradingName, 'class -> "form js-form") {
 

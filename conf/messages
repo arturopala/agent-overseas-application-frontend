@@ -13,11 +13,94 @@ global.error.500.message=Please try again in a few minutes.
 error.prefix=Error:
 error.summary.heading=There is a problem
 error.postcode.invalid=You can only enter these characters: A-Z 0-9
-error.telephone.invalid=You can only enter these characters: 0-9 ( ) space
 error.string.invalid=You can only enter these characters: a-z A-Z 0-9 ,.() - ! @ space
 error.maxLength=You can only enter up to {0} characters
-error.email=Enter a valid email address
 error.summary.heading=There is a problem
+error.no-radio-selected=You must choose an option
+
+error.jobTitle.blank=Enter your job title
+error.jobTitle.invalid=Job title must only include letters a to z, apostrophes, hyphens and spaces
+error.jobTitle.length=Job title must be between 2 and 50 characters
+
+error.moneyLaunderingCompliance.amlsbody.empty=Enter the name of the supervisory body
+error.moneyLaunderingCompliance.amlsbody.invalid=Name of supervisory body must only include letters a to z, numbers, commas, apostrophes, hyphens, ampersands, forward slashes, round brackets and spaces
+error.moneyLaunderingCompliance.amlsbody.maxlength=Name of supervisory body must be 100 characters or less
+
+error.firstName.blank=Enter your first name
+error.firstName.invalid=First name must only include letters a to z, apostrophes, hyphens and spaces
+error.firstName.maxlength=First name must be 35 characters or less
+
+error.lastName.blank=Enter your last name
+error.lastName.invalid=Last name must only include letters a to z, apostrophes, hyphens and spaces
+error.lastName.maxlength=Last name must be 35 characters or less
+
+error.membershipNumber.invalid=Membership number must only include letters a to z, numbers, hyphens, forward slashes and spaces
+error.membershipNumber.maxlength=Membership number must be 24 characters or less
+
+error.telephone.blank=Enter your business telephone number
+error.telephone.invalid=Enter a business telephone number in the correct format, like 0048 605 555 555
+error.telephone.maxlength=Business telephone number must be 24 characters or less
+
+error.email.blank=Enter your business email address
+error.email.invalid=Enter an email address in the correct format, like name@example.com
+error.email=Enter an email address in the correct format, like name@example.com
+error.email.maxlength=Business email address must be 132 characters or less
+
+error.tradingName.blank=Enter the trading name of your business
+error.tradingName.invalid=Trading name must not include ampersands, apostrophes, commas, hyphens and full stops
+error.tradingName.maxlength=Trading name must be 40 characters or less
+
+error.addressline.1.blank=Enter Address line 1
+error.addressline.1.invalid=Address line 1 must only include letters a to z, numbers, exclamation marks, forward slashes, quotation marks, round brackets and spaces
+error.addressline.1.maxlength=Address line 1 must be 35 characters or less
+
+error.addressline.2.blank=Enter Address line 2
+error.addressline.2.invalid=Address line 2 must only include letters a to z, numbers, exclamation marks, forward slashes, quotation marks, round brackets and spaces
+error.addressline.2.maxlength=Address line 2 must be 35 characters or less
+
+error.addressline.3.invalid=Address line 3 must only include letters a to z, numbers, exclamation marks, forward slashes, quotation marks, round brackets and spaces
+error.addressline.3.maxlength=Address line 3 must be 35 characters or less
+
+error.addressline.4.invalid=Address line 4 must only include letters a to z, numbers, exclamation marks, forward slashes, quotation marks, round brackets and spaces
+error.addressline.4.maxlength=Address line 4 must be 35 characters or less
+
+error.countryCode.invalid=Select a country from the list
+
+error.saAgentCode.blank=Enter a Self Assessment agent code
+error.saAgentCode.invalid=Self Assessment agent code must be only include letters a to z and numbers
+error.saAgentCode.maxlength=Self Assessment agent code must be 6 characters, like SA1234
+
+error.ctAgentCode.blank=Enter a Corporation Tax agent code
+error.ctAgentCode.invalid=Corporation Tax agent code must be only include letters a to z and numbers
+error.ctAgentCode.maxlength=Corporation Tax agent code must be 6 characters, like 12345A or A1234A
+
+error.vatAgentCode.blank=Enter a VAT agent code
+error.vatAgentCode.invalid=VAT agent code must be only include letters a to z and numbers
+error.vatAgentCode.maxlength=VAT agent code must be 9 characters
+
+error.payeAgentCode.blank=Enter a PAYE agent code
+error.payeAgentCode.invalid=PAYE agent code must be only include letters a to z and numbers
+error.payeAgentCode.maxlength=PAYE agent code must be 6 characters
+
+error.nino.blank=Enter your National Insurance number
+error.nino.invalid=Enter a National Insurance number in the correct format
+
+error.sautr.blank=Enter your Self Assessment Unique Taxpayer Reference (UTR)
+error.sautr.invalid=Self Assessment Unique Taxpayer Reference (UTR) must be 10 numbers
+error.sautr.maxlength=Self Assessment Unique Taxpayer Reference (UTR) must be 10 numbers
+
+error.crn.blank=Enter your company registration number or equivalent
+error.crn.invalid=Company registration number must be 8 numbers, or 2 letters followed by 6 numbers
+error.crn.maxlength=Company registration number must be 8 numbers, or 2 letters followed by 6 numbers
+
+error.trn.blank=Enter your tax registration number
+error.trn.invalid=Tax registration number must only include letters a to z, numbers and spaces
+error.trn.maxlength=Tax registration number must be 24 characters or less
+
+error.registeredWithHmrc.no-radio.selected=Select yes if you are registered as an agent with HMRC
+error.registeredForUkTaxForm.no-radio.selected=Select yes if you are registered to pay UK tax or National Insurance
+error.personalDetails.no-radio.selected=Select if you want to enter a National Insurance number, or if you want to enter a Self Assessment Unique Taxpayer Reference (UTR), or if you do not have these details
+error.removeTrn.no-radio.selected=Select yes if you want to remove this tax registration number
 
 # Service specific messages
 app.name=agent-services - apply-from-outside-uk
@@ -119,8 +202,7 @@ taxRegNo.p1=This information will help us to confirm who you are.
 taxRegNo.form.yes=Yes
 taxRegNo.form.yes.prompt=Enter your tax registration number
 taxRegNo.form.no=No
-taxRegNo.form.no-radio.selected=You must select one of the following to continue
-taxRegNo.form.no-radio.selected=You must select one of the following to continue
+taxRegNo.form.no-radio.selected=Select yes if you have any tax registration numbers in your country
 
 # Company Registration Number
 companyRegistrationNumber.title=Does your business have a company registration number or equivalent in your country?
@@ -129,7 +211,7 @@ companyRegistrationNumber.body.text=This information will help us to confirm you
 companyRegistrationNumber.form.registered.yes=Yes
 companyRegistrationNumber.form.registered.no=No
 companyRegistrationNumber.radioResponse.hidden.input.label.enter.crn=Enter the company registration number
-companyRegistrationNumber.error.no-radio.selected=You must select one of the following to continue
+companyRegistrationNumber.error.no-radio.selected=Select yes if your business has a company registration number or equivalent in your country
 
 # Add tax registration number
 addTrn.title=What is your tax registration number?
@@ -152,7 +234,7 @@ yourTaxRegistrationNumbers.update.button=Edit
 yourTaxRegistrationNumbers.want.to.add.another=Do you want to add another tax registration number?
 yourTaxRegistrationNumbers.form.doYouWantToAddAnotherTrn.yes=Yes
 yourTaxRegistrationNumbers.form.doYouWantToAddAnotherTrn.no=No
-doYouWantToAddAnotherTrn.error.no-radio.selected=You must select one of the following to continue
+doYouWantToAddAnotherTrn.error.no-radio.selected=Select yes if you want to add another tax registration number
 
 # Check Answers
 checkAnswers.title=Check your details before sending your application

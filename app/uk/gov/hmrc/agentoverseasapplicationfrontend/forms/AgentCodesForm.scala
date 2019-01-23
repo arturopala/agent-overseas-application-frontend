@@ -4,6 +4,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentCodes
 import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
+import uk.gov.hmrc.agentoverseasapplicationfrontend.validators.CommonValidators._
 
 object AgentCodesForm {
 
@@ -11,13 +12,13 @@ object AgentCodesForm {
     Form[AgentCodes](
       mapping(
         "self-assessment-checkbox" -> boolean,
-        "self-assessment"          -> mandatoryIfTrue("self-assessment-checkbox", nonEmptyText),
+        "self-assessment"          -> mandatoryIfTrue("self-assessment-checkbox", saAgentCode),
         "corporation-tax-checkbox" -> boolean,
-        "corporation-tax"          -> mandatoryIfTrue("corporation-tax-checkbox", nonEmptyText),
+        "corporation-tax"          -> mandatoryIfTrue("corporation-tax-checkbox", ctAgentCode),
         "vat-checkbox"             -> boolean,
-        "vat"                      -> mandatoryIfTrue("vat-checkbox", nonEmptyText),
+        "vat"                      -> mandatoryIfTrue("vat-checkbox", vatAgentCode),
         "paye-checkbox"            -> boolean,
-        "paye"                     -> mandatoryIfTrue("paye-checkbox", nonEmptyText)
+        "paye"                     -> mandatoryIfTrue("paye-checkbox", payeAgentCode)
       )(
         (hasSa, sa, hasCt, ct, hasVat, vat, hasPaye, paye) =>
           AgentCodes(

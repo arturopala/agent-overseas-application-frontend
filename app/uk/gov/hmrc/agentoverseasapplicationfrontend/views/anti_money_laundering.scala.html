@@ -2,7 +2,7 @@
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AmlsDetails
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.helpers._
-@import uk.gov.hmrc.play.views.html.helpers.{form, input}
+@import uk.gov.hmrc.play.views.html.helpers.{form, input, errorSummary}
 
 @(amlsForm: Form[AmlsDetails], amlsBodies: Map[String, String], backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
@@ -13,6 +13,10 @@
     <h1 class="heading-xlarge margin-bottom-20">@Messages("amls.title")</h1>
 
     <div class="panel panel-border-wide margin-bottom-30">@Messages("amls.inset.p1")</div>
+
+    @if(amlsForm.hasErrors) {
+        @errorSummary(Messages("error.summary.heading"), amlsForm, Seq.empty, Some("amls-form"))
+    }
 
     @form(action = routes.ApplicationController.submitAntiMoneyLaundering, 'class -> "form js-form", 'id -> "amlsForm") {
 
