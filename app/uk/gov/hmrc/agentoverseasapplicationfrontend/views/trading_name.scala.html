@@ -13,20 +13,15 @@
 
         <fieldset>
 
-            <legend class="margin-bottom-10">
+            <label for="tradingName" class="margin-bottom-10">
                 <h1 class="heading-xlarge margin-bottom-20">
                     <span class="pre-heading">@Messages("tradingName.p1")</span>
                     @Messages("tradingName.title")
                 </h1>
-            </legend>
+            </label>
 
             <div class="form-group">
-                @input(
-                tradingNameForm("tradingName"),
-                '_inputClass -> "form-control--block",
-                '_labelClass -> "soft--ends",
-                '_labelTextClass -> "form-label"
-                )
+                <input type="text" class="form-control--block" name="tradingName" id="tradingName">
             </div>
 
             <div class="form-group">

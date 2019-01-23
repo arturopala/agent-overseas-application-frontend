@@ -18,15 +18,15 @@
 @import views.html.helper._
 @import play.mvc.Call
 
-@(message: Any, data: Any, changeUrl: Call)(implicit messages: Messages)
+@(message: Any, data: Any, identifier: String, changeUrl: Call)(implicit messages: Messages)
 <div class="app-check-your-answers__contents">
     <dt class="app-check-your-answers__question">
        @message
     </dt>
-    <dd class="app-check-your-answers__answer" id="@data">
+    <dd class="app-check-your-answers__answer" id="@identifier">
        @data
     </dd>
     <dd class="app-check-your-answers__change">
-        <a href="@changeUrl">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @Messages("checkAnswers.change.button")</span></a>
+        <a href="@changeUrl">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @message</span></a>
     </dd>
 </div>
