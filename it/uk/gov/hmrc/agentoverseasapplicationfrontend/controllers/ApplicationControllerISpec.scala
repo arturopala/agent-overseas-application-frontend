@@ -382,18 +382,34 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       session.changingAnswers shouldBe false
     }
 
-    "show validation errors when form data is incorrect" in {
-      sessionStoreService.currentSession.agentSession =
-        Some(agentSession.copy(mainBusinessAddress = None, changingAnswers = true))
+    "show validation errors when form data is incorrect" when {
+      "address line 1 is blank" in {
+        sessionStoreService.currentSession.agentSession =
+          Some(agentSession.copy(mainBusinessAddress = None, changingAnswers = true))
 
-      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
-        .withFormUrlEncodedBody("addressLine1" -> "", "addressLine2" -> "line2", "countryCode" -> "IE")
+        implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+          .withFormUrlEncodedBody("addressLine1" -> "", "addressLine2" -> "line2", "countryCode" -> "IE")
 
-      val result = await(controller.submitMainBusinessAddress(authenticatedRequest))
+        val result = await(controller.submitMainBusinessAddress(authenticatedRequest))
 
-      status(result) shouldBe 200
+        status(result) shouldBe 200
 
-      result should containMessages("error.addressline.1.blank")
+        result should containMessages("error.addressline.1.blank")
+      }
+      "country code is GB" in {
+        sessionStoreService.currentSession.agentSession =
+          Some(agentSession.copy(mainBusinessAddress = None, changingAnswers = true))
+
+        implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+          .withFormUrlEncodedBody("addressLine1" -> "Some address", "addressLine2" -> "line2", "countryCode" -> "GB")
+
+        val result = await(controller.submitMainBusinessAddress(authenticatedRequest))
+
+        status(result) shouldBe 200
+
+        result should containMessages("error.country.invalid")
+
+      }
     }
   }
 
