@@ -6,16 +6,21 @@ $(function() {
 
         // strips out any text form elements with .visuallyhidden
         function striptext(element){
-            return element.clone().children('.visuallyhidden').remove().end().text();
+            if($(element).data('include-hidden')){
+                return element.data('include-hidden');
+            } else {
+                return element.clone().children('.visuallyhidden').remove().end().text();
+            }
+
         }
 
         // is it a button, error, or link?
         function cat(_this){
             if($(_this).hasClass('button')){
                 return 'button-click'
-            }else if($(_this)[0].hasAttribute("data-focuses") ){
+            } else if($(_this)[0].hasAttribute("data-focuses") ){
                 return 'link-click-error'
-            }else{
+            } else{
                 return 'link-click'
             }
         }
@@ -24,7 +29,7 @@ $(function() {
         function disclosureOpenClose(_this){
             if($(_this).closest('details').attr('open')){
                 return 'close'
-            }else{
+            } else {
                 return 'open'
             }
         }
@@ -39,7 +44,9 @@ $(function() {
         // links
         $('a:not('+exclude+')').each(function(){
             $(this).click(function(e){
-                ga('send', 'event', cat(this), title, striptext($(this)))
+                e.preventDefault();
+                ga('send', 'event', cat(this), title, striptext($(this)));
+
             });
         });
 
@@ -55,7 +62,7 @@ $(function() {
             $(this).click(function(e){
                 ga('send', 'event', 'disclosure-click-'+disclosureOpenClose(this), title, striptext($(this)))
             });
-        })
+        });
 
         // on form submit
         $('form').submit(function(){
