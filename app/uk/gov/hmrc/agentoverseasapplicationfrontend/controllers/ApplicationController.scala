@@ -8,6 +8,7 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.config.{AMLSLoader, CountryN
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession.{IsRegisteredForUkTax, IsRegisteredWithHmrc}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.Rejected
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, No, Yes, _}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
@@ -16,7 +17,7 @@ import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.collection.immutable.SortedSet
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ApplicationController @Inject()(
@@ -37,17 +38,19 @@ class ApplicationController @Inject()(
 
   def showAntiMoneyLaunderingForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     val form = AmlsDetailsForm.form(amlsBodies.values.toSet)
-    sessionStoreService.fetchAgentSession.map {
-      case Some(session) =>
-        if (session.changingAnswers) {
-          Ok(
-            anti_money_laundering(session.amlsDetails.fold(form)(form.fill), amlsBodies, Some(showCheckYourAnswersUrl)))
-        } else {
-          Ok(anti_money_laundering(session.amlsDetails.fold(form)(form.fill), amlsBodies))
-        }
 
-      case _ => Ok(anti_money_laundering(form, amlsBodies))
+    val backUrl: Future[Option[String]] = {
+      if (request.agentSession.changingAnswers) Future.successful(Some(showCheckYourAnswersUrl))
+      else
+        applicationService.getCurrentApplication.map {
+          case Some(application) if application.status == Rejected =>
+            Some(routes.StartController.applicationStatus().url)
+          case _ => None
+        }
     }
+
+    backUrl.map(url =>
+      Ok(anti_money_laundering(request.agentSession.amlsDetails.fold(form)(form.fill), amlsBodies, url)))
   }
 
   def submitAntiMoneyLaundering: Action[AnyContent] = validApplicantAction.async { implicit request =>
@@ -84,514 +87,467 @@ class ApplicationController @Inject()(
   }
 
   def showContactDetailsForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { session =>
-      val form = ContactDetailsForm.form
-      if (session.changingAnswers) {
-        Ok(contact_details(session.contactDetails.fold(form)(form.fill), Some(showCheckYourAnswersUrl)))
-      } else {
-        Ok(contact_details(session.contactDetails.fold(form)(form.fill)))
-      }
+    val form = ContactDetailsForm.form
+    if (request.agentSession.changingAnswers) {
+      Ok(contact_details(request.agentSession.contactDetails.fold(form)(form.fill), Some(showCheckYourAnswersUrl)))
+    } else {
+      Ok(contact_details(request.agentSession.contactDetails.fold(form)(form.fill)))
     }
   }
 
   def submitContactDetails: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { session =>
-      ContactDetailsForm.form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => {
-            if (session.changingAnswers) {
-              Ok(contact_details(formWithErrors, Some(showCheckYourAnswersUrl)))
-            } else {
-              Ok(contact_details(formWithErrors))
-            }
-          },
-          validForm => {
-            if (session.changingAnswers) {
-              updateSessionAndRedirect(
-                session.copy(contactDetails = Some(validForm), changingAnswers = false),
-                Some(showCheckYourAnswersUrl))
-            } else {
-              updateSessionAndRedirect(session.copy(contactDetails = Some(validForm)))
-            }
+    ContactDetailsForm.form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => {
+          if (request.agentSession.changingAnswers) {
+            Ok(contact_details(formWithErrors, Some(showCheckYourAnswersUrl)))
+          } else {
+            Ok(contact_details(formWithErrors))
           }
-        )
-    }
+        },
+        validForm => {
+          if (request.agentSession.changingAnswers) {
+            updateSessionAndRedirect(
+              request.agentSession.copy(contactDetails = Some(validForm), changingAnswers = false),
+              Some(showCheckYourAnswersUrl))
+          } else {
+            updateSessionAndRedirect(request.agentSession.copy(contactDetails = Some(validForm)))
+          }
+        }
+      )
   }
 
   def showTradingNameForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { session =>
-      val form = TradingNameForm.form
-      if (session.changingAnswers) {
-        Ok(trading_name(session.tradingName.fold(form)(form.fill), Some(showCheckYourAnswersUrl)))
-      } else {
-        Ok(trading_name(session.tradingName.fold(form)(form.fill)))
-      }
+    val form = TradingNameForm.form
+    if (request.agentSession.changingAnswers) {
+      Ok(trading_name(request.agentSession.tradingName.fold(form)(form.fill), Some(showCheckYourAnswersUrl)))
+    } else {
+      Ok(trading_name(request.agentSession.tradingName.fold(form)(form.fill)))
     }
   }
 
   def submitTradingName: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { session =>
-      TradingNameForm.form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => {
-            if (session.changingAnswers) {
-              Ok(trading_name(formWithErrors, Some(showCheckYourAnswersUrl)))
-            } else {
-              Ok(trading_name(formWithErrors))
-            }
-          },
-          validForm =>
-            if (session.changingAnswers) {
-              updateSessionAndRedirect(
-                session.copy(tradingName = Some(validForm), changingAnswers = false),
-                Some(showCheckYourAnswersUrl))
-            } else {
-              updateSessionAndRedirect(session.copy(tradingName = Some(validForm)))
+    TradingNameForm.form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => {
+          if (request.agentSession.changingAnswers) {
+            Ok(trading_name(formWithErrors, Some(showCheckYourAnswersUrl)))
+          } else {
+            Ok(trading_name(formWithErrors))
           }
-        )
-    }
+        },
+        validForm =>
+          if (request.agentSession.changingAnswers) {
+            updateSessionAndRedirect(
+              request.agentSession.copy(tradingName = Some(validForm), changingAnswers = false),
+              Some(showCheckYourAnswersUrl))
+          } else {
+            updateSessionAndRedirect(request.agentSession.copy(tradingName = Some(validForm)))
+        }
+      )
   }
 
   def showMainBusinessAddressForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { session =>
-      val form = MainBusinessAddressForm.mainBusinessAddressForm(validCountryCodes)
-      if (session.changingAnswers) {
-        Ok(
-          main_business_address(
-            session.mainBusinessAddress.fold(form)(form.fill),
-            countries,
-            Some(showCheckYourAnswersUrl)))
-      } else {
-        Ok(main_business_address(session.mainBusinessAddress.fold(form)(form.fill), countries))
-      }
+    val form = MainBusinessAddressForm.mainBusinessAddressForm(validCountryCodes)
+    if (request.agentSession.changingAnswers) {
+      Ok(
+        main_business_address(
+          request.agentSession.mainBusinessAddress.fold(form)(form.fill),
+          countries,
+          Some(showCheckYourAnswersUrl)))
+    } else {
+      Ok(main_business_address(request.agentSession.mainBusinessAddress.fold(form)(form.fill), countries))
     }
   }
 
   def submitMainBusinessAddress: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { session =>
-      MainBusinessAddressForm
-        .mainBusinessAddressForm(validCountryCodes)
-        .bindFromRequest()
-        .fold(
-          formWithErrors => {
-            if (session.changingAnswers) {
-              Ok(main_business_address(formWithErrors, countries, Some(showCheckYourAnswersUrl)))
-            } else {
-              Ok(main_business_address(formWithErrors, countries))
-            }
-          },
-          validForm => {
-            if (session.changingAnswers) {
-              updateSessionAndRedirect(
-                session.copy(mainBusinessAddress = Some(validForm), changingAnswers = false),
-                Some(showCheckYourAnswersUrl))
-            } else {
-              updateSessionAndRedirect(session.copy(mainBusinessAddress = Some(validForm)))
-            }
+    MainBusinessAddressForm
+      .mainBusinessAddressForm(validCountryCodes)
+      .bindFromRequest()
+      .fold(
+        formWithErrors => {
+          if (request.agentSession.changingAnswers) {
+            Ok(main_business_address(formWithErrors, countries, Some(showCheckYourAnswersUrl)))
+          } else {
+            Ok(main_business_address(formWithErrors, countries))
           }
-        )
-    }
+        },
+        validForm => {
+          if (request.agentSession.changingAnswers) {
+            updateSessionAndRedirect(
+              request.agentSession.copy(mainBusinessAddress = Some(validForm), changingAnswers = false),
+              Some(showCheckYourAnswersUrl))
+          } else {
+            updateSessionAndRedirect(request.agentSession.copy(mainBusinessAddress = Some(validForm)))
+          }
+        }
+      )
   }
 
   def showRegisteredWithHmrcForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { session =>
-      val form = RegisteredWithHmrcForm.form
-
-      if (session.changingAnswers) {
-        Ok(
-          registered_with_hmrc(
-            session.registeredWithHmrc.fold(form)(x => form.fill(YesNo.toRadioConfirm(x))),
-            Some(showCheckYourAnswersUrl)))
-      } else {
-        Ok(registered_with_hmrc(session.registeredWithHmrc.fold(form)(x => form.fill(YesNo.toRadioConfirm(x)))))
-      }
+    val form = RegisteredWithHmrcForm.form
+    if (request.agentSession.changingAnswers) {
+      Ok(
+        registered_with_hmrc(
+          request.agentSession.registeredWithHmrc.fold(form)(x => form.fill(YesNo.toRadioConfirm(x))),
+          Some(showCheckYourAnswersUrl)))
+    } else {
+      Ok(registered_with_hmrc(request.agentSession.registeredWithHmrc.fold(form)(x =>
+        form.fill(YesNo.toRadioConfirm(x)))))
     }
   }
 
   def submitRegisteredWithHmrc: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { session =>
-      RegisteredWithHmrcForm.form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => Ok(registered_with_hmrc(formWithErrors)),
-          validFormValue => {
-            if (session.changingAnswers) {
-              session.registeredWithHmrc match {
-                case Some(oldValue) =>
-                  if (oldValue == YesNo(validFormValue)) {
-                    updateSessionAndRedirect(
-                      session.copy(changingAnswers = false),
-                      Some(routes.ApplicationController.showCheckYourAnswers().url))
-                  } else {
-                    updateSessionAndRedirect(
-                      session.copy(registeredWithHmrc = Some(YesNo(validFormValue)), changingAnswers = false))
-                  }
-                case None =>
+    RegisteredWithHmrcForm.form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Ok(registered_with_hmrc(formWithErrors)),
+        validFormValue => {
+          if (request.agentSession.changingAnswers) {
+            request.agentSession.registeredWithHmrc match {
+              case Some(oldValue) =>
+                if (oldValue == YesNo(validFormValue)) {
                   updateSessionAndRedirect(
-                    session.copy(registeredWithHmrc = Some(YesNo(validFormValue)), changingAnswers = false))
-              }
-            } else {
-              updateSessionAndRedirect(session.copy(registeredWithHmrc = Some(YesNo(validFormValue))))
+                    request.agentSession.copy(changingAnswers = false),
+                    Some(routes.ApplicationController.showCheckYourAnswers().url))
+                } else {
+                  updateSessionAndRedirect(
+                    request.agentSession
+                      .copy(registeredWithHmrc = Some(YesNo(validFormValue)), changingAnswers = false))
+                }
+              case None =>
+                updateSessionAndRedirect(
+                  request.agentSession.copy(registeredWithHmrc = Some(YesNo(validFormValue)), changingAnswers = false))
             }
+          } else {
+            updateSessionAndRedirect(request.agentSession.copy(registeredWithHmrc = Some(YesNo(validFormValue))))
           }
-        )
-    }
+        }
+      )
   }
 
   def showAgentCodesForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { session =>
-      val form = AgentCodesForm.form
+    val form = AgentCodesForm.form
 
-      if (session.changingAnswers) {
-        Ok(self_assessment_agent_code(session.agentCodes.fold(form)(form.fill), Some(showCheckYourAnswersUrl)))
-      } else {
-        Ok(self_assessment_agent_code(session.agentCodes.fold(form)(form.fill)))
-      }
+    if (request.agentSession.changingAnswers) {
+      Ok(
+        self_assessment_agent_code(
+          request.agentSession.agentCodes.fold(form)(form.fill),
+          Some(showCheckYourAnswersUrl)))
+    } else {
+      Ok(self_assessment_agent_code(request.agentSession.agentCodes.fold(form)(form.fill)))
     }
   }
 
   def submitAgentCodes: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { session =>
-      AgentCodesForm.form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => {
-            if (session.changingAnswers) {
-              Ok(self_assessment_agent_code(formWithErrors, Some(showCheckYourAnswersUrl)))
-            } else {
-              Ok(self_assessment_agent_code(formWithErrors))
-            }
-          },
-          validFormValue => {
-            if (session.changingAnswers && validFormValue.hasOneOrMoreCodes) {
-              updateSessionAndRedirect(
-                session.copy(agentCodes = Some(validFormValue), changingAnswers = false),
-                Some(showCheckYourAnswersUrl))
-            } else {
-              updateSessionAndRedirect(session.copy(agentCodes = Some(validFormValue), changingAnswers = false))
-            }
+    AgentCodesForm.form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => {
+          if (request.agentSession.changingAnswers) {
+            Ok(self_assessment_agent_code(formWithErrors, Some(showCheckYourAnswersUrl)))
+          } else {
+            Ok(self_assessment_agent_code(formWithErrors))
           }
-        )
-    }
+        },
+        validFormValue => {
+          if (request.agentSession.changingAnswers && validFormValue.hasOneOrMoreCodes) {
+            updateSessionAndRedirect(
+              request.agentSession.copy(agentCodes = Some(validFormValue), changingAnswers = false),
+              Some(showCheckYourAnswersUrl))
+          } else {
+            updateSessionAndRedirect(
+              request.agentSession.copy(agentCodes = Some(validFormValue), changingAnswers = false))
+          }
+        }
+      )
   }
 
   def showUkTaxRegistrationForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { session =>
-      val form = RegisteredForUkTaxForm.form
-      if (session.changingAnswers) {
-        Ok(
-          uk_tax_registration(
-            session.registeredForUkTax.fold(form)(x => form.fill(YesNo.toRadioConfirm(x))),
-            showCheckYourAnswersUrl))
-      } else {
-        Ok(
-          uk_tax_registration(
-            session.registeredForUkTax.fold(form)(x => form.fill(YesNo.toRadioConfirm(x))),
-            ukTaxRegistrationBackLink(session).url))
-      }
+    val form = RegisteredForUkTaxForm.form
+    if (request.agentSession.changingAnswers) {
+      Ok(
+        uk_tax_registration(
+          request.agentSession.registeredForUkTax.fold(form)(x => form.fill(YesNo.toRadioConfirm(x))),
+          showCheckYourAnswersUrl))
+    } else {
+      Ok(
+        uk_tax_registration(
+          request.agentSession.registeredForUkTax.fold(form)(x => form.fill(YesNo.toRadioConfirm(x))),
+          ukTaxRegistrationBackLink(request.agentSession).url))
     }
   }
 
   def submitUkTaxRegistration: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { session =>
-      RegisteredForUkTaxForm.form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => {
-            if (session.changingAnswers) {
-              Ok(uk_tax_registration(formWithErrors, showCheckYourAnswersUrl))
-            } else {
-              Ok(uk_tax_registration(formWithErrors, ukTaxRegistrationBackLink(session).url))
-            }
-          },
-          validFormValue => {
-            if (session.changingAnswers) {
-              session.registeredForUkTax match {
-                case Some(oldValue) =>
-                  if (oldValue == YesNo(validFormValue)) {
-                    updateSessionAndRedirect(
-                      session.copy(changingAnswers = false),
-                      Some(routes.ApplicationController.showCheckYourAnswers().url))
-                  } else {
-                    updateSessionAndRedirect(
-                      session.copy(registeredForUkTax = Some(YesNo(validFormValue)), changingAnswers = false))
-                  }
-                case None =>
-                  updateSessionAndRedirect(
-                    session.copy(registeredForUkTax = Some(YesNo(validFormValue)), changingAnswers = false))
-              }
-            } else {
-              updateSessionAndRedirect(session.copy(registeredForUkTax = Some(YesNo(validFormValue))))
-            }
+    RegisteredForUkTaxForm.form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => {
+          if (request.agentSession.changingAnswers) {
+            Ok(uk_tax_registration(formWithErrors, showCheckYourAnswersUrl))
+          } else {
+            Ok(uk_tax_registration(formWithErrors, ukTaxRegistrationBackLink(request.agentSession).url))
           }
-        )
-    }
+        },
+        validFormValue => {
+          if (request.agentSession.changingAnswers) {
+            request.agentSession.registeredForUkTax match {
+              case Some(oldValue) =>
+                if (oldValue == YesNo(validFormValue)) {
+                  updateSessionAndRedirect(
+                    request.agentSession.copy(changingAnswers = false),
+                    Some(routes.ApplicationController.showCheckYourAnswers().url))
+                } else {
+                  updateSessionAndRedirect(
+                    request.agentSession
+                      .copy(registeredForUkTax = Some(YesNo(validFormValue)), changingAnswers = false))
+                }
+              case None =>
+                updateSessionAndRedirect(
+                  request.agentSession.copy(registeredForUkTax = Some(YesNo(validFormValue)), changingAnswers = false))
+            }
+          } else {
+            updateSessionAndRedirect(request.agentSession.copy(registeredForUkTax = Some(YesNo(validFormValue))))
+          }
+        }
+      )
   }
 
   def showPersonalDetailsForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { session =>
-      val form = PersonalDetailsForm.form
-      if (session.changingAnswers) {
-        Ok(personal_details(session.personalDetails.fold(form)(form.fill), Some(showCheckYourAnswersUrl)))
-      } else {
-        Ok(personal_details(session.personalDetails.fold(form)(form.fill)))
-      }
+    val form = PersonalDetailsForm.form
+    if (request.agentSession.changingAnswers) {
+      Ok(personal_details(request.agentSession.personalDetails.fold(form)(form.fill), Some(showCheckYourAnswersUrl)))
+    } else {
+      Ok(personal_details(request.agentSession.personalDetails.fold(form)(form.fill)))
     }
   }
 
   def submitPersonalDetails: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { session =>
-      PersonalDetailsForm.form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => {
-            if (session.changingAnswers) {
-              Ok(personal_details(formWithErrors, Some(showCheckYourAnswersUrl)))
-            } else {
-              Ok(personal_details(formWithErrors))
-            }
-          },
-          validForm => {
-            if (session.changingAnswers) {
-              updateSessionAndRedirect(
-                session.copy(personalDetails = Some(validForm), changingAnswers = false),
-                Some(showCheckYourAnswersUrl))
-            } else {
-              updateSessionAndRedirect(session.copy(personalDetails = Some(validForm)))
-            }
+    PersonalDetailsForm.form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => {
+          if (request.agentSession.changingAnswers) {
+            Ok(personal_details(formWithErrors, Some(showCheckYourAnswersUrl)))
+          } else {
+            Ok(personal_details(formWithErrors))
           }
-        )
-    }
+        },
+        validForm => {
+          if (request.agentSession.changingAnswers) {
+            updateSessionAndRedirect(
+              request.agentSession.copy(personalDetails = Some(validForm), changingAnswers = false),
+              Some(showCheckYourAnswersUrl))
+          } else {
+            updateSessionAndRedirect(request.agentSession.copy(personalDetails = Some(validForm)))
+          }
+        }
+      )
   }
 
   def showCompanyRegistrationNumberForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { session =>
-      val form = CompanyRegistrationNumberForm.form
-      if (session.changingAnswers) {
-        Ok(
-          company_registration_number(session.companyRegistrationNumber.fold(form)(form.fill), showCheckYourAnswersUrl))
-      } else {
-        Ok(
-          company_registration_number(
-            session.companyRegistrationNumber.fold(form)(form.fill),
-            companyRegNumberBackLink(session)))
-      }
+    val form = CompanyRegistrationNumberForm.form
+    if (request.agentSession.changingAnswers) {
+      Ok(
+        company_registration_number(
+          request.agentSession.companyRegistrationNumber.fold(form)(form.fill),
+          showCheckYourAnswersUrl))
+    } else {
+      Ok(
+        company_registration_number(
+          request.agentSession.companyRegistrationNumber.fold(form)(form.fill),
+          companyRegNumberBackLink(request.agentSession)))
     }
   }
 
   def submitCompanyRegistrationNumber: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { session =>
-      CompanyRegistrationNumberForm.form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => {
-            if (session.changingAnswers) {
-              Ok(company_registration_number(formWithErrors, showCheckYourAnswersUrl))
-            } else {
-              Ok(company_registration_number(formWithErrors, companyRegNumberBackLink(session)))
-            }
-          },
-          validFormValue => {
-            if (session.changingAnswers) {
-              updateSessionAndRedirect(
-                session.copy(companyRegistrationNumber = Some(validFormValue), changingAnswers = false),
-                Some(showCheckYourAnswersUrl))
-            } else {
-              updateSessionAndRedirect(session.copy(companyRegistrationNumber = Some(validFormValue)))
-            }
+    CompanyRegistrationNumberForm.form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => {
+          if (request.agentSession.changingAnswers) {
+            Ok(company_registration_number(formWithErrors, showCheckYourAnswersUrl))
+          } else {
+            Ok(company_registration_number(formWithErrors, companyRegNumberBackLink(request.agentSession)))
           }
-        )
-    }
+        },
+        validFormValue => {
+          if (request.agentSession.changingAnswers) {
+            updateSessionAndRedirect(
+              request.agentSession.copy(companyRegistrationNumber = Some(validFormValue), changingAnswers = false),
+              Some(showCheckYourAnswersUrl))
+          } else {
+            updateSessionAndRedirect(request.agentSession.copy(companyRegistrationNumber = Some(validFormValue)))
+          }
+        }
+      )
   }
 
   def showTaxRegistrationNumberForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { applicationSession =>
-      val storedTrns = applicationSession.taxRegistrationNumbers.getOrElse(SortedSet.empty[String])
+    val storedTrns = request.agentSession.taxRegistrationNumbers.getOrElse(SortedSet.empty[String])
 
-      val whichTrnToPopulate = if (storedTrns.size == 1) {
-        storedTrns.headOption
-      } else {
-        None
-      }
-
-      val prePopulate = TaxRegistrationNumber(applicationSession.hasTaxRegNumbers, whichTrnToPopulate)
-      Ok(tax_registration_number(TaxRegistrationNumberForm.form.fill(prePopulate)))
+    val whichTrnToPopulate = if (storedTrns.size == 1) {
+      storedTrns.headOption
+    } else {
+      None
     }
+
+    val prePopulate = TaxRegistrationNumber(request.agentSession.hasTaxRegNumbers, whichTrnToPopulate)
+    Ok(tax_registration_number(TaxRegistrationNumberForm.form.fill(prePopulate)))
   }
 
   def submitTaxRegistrationNumber: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { applicationData =>
-      TaxRegistrationNumberForm.form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => Ok(tax_registration_number(formWithErrors)),
-          validForm =>
-            updateSessionAndRedirect(
-              applicationData.copy(
-                hasTaxRegNumbers = validForm.canProvideTaxRegNo,
-                taxRegistrationNumbers = validForm.value.flatMap(taxId => Some(SortedSet(taxId)))))
-        )
-    }
+    TaxRegistrationNumberForm.form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Ok(tax_registration_number(formWithErrors)),
+        validForm =>
+          updateSessionAndRedirect(
+            request.agentSession.copy(
+              hasTaxRegNumbers = validForm.canProvideTaxRegNo,
+              taxRegistrationNumbers = validForm.value.flatMap(taxId => Some(SortedSet(taxId)))))
+      )
   }
 
   def showAddTaxRegNoForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { _ =>
-      Ok(add_tax_registration_number(AddTrnForm.form))
-    }
+    Ok(add_tax_registration_number(AddTrnForm.form))
   }
 
   def submitAddTaxRegNo: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { session =>
-      AddTrnForm.form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => Ok(add_tax_registration_number(formWithErrors)),
-          validForm => {
-            val trns = session.taxRegistrationNumbers match {
-              case Some(numbers) => numbers + validForm
-              case None          => SortedSet(validForm)
-            }
-            updateSessionAndRedirect(
-              session.copy(taxRegistrationNumbers = Some(trns)),
-              Some(routes.ApplicationController.showYourTaxRegNumbersForm().url))
+    AddTrnForm.form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Ok(add_tax_registration_number(formWithErrors)),
+        validForm => {
+          val trns = request.agentSession.taxRegistrationNumbers match {
+            case Some(numbers) => numbers + validForm
+            case None          => SortedSet(validForm)
           }
-        )
-    }
+          updateSessionAndRedirect(
+            request.agentSession.copy(taxRegistrationNumbers = Some(trns)),
+            Some(routes.ApplicationController.showYourTaxRegNumbersForm().url))
+        }
+      )
   }
 
   def showYourTaxRegNumbersForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { session =>
-      val trns = session.taxRegistrationNumbers.getOrElse(SortedSet.empty[String])
-      if (session.changingAnswers) {
-        Ok(your_tax_registration_numbers(DoYouWantToAddAnotherTrnForm.form, trns, Some(showCheckYourAnswersUrl)))
-      } else {
-        Ok(your_tax_registration_numbers(DoYouWantToAddAnotherTrnForm.form, trns))
-      }
+    val trns = request.agentSession.taxRegistrationNumbers.getOrElse(SortedSet.empty[String])
+    if (request.agentSession.changingAnswers) {
+      Ok(your_tax_registration_numbers(DoYouWantToAddAnotherTrnForm.form, trns, Some(showCheckYourAnswersUrl)))
+    } else {
+      Ok(your_tax_registration_numbers(DoYouWantToAddAnotherTrnForm.form, trns))
     }
   }
 
   def submitYourTaxRegNumbers: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { session =>
-      DoYouWantToAddAnotherTrnForm.form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => {
-            val trns = session.taxRegistrationNumbers.getOrElse(SortedSet.empty[String])
-            if (session.changingAnswers) {
-              Ok(your_tax_registration_numbers(formWithErrors, trns, Some(showCheckYourAnswersUrl)))
-            } else {
-              Ok(your_tax_registration_numbers(formWithErrors, trns))
-            }
-          },
-          validForm => {
-            validForm.value match {
-              case Some(true) => Redirect(routes.ApplicationController.showAddTaxRegNoForm().url)
-              case _          => Redirect(routes.ApplicationController.showCheckYourAnswers().url)
-            }
+    DoYouWantToAddAnotherTrnForm.form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => {
+          val trns = request.agentSession.taxRegistrationNumbers.getOrElse(SortedSet.empty[String])
+          if (request.agentSession.changingAnswers) {
+            Ok(your_tax_registration_numbers(formWithErrors, trns, Some(showCheckYourAnswersUrl)))
+          } else {
+            Ok(your_tax_registration_numbers(formWithErrors, trns))
           }
-        )
-    }
+        },
+        validForm => {
+          validForm.value match {
+            case Some(true) => Redirect(routes.ApplicationController.showAddTaxRegNoForm().url)
+            case _          => Redirect(routes.ApplicationController.showCheckYourAnswers().url)
+          }
+        }
+      )
   }
 
   def submitUpdateTaxRegNumber: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { session =>
-      UpdateTrnForm.form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => {
-            Logger.warn(
-              s"error during updating tax registration number ${formWithErrors.errors.map(_.message).mkString(",")}")
-            Ok(update_tax_registration_number(formWithErrors))
-          },
-          validForm =>
-            validForm.updated match {
-              case Some(updatedTrn) =>
-                val updatedSet = session.taxRegistrationNumbers.fold[SortedSet[String]](SortedSet.empty)(trns =>
-                  trns - validForm.original + updatedTrn)
+    UpdateTrnForm.form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => {
+          Logger.warn(
+            s"error during updating tax registration number ${formWithErrors.errors.map(_.message).mkString(",")}")
+          Ok(update_tax_registration_number(formWithErrors))
+        },
+        validForm =>
+          validForm.updated match {
+            case Some(updatedTrn) =>
+              val updatedSet = request.agentSession.taxRegistrationNumbers
+                .fold[SortedSet[String]](SortedSet.empty)(trns => trns - validForm.original + updatedTrn)
 
-                updateSessionAndRedirect(
-                  session.copy(taxRegistrationNumbers = Some(updatedSet)),
-                  Some(routes.ApplicationController.showYourTaxRegNumbersForm().url))
+              updateSessionAndRedirect(
+                request.agentSession.copy(taxRegistrationNumbers = Some(updatedSet)),
+                Some(routes.ApplicationController.showYourTaxRegNumbersForm().url))
 
-              case None =>
-                Ok(
-                  update_tax_registration_number(
-                    UpdateTrnForm.form.fill(validForm.copy(updated = Some(validForm.original)))))
-          }
-        )
-    }
+            case None =>
+              Ok(
+                update_tax_registration_number(
+                  UpdateTrnForm.form.fill(validForm.copy(updated = Some(validForm.original)))))
+        }
+      )
   }
 
   def showRemoveTaxRegNumber(trn: String): Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { applicantSession =>
-      if (applicantSession.taxRegistrationNumbers.exists(_.contains(trn)))
-        Ok(remove_tax_reg_number(RemoveTrnForm.form, trn))
-      else
-        Ok(error_template("global.error.404.title", "global.error.404.heading", "global.error.404.message"))
-    }
+    if (request.agentSession.taxRegistrationNumbers.exists(_.contains(trn)))
+      Ok(remove_tax_reg_number(RemoveTrnForm.form, trn))
+    else
+      Ok(error_template("global.error.404.title", "global.error.404.heading", "global.error.404.message"))
   }
 
   def submitRemoveTaxRegNumber(trn: String): Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { applicantSession =>
-      RemoveTrnForm.form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => Ok(remove_tax_reg_number(formWithErrors, trn)),
-          validForm => {
-            validForm.value match {
-              case Some(true) => {
-                val updatedSet = applicantSession.taxRegistrationNumbers
-                  .fold[SortedSet[String]](SortedSet.empty)(trns => trns - trn)
+    RemoveTrnForm.form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Ok(remove_tax_reg_number(formWithErrors, trn)),
+        validForm => {
+          validForm.value match {
+            case Some(true) => {
+              val updatedSet = request.agentSession.taxRegistrationNumbers
+                .fold[SortedSet[String]](SortedSet.empty)(trns => trns - trn)
 
-                val updateSession: AgentSession =
-                  if (updatedSet.isEmpty) applicantSession.copy(hasTaxRegNumbers = None, taxRegistrationNumbers = None)
-                  else applicantSession.copy(taxRegistrationNumbers = Some(updatedSet))
+              val updateSession: AgentSession =
+                if (updatedSet.isEmpty)
+                  request.agentSession.copy(hasTaxRegNumbers = None, taxRegistrationNumbers = None)
+                else request.agentSession.copy(taxRegistrationNumbers = Some(updatedSet))
 
-                updateSessionAndRedirect(
-                  updateSession,
-                  if (updatedSet.nonEmpty) Some(routes.ApplicationController.showYourTaxRegNumbersForm().url)
-                  else Some(routes.ApplicationController.showTaxRegistrationNumberForm().url)
-                )
-              }
-              case _ => Redirect(routes.ApplicationController.showYourTaxRegNumbersForm())
+              updateSessionAndRedirect(
+                updateSession,
+                if (updatedSet.nonEmpty) Some(routes.ApplicationController.showYourTaxRegNumbersForm().url)
+                else Some(routes.ApplicationController.showTaxRegistrationNumberForm().url)
+              )
             }
+            case _ => Redirect(routes.ApplicationController.showYourTaxRegNumbersForm())
           }
-        )
-    }
+        }
+      )
   }
 
   def showCheckYourAnswers: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { applicationSession =>
-      //make sure user has gone through all the required pages, if not redirect to appropriate page
-      lookupNextPage.map { call =>
-        if (call == routes.ApplicationController.showCheckYourAnswers() || call == routes.ApplicationController
-              .showYourTaxRegNumbersForm()) {
-          val countryCode = applicationSession.mainBusinessAddress.map(_.countryCode)
-          val countryName = countryCode
-            .flatMap(countries.get)
-            .getOrElse(sys.error(s"No country found for code: '${countryCode.getOrElse("")}'"))
-          Ok(check_your_answers(applicationSession, countryName))
-        } else {
-          Redirect(call)
-        }
+    //make sure user has gone through all the required pages, if not redirect to appropriate page
+    lookupNextPage.map { call =>
+      if (call == routes.ApplicationController.showCheckYourAnswers() || call == routes.ApplicationController
+            .showYourTaxRegNumbersForm()) {
+        val countryCode = request.agentSession.mainBusinessAddress.map(_.countryCode)
+        val countryName = countryCode
+          .flatMap(countries.get)
+          .getOrElse(sys.error(s"No country found for code: '${countryCode.getOrElse("")}'"))
+        Ok(check_your_answers(request.agentSession, countryName))
+      } else {
+        Redirect(call)
       }
     }
   }
 
   def submitCheckYourAnswers: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { applicationSession =>
-      applicationService.createApplication(applicationSession).map { _ =>
-        Redirect(routes.ApplicationController.showApplicationComplete())
-      }
+    applicationService.createApplication(request.agentSession).map { _ =>
+      Redirect(routes.ApplicationController.showApplicationComplete())
     }
   }
 
   def showApplicationComplete: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { applicationSession =>
-      Ok(application_complete(applicationSession))
-    }
+    Ok(application_complete(request.agentSession))
   }
 
   private def ukTaxRegistrationBackLink(session: AgentSession) = Some(session) match {

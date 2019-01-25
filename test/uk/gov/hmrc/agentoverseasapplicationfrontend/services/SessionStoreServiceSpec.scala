@@ -38,7 +38,7 @@ class SessionStoreServiceSpec extends UnitSpec {
     changingAnswers = false
   )
 
-  "SessionStoreService" should {
+  "SessionStoreService AgentSession" should {
 
     "store agent details" in {
       val store = new SessionStoreService(new TestSessionCache())
@@ -61,16 +61,6 @@ class SessionStoreServiceSpec extends UnitSpec {
 
     "return None when no application details have been stored" in {
       val store = new SessionStoreService(new TestSessionCache())
-
-      await(store.fetchAgentSession) shouldBe None
-    }
-
-    "remove the underlying storage for the current session when remove is called" in {
-      val store = new SessionStoreService(new TestSessionCache())
-
-      await(store.cacheAgentSession(agentSession))
-
-      await(store.remove())
 
       await(store.fetchAgentSession) shouldBe None
     }

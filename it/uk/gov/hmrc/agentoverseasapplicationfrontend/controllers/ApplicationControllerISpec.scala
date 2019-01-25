@@ -34,10 +34,17 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
   private lazy val controller: ApplicationController = app.injector.instanceOf[ApplicationController]
 
   "GET /money-laundering" should {
-    "display the money-laundering form" in {
-      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+    "redirect to it self when agentSession not initialised, should only be done once as auth action should initialise agentSession" in {
+      given404OverseasApplications
+      val result = await(controller.showAntiMoneyLaunderingForm(cleanCredsAgent(FakeRequest())))
 
-      val result = await(controller.showAntiMoneyLaunderingForm(authenticatedRequest))
+      redirectLocation(result).get shouldBe routes.ApplicationController.showAntiMoneyLaunderingForm().url
+      await(sessionStoreService.fetchAgentSession).isDefined shouldBe true
+    }
+
+    "display the money-laundering form" in {
+      await(sessionStoreService.cacheAgentSession(AgentSession()))
+      val result = await(controller.showAntiMoneyLaunderingForm(cleanCredsAgent(FakeRequest())))
 
       status(result) shouldBe 200
 
@@ -53,8 +60,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       result should containSubstrings(routes.SignOutController.signOut().url)
     }
 
-    "display the money-laundering form with correct back button link when user is changing answers" in {
-
+    "display the money-laundering form with correct back button link when user is CHANGING ANSWERS" in {
       await(sessionStoreService.cacheAgentSession(AgentSession(changingAnswers = true)))
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
 
@@ -62,23 +68,24 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
       status(result) shouldBe 200
 
-      result should containMessages(
-        "amls.title",
-        "amls.inset.p1",
-        "amls.form.supervisory_body",
-        "amls.form.membership_number",
-        "amls.hint.expandable",
-        "amls.hint.expandable.p1"
-      )
+      result should containLink("button.back", routes.ApplicationController.showCheckYourAnswers().url)
+    }
 
-      result should containSubstrings(
-        routes.ApplicationController.showCheckYourAnswers().url,
-        routes.SignOutController.signOut().url)
+    "display the money-laundering form with correct back button link when user is not changing answers and Has seen previously rejected application page" in {
+      await(sessionStoreService.cacheAgentSession(AgentSession()))
+      given200GetOverseasApplications(allRejected = true)
+
+      val result = await(controller.showAntiMoneyLaunderingForm(cleanCredsAgent(FakeRequest())))
+
+      status(result) shouldBe 200
+
+      result should containLink("button.back", routes.StartController.applicationStatus().url)
     }
   }
 
   "POST /money-laundering" should {
     "redirect to contact-details" in {
+      await(sessionStoreService.cacheAgentSession(AgentSession()))
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody("amlsBody" -> "Association of AccountingTechnicians (AAT)", "membershipNumber" -> "123445")
 

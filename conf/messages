@@ -112,6 +112,17 @@ button.register=Create a Government Gateway account
 error.country.empty=Enter your country
 error.country.invalid=Select a country from the list
 
+# Application under review
+
+application_not_ready.title=Application received
+application_not_ready.p1=We received your application for approval to create an agent services account for {0} on {1}.
+application_not_ready.h2=What happens next
+application_not_ready.p2=We may get in touch with you to discuss your application.
+application_not_ready.p3=We will tell you within {0} calendar days if your application has been approved. We will also tell you how to set up your account.
+application_not_ready.p4=If your application is rejected we will tell you why.
+application_not_ready.h3=If you need help
+application_not_ready.p5=If you need help using this service, use the ''get help with this page'' link at the bottom of this page.
+
 # AMLS
 amls.title=Money laundering compliance details
 amls.inset.p1=You must be registered with a money laundering supervisory body before you can apply for an agent services account.
