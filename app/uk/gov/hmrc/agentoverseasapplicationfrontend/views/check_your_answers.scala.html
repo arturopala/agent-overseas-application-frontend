@@ -25,17 +25,22 @@
 
 @(agentSession: AgentSession, countryName: String)(implicit request: Request[_], messages: Messages, configuration: Configuration)
 
+
 @showFullBusinessDetails = {
     @agentSession.registeredForUkTax.map { isRegisteredForUKTax =>
         @check_answers_div(Messages("checkAnswers.registeredForUKTax.title"),  isRegisteredForUKTax, "isRegisteredForTax", routes.ChangingAnswersController.changeRegisteredForUKTax())
-
+        
+        <script>gaSendEvent('check-answers-registered-for-tax-title')</script>
+        
         @if(isRegisteredForUKTax == Yes) {
             @agentSession.personalDetails.flatMap(_.nino).map { nino =>
                 @check_answers_div(Messages("checkAnswers.personalDetails.nino.title"),  nino, "nino", routes.ChangingAnswersController.changePersonalDetails())
+                <script>gaSendEvent('check-answers-nino-title')</script>
             }
 
             @agentSession.personalDetails.flatMap(_.saUtr).map { saUtr =>
                 @check_answers_div(Messages("checkAnswers.personalDetails.saUtr.title"),  saUtr, "saUtr", routes.ChangingAnswersController.changePersonalDetails())
+                <script>gaSendEvent('check-answers-saUtr-title')</script>
             }
         }
     }
@@ -47,6 +52,9 @@
             @check_answers_div(Messages("checkAnswers.companyRegistrationNumber.title"), Messages("checkAnswers.companyRegistrationNumber.empty"), "companyRegNo",
             routes.ChangingAnswersController.changeCompanyRegistrationNumber())
         }
+        
+        <script>gaSendEvent('check-answers-company-registration-number-title')</script>
+      
     }
 
     @agentSession.taxRegistrationNumbers match {
@@ -56,6 +64,9 @@
                 Html(agentSession.taxRegistrationNumbers.getOrElse(SortedSet.empty[String]).mkString("<br>")),
               "taxRegistrationNumbersTitle",
                 routes.ChangingAnswersController.changeYourTaxRegistrationNumbers())
+            
+            <script>gaSendEvent('check-answers-tax-registration-numbers')</script>
+          
         }
         case _ => {
             @check_answers_div(
@@ -63,6 +74,9 @@
                 Messages("checkAnswers.taxRegistrationNumbers.empty"),
               "taxRegistrationNumbersTitle",
                 routes.ChangingAnswersController.changeYourTaxRegistrationNumbers() )
+            
+            <script>gaSendEvent('check-answers-tax-registration-numbers-empty')</script>
+          
         }
     }
 }
@@ -87,17 +101,27 @@
                         @details.supervisoryBody
                     </dd>
                     <dd class="app-check-your-answers__change">
-                        <a href="@routes.ChangingAnswersController.changeAmlsDetails()">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @Messages("checkAnswers.amlsDetails.supervisoryBody")</span></a>
+                        <a href="@routes.ChangingAnswersController.changeAmlsDetails()" data-include-hidden="@Messages("checkAnswers.change.button") @Messages("checkAnswers.amlsDetails.title")">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @Messages("checkAnswers.amlsDetails.title")</span></a>
                     </dd>
                 </div>
+
                 <div class="app-check-your-answers__contents">
                     <dt class="app-check-your-answers__question">
-                        @Messages("checkAnswers.amlsDetails.memebershipNumber")
+                        @Messages("checkAnswers.amlsDetails.membershipNumber")
                     </dt>
                     <dd class="app-check-your-answers__answer" id="amls-details">
                         @details.membershipNumber
                     </dd>
                 </div>
+                <script>
+                    @if(details.supervisoryBody.nonEmpty) {
+                        gaSendEvent('check-answers-supervisory-body');
+                    }
+                    @if(details.membershipNumber.nonEmpty) {
+                        gaSendEvent('check-answers-membership-number');
+                    }
+                </script>
+
             </dl>
         </div>
     }
@@ -145,6 +169,23 @@
                 </div>
             </dl>
         </div>
+        <script>
+            @if(details.firstName.nonEmpty) {
+                gaSendEvent('check-answers-first-name');
+            }
+            @if(details.lastName.nonEmpty) {
+                gaSendEvent('check-answers-last-name');
+            }
+            @if(details.jobTitle.nonEmpty) {
+                gaSendEvent('check-answers-job-title');
+            }
+            @if(details.businessTelephone.nonEmpty) {
+                gaSendEvent('check-answers-business-telephone');
+            }
+            @if(details.businessEmail.nonEmpty) {
+                gaSendEvent('check-answers-business-email');
+            }
+        </script>
     }
 
     <h2 class="heading-medium margin-bottom-10">@Messages("checkAnswers.BusinessDetails.title")</h2>
@@ -154,6 +195,11 @@
             <dl class="app-check-your-answers app-check-your-answers--long">
                @check_answers_div(Messages("checkAnswers.tradingName.title"), name, "tradingName", routes.ChangingAnswersController.changeTradingName())
             </dl>
+            <script>
+                @if(name.nonEmpty) {
+                    gaSendEvent('check-answers-trading-name');
+                }
+            </script>
         }
     </div>
     <div class="app-check-your-answers--group margin-bottom-10">
@@ -166,6 +212,23 @@
                     routes.ChangingAnswersController.changeTradingAddress()
                 )
             </dl>
+            <script>
+                @if(address.addressLine1.nonEmpty) {
+                    gaSendEvent('check-answers-address-line1');
+                }
+                @if(address.addressLine2.nonEmpty) {
+                    gaSendEvent('check-answers-address-line2');
+                }
+                @if(address.addressLine3.nonEmpty) {
+                    gaSendEvent('check-answers-address-line3');
+                }
+                @if(address.addressLine4.nonEmpty) {
+                    gaSendEvent('check-answers-address-line4');
+                }
+                @if(countryName.nonEmpty) {
+                    gaSendEvent('check-answers-country-name');
+                }
+            </script>
         }
     </div>
 
@@ -176,22 +239,30 @@
 
             <dl class="app-check-your-answers app-check-your-answers--long">
                 @check_answers_div(Messages("checkAnswers.registeredWithHmrc.title"), isRegistered, "isRegistered", routes.ChangingAnswersController.changeRegisteredWithHmrc())
-
+                <script>
+                    @if(isRegistered == Yes) {
+                        gaSendEvent('check-answers-is-registered');
+                    }
+                </script>
                 @if(isRegistered == Yes && agentSession.agentCodes.map(_.hasOneOrMoreCodes).contains(true)) {
                     @agentSession.agentCodes.flatMap(_.selfAssessment).map { sa =>
                         @check_answers_div(Messages("checkAnswers.agentCode.selfAssessment"), sa, "sa", routes.ChangingAnswersController.changeAgentCodes())
+                        <script>gaSendEvent('check-answers-sa')</script>
                     }
 
                     @agentSession.agentCodes.flatMap(_.corporationTax).map { ct =>
                         @check_answers_div(Messages("checkAnswers.agentCode.corporationTax"), ct, "ct", routes.ChangingAnswersController.changeAgentCodes())
+                        <script>gaSendEvent('check-answers-ct')</script>
                     }
 
                     @agentSession.agentCodes.flatMap(_.vat).map { vat =>
                         @check_answers_div(Messages("checkAnswers.agentCode.vat"), vat, "vat", routes.ChangingAnswersController.changeAgentCodes())
+                        <script>gaSendEvent('check-answers-vat')</script>
                     }
 
                     @agentSession.agentCodes.flatMap(_.paye).map { paye =>
-                         @check_answers_div(Messages("checkAnswers.agentCode.paye"), paye, "paye", routes.ChangingAnswersController.changeAgentCodes())
+                        @check_answers_div(Messages("checkAnswers.agentCode.paye"), paye, "paye", routes.ChangingAnswersController.changeAgentCodes())
+                        <script>gaSendEvent('check-answers-paye')</script>
                     }
                 }
 
@@ -217,4 +288,5 @@
             <button class="button margin-top-30" type="submit" id="continue" >@Messages("checkAnswers.confirm.button")</button>
         </div>
     }
+
 }
