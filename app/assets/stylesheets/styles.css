@@ -155,13 +155,6 @@
     padding-bottom: 0.3em;
 }
 
-.app-check-your-answers__change {
-    text-align: right;
-    position: absolute;
-    top: 0;
-    right: 0;
-}
-
 .app-check-your-answers--group {
     border-bottom: 1px solid #bfc1c3;
     padding-bottom: 5px;
@@ -169,7 +162,7 @@
 
 @media (min-width: 48.0625em) {
     .app-check-your-answers__change {
-        position: static;
+        text-align: right;
         padding-right: 0;
     }
 }
@@ -385,5 +378,11 @@ input[type="text"].autocomplete__input {
 }
 
 .autocomplete-wrapper {
-    width: 50%
+    width: 100%
+}
+
+@media (min-width: 48.0625em) {
+    .autocomplete-wrapper {
+        width: 50%
+    }
 }

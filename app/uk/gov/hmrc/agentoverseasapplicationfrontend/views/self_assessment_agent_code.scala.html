@@ -8,7 +8,7 @@
 
 @(agentCodesForm: Form[AgentCodes], backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
-@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("agentCodes.title")) {
+@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = error_prefix(agentCodesForm) + Messages("agentCodes.title")) {
 
     <a href="@backLink.getOrElse(routes.ApplicationController.showRegisteredWithHmrcForm)" class="link-back">@Messages("button.back")</a>
 

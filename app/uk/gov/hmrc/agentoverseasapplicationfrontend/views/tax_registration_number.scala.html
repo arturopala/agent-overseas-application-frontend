@@ -5,9 +5,13 @@
 
 @(taxRegistrationNumberForm: Form[TaxRegistrationNumber], backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
-@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("taxRegNo.title")) {
+@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = error_prefix(taxRegistrationNumberForm) + Messages("taxRegNo.title")) {
 
     <a href="@backLink.getOrElse(routes.ApplicationController.showCompanyRegistrationNumberForm())" class="link-back">@Messages("button.back")</a>
+
+    @if(taxRegistrationNumberForm.hasErrors) {
+        @errorSummary(Messages("error.summary.heading"), taxRegistrationNumberForm, Seq.empty, Some("enter-tax-registration-numbers"))
+    }
 
     @form(action = routes.ApplicationController.submitTaxRegistrationNumber(), 'class -> "form js-form") {
         <div class="form-group @if(taxRegistrationNumberForm.error("value").isDefined) {form-group-error}" id="radioResponse">
@@ -17,10 +21,6 @@
                         <span class="pre-heading">@Messages("taxRegNo.caption")</span>
                         @Messages("taxRegNo.title")
                     </h1>
-
-                    @if(taxRegistrationNumberForm.hasErrors) {
-                        @errorSummary(Messages("error.summary.heading"), taxRegistrationNumberForm, Seq.empty, Some("enter-tax-registration-numbers"))
-                    }
                 </legend>
 
                 <p>@Messages("taxRegNo.p1")</p>
