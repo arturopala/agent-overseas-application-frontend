@@ -26,14 +26,6 @@
 @(agentSession: AgentSession, countryName: String)(implicit request: Request[_], messages: Messages, configuration: Configuration)
 
 
-<script>
-    var gaSendEvent = function(element){
-        if(window.location.hostname !== 'localhost') {
-            ga('send', 'event', element);
-        }
-    }
-</script>
-
 @showFullBusinessDetails = {
     @agentSession.registeredForUkTax.map { isRegisteredForUKTax =>
         @check_answers_div(Messages("checkAnswers.registeredForUKTax.title"),  isRegisteredForUKTax, "isRegisteredForTax", routes.ChangingAnswersController.changeRegisteredForUKTax())
