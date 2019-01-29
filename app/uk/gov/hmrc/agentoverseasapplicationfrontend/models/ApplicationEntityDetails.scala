@@ -6,6 +6,7 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
 case class ApplicationEntityDetails(
+  applicationCreationDate: LocalDate,
   status: ApplicationStatus,
   tradingName: String,
   businessEmail: String,
@@ -14,7 +15,8 @@ case class ApplicationEntityDetails(
 object ApplicationEntityDetails {
   implicit val reads: Reads[ApplicationEntityDetails] = {
 
-    ((__ \ "status").read[ApplicationStatus] and
+    ((__ \ "applicationCreationDate").read[LocalDate] and
+      (__ \ "status").read[ApplicationStatus] and
       (__ \ "application" \ "businessDetail" \ "tradingName").read[String] and
       (__ \ "application" \ "contactDetails" \ "businessEmail").read[String] and
       (__ \ "maintainerReviewedOn").readNullable[LocalDate])(ApplicationEntityDetails.apply _)

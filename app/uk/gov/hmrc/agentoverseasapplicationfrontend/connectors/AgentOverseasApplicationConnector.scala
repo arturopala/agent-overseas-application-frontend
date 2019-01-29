@@ -26,27 +26,33 @@ class AgentOverseasApplicationConnector @Inject()(
 
   implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
 
-  def rejectedApplication(
-    implicit hc: HeaderCarrier,
-    ec: ExecutionContext): Future[Option[ApplicationEntityDetails]] = {
-    val allStatuses = ApplicationStatus.allStatuses.map(status => s"statusIdentifier=${status.key}").mkString("&")
-    val url = new URL(baseUrl, s"/agent-overseas-application/application?$allStatuses")
+  val allStatuses = ApplicationStatus.allStatuses.map(status => s"statusIdentifier=${status.key}").mkString("&")
 
+  val urlGetAllApplications = new URL(baseUrl, s"/agent-overseas-application/application?$allStatuses")
+
+  def getUserApplications(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApplicationEntityDetails]] =
     monitor(s"Agent-Overseas-Application-application-GET") {
       http
-        .GET[List[ApplicationEntityDetails]](url.toString)
+        .GET[List[ApplicationEntityDetails]](urlGetAllApplications.toString)
+        .recover {
+          case _: NotFoundException => List.empty
+          case e                    => throw new RuntimeException(s"Could not retrieve overseas agent application status: ${e.getMessage}")
+        }
+    }
+
+  def rejectedApplication(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ApplicationEntityDetails]] =
+    monitor(s"Agent-Overseas-Application-application-GET") {
+      http
+        .GET[List[ApplicationEntityDetails]](urlGetAllApplications.toString)
         .map { apps =>
           if (apps.forall(_.status == Rejected))
             apps.sortBy(_.maintainerReviewedOn).reverse.headOption
           else None
         }
-
     }.recover {
       case _: NotFoundException => None
       case e                    => throw new RuntimeException(s"Could not retrieve overseas agent application status: ${e.getMessage}")
-
     }
-  }
 
   def createOverseasApplication(request: CreateApplicationRequest)(
     implicit hc: HeaderCarrier,

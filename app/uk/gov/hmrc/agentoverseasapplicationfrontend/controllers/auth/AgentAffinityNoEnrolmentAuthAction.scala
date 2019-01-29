@@ -1,12 +1,14 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth
 
-import javax.inject.Inject
 import com.google.inject.ImplementedBy
-import play.api.mvc.Results.{Forbidden, Redirect}
+import javax.inject.Inject
+import play.api.mvc.Results.{Forbidden, NotImplemented, Redirect}
 import play.api.mvc.{ActionBuilder, ActionFunction, Request, Result}
 import play.api.{Configuration, Environment, Mode}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.CredentialRequest
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.{Pending, Rejected}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, CredentialRequest}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.Retrievals.{authorisedEnrolments, credentials}
@@ -20,7 +22,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class AgentAffinityNoEnrolmentAuthActionImpl @Inject()(
   val env: Environment,
   val authConnector: AuthConnector,
-  val config: Configuration)(implicit ec: ExecutionContext)
+  val config: Configuration,
+  applicationService: ApplicationService,
+  sessionStoreService: SessionStoreService)(implicit ec: ExecutionContext)
     extends AgentAffinityNoHmrcAsAgentAuthAction with AuthorisedFunctions with AuthRedirects {
 
   def invokeBlock[A](request: Request[A], block: CredentialRequest[A] => Future[Result]): Future[Result] = {
@@ -30,8 +34,28 @@ class AgentAffinityNoEnrolmentAuthActionImpl @Inject()(
     authorised(AuthProviders(GovernmentGateway) and AffinityGroup.Agent)
       .retrieve(credentials and authorisedEnrolments) {
         case creds ~ enrolments =>
-          if (!isEnrolledForHmrcAsAgent(enrolments)) block(CredentialRequest(creds.providerId, request))
-          else Future.successful(Forbidden)
+          if (!isEnrolledForHmrcAsAgent(enrolments)) {
+
+            sessionStoreService.fetchAgentSession.flatMap {
+              case Some(agentSession) => block(CredentialRequest(creds.providerId, request, agentSession))
+              case None =>
+                applicationService.getCurrentApplication.flatMap {
+                  case None =>
+                    sessionStoreService
+                      .cacheAgentSession(AgentSession())
+                      .map(_ => Redirect(routes.ApplicationController.showAntiMoneyLaunderingForm()))
+                  case Some(application) if application.status == Pending => {
+                    Future.successful(Redirect(routes.StartController.applicationStatus()))
+                  }
+                  case Some(application) if application.status == Rejected =>
+                    sessionStoreService
+                      .cacheAgentSession(AgentSession())
+                      .map(_ => Redirect(routes.StartController.applicationStatus()))
+                  case _ =>
+                    Future.successful(NotImplemented) // if is going to continue to create application need to initialiseAgentSession
+                }
+            }
+          } else Future.successful(Forbidden)
       }
       .recover {
         case _: NoActiveSession =>

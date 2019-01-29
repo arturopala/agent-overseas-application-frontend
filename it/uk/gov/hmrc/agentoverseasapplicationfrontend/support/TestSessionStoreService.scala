@@ -1,6 +1,6 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.support
 
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, ContactDetails}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -26,17 +26,9 @@ class TestSessionStoreService extends SessionStoreService(null) {
   def allSessionsRemoved: Boolean =
     sessions.isEmpty
 
-  override def fetchAgentSession(
-                                        implicit hc: HeaderCarrier,
-                                        ec: ExecutionContext): Future[Option[AgentSession]] =
+  override def fetchAgentSession(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[AgentSession]] =
     Future.successful(currentSession.agentSession)
 
-  override def cacheAgentSession(
-                                        agentSession: AgentSession)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
+  override def cacheAgentSession(agentSession: AgentSession)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
     Future.successful(currentSession.agentSession = Some(agentSession))
-
-  override def remove()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
-    Future {
-      sessions.remove(sessionKey)
-    }
 }

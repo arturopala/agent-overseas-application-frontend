@@ -23,82 +23,62 @@ class ChangingAnswersController @Inject()(
     extends FrontendController with SessionBehaviour with I18nSupport {
 
   def changeAmlsDetails: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { agentSession =>
-      updateSessionAndRedirect(
-        agentSession.copy(changingAnswers = true),
-        Some(routes.ApplicationController.showAntiMoneyLaunderingForm().url))
-    }
+    updateSessionAndRedirect(
+      request.agentSession.copy(changingAnswers = true),
+      Some(routes.ApplicationController.showAntiMoneyLaunderingForm().url))
   }
 
   def changeContactDetails: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { agentSession =>
-      updateSessionAndRedirect(
-        agentSession.copy(changingAnswers = true),
-        Some(routes.ApplicationController.showContactDetailsForm().url))
-    }
+    updateSessionAndRedirect(
+      request.agentSession.copy(changingAnswers = true),
+      Some(routes.ApplicationController.showContactDetailsForm().url))
   }
 
   def changeTradingName: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { agentSession =>
-      updateSessionAndRedirect(
-        agentSession.copy(changingAnswers = true),
-        Some(routes.ApplicationController.showTradingNameForm().url))
-    }
+    updateSessionAndRedirect(
+      request.agentSession.copy(changingAnswers = true),
+      Some(routes.ApplicationController.showTradingNameForm().url))
   }
 
   def changeTradingAddress: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { agentSession =>
-      updateSessionAndRedirect(
-        agentSession.copy(changingAnswers = true),
-        Some(routes.ApplicationController.showMainBusinessAddressForm().url))
-    }
+    updateSessionAndRedirect(
+      request.agentSession.copy(changingAnswers = true),
+      Some(routes.ApplicationController.showMainBusinessAddressForm().url))
   }
 
   def changeRegisteredWithHmrc: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { agentSession =>
-      updateSessionAndRedirect(
-        agentSession.copy(changingAnswers = true),
-        Some(routes.ApplicationController.showRegisteredWithHmrcForm().url))
-    }
+    updateSessionAndRedirect(
+      request.agentSession.copy(changingAnswers = true),
+      Some(routes.ApplicationController.showRegisteredWithHmrcForm().url))
   }
 
   def changeAgentCodes: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { agentSession =>
-      updateSessionAndRedirect(
-        agentSession.copy(changingAnswers = true),
-        Some(routes.ApplicationController.showAgentCodesForm().url))
-    }
+    updateSessionAndRedirect(
+      request.agentSession.copy(changingAnswers = true),
+      Some(routes.ApplicationController.showAgentCodesForm().url))
   }
 
   def changeRegisteredForUKTax: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { agentSession =>
-      updateSessionAndRedirect(
-        agentSession.copy(changingAnswers = true),
-        Some(routes.ApplicationController.showUkTaxRegistrationForm().url))
-    }
+    updateSessionAndRedirect(
+      request.agentSession.copy(changingAnswers = true),
+      Some(routes.ApplicationController.showUkTaxRegistrationForm().url))
   }
 
   def changePersonalDetails: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { agentSession =>
-      updateSessionAndRedirect(
-        agentSession.copy(changingAnswers = true),
-        Some(routes.ApplicationController.showPersonalDetailsForm().url))
-    }
+    updateSessionAndRedirect(
+      request.agentSession.copy(changingAnswers = true),
+      Some(routes.ApplicationController.showPersonalDetailsForm().url))
   }
 
   def changeCompanyRegistrationNumber: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { agentSession =>
-      updateSessionAndRedirect(
-        agentSession.copy(changingAnswers = true),
-        Some(routes.ApplicationController.showCompanyRegistrationNumberForm().url))
-    }
+    updateSessionAndRedirect(
+      request.agentSession.copy(changingAnswers = true),
+      Some(routes.ApplicationController.showCompanyRegistrationNumberForm().url))
   }
 
   def changeYourTaxRegistrationNumbers: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    withAgentSession { agentSession =>
-      updateSessionAndRedirect(
-        agentSession.copy(changingAnswers = true),
-        Some(routes.ApplicationController.showYourTaxRegNumbersForm().url))
-    }
+    updateSessionAndRedirect(
+      request.agentSession.copy(changingAnswers = true),
+      Some(routes.ApplicationController.showYourTaxRegNumbersForm().url))
   }
 }

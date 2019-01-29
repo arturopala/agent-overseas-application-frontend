@@ -3,6 +3,7 @@
 GET         /                                            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.StartController.root
 
 GET         /not-agent                                   @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.StartController.showNotAgent
+GET         /application-status                          @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.StartController.applicationStatus
 
 GET         /money-laundering                            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showAntiMoneyLaunderingForm
 POST        /money-laundering                            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitAntiMoneyLaundering

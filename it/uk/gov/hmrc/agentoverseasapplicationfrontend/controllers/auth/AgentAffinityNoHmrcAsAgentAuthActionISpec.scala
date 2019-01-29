@@ -3,15 +3,19 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth
 import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers.redirectLocation
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession
+import uk.gov.hmrc.agentoverseasapplicationfrontend.stubs.AgentOverseasApplicationStubs
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
 
-class AgentAffinityNoHmrcAsAgentAuthActionISpec extends BaseISpec {
+class AgentAffinityNoHmrcAsAgentAuthActionISpec extends BaseISpec with AgentOverseasApplicationStubs {
 
   implicit val timeout = akka.util.Timeout {
     import scala.concurrent.duration._
     5 seconds
   }
-
+  implicit val hc = HeaderCarrier()
   val authAction = app.injector.instanceOf[AgentAffinityNoHmrcAsAgentAuthAction]
 
   class TestController(authAction: AgentAffinityNoHmrcAsAgentAuthAction) {
@@ -23,6 +27,7 @@ class AgentAffinityNoHmrcAsAgentAuthActionISpec extends BaseISpec {
     val testController = new TestController(authAction)
 
     "ALLOW logged in user with affinityGroup Agent" in {
+      initialiseAgentSession
       val result = await(testController.withValidApplicant(cleanCredsAgent(FakeRequest())))
 
       status(result) shouldBe 200
@@ -51,5 +56,45 @@ class AgentAffinityNoHmrcAsAgentAuthActionISpec extends BaseISpec {
       status(result) shouldBe 303
       redirectLocation(result).get shouldBe "/agent-services/apply-from-outside-uk/not-agent"
     }
+
+    "skip routing checks when agentSession has been initialised by journey" in {
+      initialiseAgentSession
+
+      val result = await(testController.withValidApplicant(cleanCredsAgent(FakeRequest())))
+      status(result) shouldBe 200
+    }
+
+    "check for existing application when no AgentSession defined/initialised by journey" when {
+      "no existing application found for userId then show AMLS page" in {
+        given404OverseasApplications
+        val result = await(testController.withValidApplicant(cleanCredsAgent(FakeRequest())))
+
+        redirectLocation(result).get shouldBe routes.ApplicationController.showAntiMoneyLaunderingForm().url
+        isAgentSessionInitialised shouldBe true
+      }
+
+      "application found with status PENDING, show appNotReady page" in {
+        given200OverseasPendingApplication()
+        val result = await(testController.withValidApplicant(cleanCredsAgent(FakeRequest())))
+
+        redirectLocation(result).get shouldBe routes.StartController.applicationStatus().url
+      }
+
+      "application found with status REJECTED, show appRejected page and initialise AgentSession" in {
+        given200GetOverseasApplications(true)
+
+        val result = await(testController.withValidApplicant(cleanCredsAgent(FakeRequest())))
+        redirectLocation(result).get shouldBe routes.StartController.applicationStatus().url
+        isAgentSessionInitialised shouldBe true
+      }
+    }
+  }
+
+  private def isAgentSessionInitialised(implicit hc: HeaderCarrier): Boolean = {
+    await(sessionStoreService.fetchAgentSession).isDefined
+  }
+
+  private def initialiseAgentSession(implicit hc: HeaderCarrier): Unit = {
+    await(sessionStoreService.cacheAgentSession(AgentSession()))
   }
 }

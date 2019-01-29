@@ -5,6 +5,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{ApplicationStatus, CreateApplicationRequest}
 
 trait AgentOverseasApplicationStubs {
+  val allStatuses = ApplicationStatus.allStatuses.map(status => s"statusIdentifier=${status.key}").mkString("&")
 
   def givenPostOverseasApplication(status: Int, requestBody: String = defaultRequestBody): Unit = {
     stubFor(post(urlEqualTo(s"/agent-overseas-application/application"))
@@ -56,10 +57,26 @@ trait AgentOverseasApplicationStubs {
 
   val defaultCreateApplicationRequest: CreateApplicationRequest = Json.parse(defaultRequestBody).as[CreateApplicationRequest]
 
-  def given200GetOverseasApplications(allRejected: Boolean): Unit = {
-    val allStatuses = ApplicationStatus.allStatuses.map(status => s"statusIdentifier=${status.key}").mkString("&")
-    val requestBody = if (allRejected) TestData.allRejected else TestData.notAllRejected
+  def given200OverseasPendingApplication(appCreateDate: Option[String] = Some("2019-01-18")): Unit = {
+    val responseData = StubsTestData.pendingApplication(appCreateDate.getOrElse("2019-01-18"))
+    stubFor(get(urlEqualTo(s"/agent-overseas-application/application?$allStatuses"))
+      .willReturn(aResponse()
+        .withBody(responseData)
+        .withStatus(200))
+    )
+  }
 
+  def given200OverseasAcceptedApplication: Unit = {
+    val responseData = StubsTestData.acceptedApplication
+    stubFor(get(urlEqualTo(s"/agent-overseas-application/application?$allStatuses"))
+      .willReturn(aResponse()
+        .withBody(responseData)
+        .withStatus(200))
+    )
+  }
+
+  def given200GetOverseasApplications(allRejected: Boolean): Unit = {
+    val requestBody = if (allRejected) StubsTestData.allRejected else StubsTestData.notAllRejected
     stubFor(get(urlEqualTo(s"/agent-overseas-application/application?$allStatuses"))
       .willReturn(aResponse()
         .withBody(requestBody)
@@ -67,15 +84,13 @@ trait AgentOverseasApplicationStubs {
     )
   }
 
-  def given404GetOverseasApplication: Unit = {
-    val allStatuses = ApplicationStatus.allStatuses.map(status => s"statusIdentifier=${status.key}").mkString("&")
+  def given404OverseasApplications: Unit = {
     stubFor(get(urlEqualTo(s"/agent-overseas-application/application?$allStatuses"))
       .willReturn(aResponse()
         .withStatus(404)))
   }
 
   def given500GetOverseasApplication: Unit = {
-    val allStatuses = ApplicationStatus.allStatuses.map(status => s"statusIdentifier=${status.key}").mkString("&")
     stubFor(get(urlEqualTo(s"/agent-overseas-application/application?$allStatuses"))
       .willReturn(aResponse()
         .withStatus(500)))

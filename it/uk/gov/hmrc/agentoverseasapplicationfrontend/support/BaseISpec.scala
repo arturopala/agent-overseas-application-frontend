@@ -32,6 +32,7 @@ class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with A
         "microservice.services.agent-overseas-application.port" -> wireMockPort,
         "cachable.session-cache.port" -> wireMockPort,
         "cachable.session-cache.domain" -> "keystore",
+        "maintainer-application-review-days" -> 28,
         "metrics.enabled" -> true,
         "auditing.enabled" -> true,
         "auditing.consumer.baseUri.host" -> wireMockHost,
@@ -71,6 +72,7 @@ class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with A
 
   protected def htmlEscapedMessage(key: String): String = HtmlFormat.escape(Messages(key)).toString
   protected def htmlEscapedMessage(key: String, args: Any*): String = HtmlFormat.escape(Messages(key, args: _*)).toString
+  protected def htmlMessage(key: String, args: Any*): String = Messages(key, args: _*).toString
 
   implicit def hc(implicit request: FakeRequest[_]): HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 

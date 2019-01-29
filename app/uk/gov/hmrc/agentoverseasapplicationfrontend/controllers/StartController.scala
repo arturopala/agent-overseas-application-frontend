@@ -1,12 +1,17 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
-import javax.inject.Inject
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.time.{Clock, LocalDate, ZoneOffset}
+
+import javax.inject.{Inject, Named}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.{AgentAffinityNoHmrcAsAgentAuthAction, BasicAuthAction}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.{Pending, Rejected}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.{not_agent, status_rejected}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.{application_not_ready, not_agent, status_rejected}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
@@ -19,17 +24,43 @@ class StartController @Inject()(
   basicAuthAction: BasicAuthAction,
   validApplicantAction: AgentAffinityNoHmrcAsAgentAuthAction,
   sessionStoreService: SessionStoreService,
-  applicationService: ApplicationService)(implicit val configuration: Configuration, ec: ExecutionContext)
+  applicationService: ApplicationService,
+  @Named("maintainer-application-review-days") daysToReviewApplication: Int)(
+  implicit val configuration: Configuration,
+  ec: ExecutionContext)
     extends FrontendController with I18nSupport {
 
-  def root: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    applicationService.rejectedApplication
-      .map(_.fold(Redirect(routes.ApplicationController.showAntiMoneyLaunderingForm()))(rejectedApp =>
-        Ok(status_rejected(rejectedApp))))
+  def root: Action[AnyContent] = basicAuthAction { implicit request =>
+    Redirect(routes.ApplicationController.showAntiMoneyLaunderingForm())
   }
 
   def showNotAgent: Action[AnyContent] = basicAuthAction.async { implicit request =>
     Future.successful(Ok(not_agent()))
   }
 
+  def applicationStatus: Action[AnyContent] = basicAuthAction.async { implicit request =>
+    applicationService.getCurrentApplication.map {
+      case Some(application) if application.status == Pending => {
+        val createdOnPrettifyDate: String = application.applicationCreationDate.format(
+          DateTimeFormatter.ofPattern("d MMMM YYYY").withZone(ZoneOffset.UTC))
+        val daysUntilReviewed: Int = daysUntilApplicationReviewed(application.applicationCreationDate)
+        Ok(application_not_ready(application.tradingName, createdOnPrettifyDate, daysUntilReviewed))
+      }
+      case Some(application) if application.status == Rejected => Ok(status_rejected(application))
+      case unexpected =>
+        unexpected match {
+          case Some(application) => throw new RuntimeException(s"Found unexpected status: ${application.status.key} ")
+          case None              => throw new RuntimeException("Could not find an application for user authProviderId")
+        }
+    }
+  }
+
+  private def daysUntilApplicationReviewed(applicationCreationDate: LocalDate): Int = {
+    val daysUntilAppReviewed = LocalDate
+      .now(Clock.systemUTC())
+      .until(applicationCreationDate.plusDays(daysToReviewApplication), ChronoUnit.DAYS)
+      .toInt
+
+    if (daysUntilAppReviewed > 0) daysUntilAppReviewed else 0
+  }
 }

@@ -47,7 +47,7 @@ error.email=Enter an email address in the correct format, like name@example.com
 error.email.maxlength=Business email address must be 132 characters or less
 
 error.tradingName.blank=Enter the trading name of your business
-error.tradingName.invalid=Trading name must not include ampersands, apostrophes, commas, hyphens and full stops
+error.tradingName.invalid=Trading name must not include ampersands or apostophes
 error.tradingName.maxlength=Trading name must be 40 characters or less
 
 error.addressline.1.blank=Enter Address line 1
@@ -63,8 +63,6 @@ error.addressline.3.maxlength=Address line 3 must be 35 characters or less
 
 error.addressline.4.invalid=Address line 4 must only include letters a to z, numbers, exclamation marks, forward slashes, quotation marks, round brackets and spaces
 error.addressline.4.maxlength=Address line 4 must be 35 characters or less
-
-error.countryCode.invalid=Select a country from the list
 
 error.saAgentCode.blank=Enter a Self Assessment agent code
 error.saAgentCode.invalid=Self Assessment agent code must be only include letters a to z and numbers
@@ -112,7 +110,18 @@ button.back=Back
 button.register=Create a Government Gateway account
 
 error.country.empty=Enter your country
-error.country.invalid=Select the country of your address from the list
+error.country.invalid=Select a country from the list
+
+# Application under review
+
+application_not_ready.title=Application received
+application_not_ready.p1=We received your application for approval to create an agent services account for {0} on {1}.
+application_not_ready.h2=What happens next
+application_not_ready.p2=We may get in touch with you to discuss your application.
+application_not_ready.p3=We will tell you within {0} calendar days if your application has been approved. We will also tell you how to set up your account.
+application_not_ready.p4=If your application is rejected we will tell you why.
+application_not_ready.h3=If you need help
+application_not_ready.p5=If you need help using this service, use the ''get help with this page'' link at the bottom of this page.
 
 # AMLS
 amls.title=Money laundering compliance details

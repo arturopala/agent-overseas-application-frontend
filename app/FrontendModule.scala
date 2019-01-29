@@ -31,6 +31,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 
     bindProperty("appName")
     bindProperty("country.list.location")
+    bindIntProperty("maintainer-application-review-days")
 
     bind(classOf[SessionCache]).to(classOf[ApplicationSessionCache])
 
@@ -52,9 +53,18 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
   private def bindProperty(propertyName: String) =
     bind(classOf[String]).annotatedWith(Names.named(propertyName)).toProvider(new PropertyProvider(propertyName))
 
+  private def bindIntProperty(propertyName: String) =
+    bind(classOf[Int]).annotatedWith(Names.named(propertyName)).toProvider(new IntPropertyProvider(propertyName))
+
   private class PropertyProvider(confKey: String) extends Provider[String] {
     override lazy val get = configuration
       .getString(confKey)
+      .getOrElse(throw new IllegalStateException(s"No value found for configuration property $confKey"))
+  }
+
+  private class IntPropertyProvider(confKey: String) extends Provider[Int] {
+    override lazy val get = configuration
+      .getInt(confKey)
       .getOrElse(throw new IllegalStateException(s"No value found for configuration property $confKey"))
   }
 

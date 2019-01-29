@@ -50,6 +50,7 @@ class AgentOverseasApplicationConnectorISpec extends BaseISpec with AgentOversea
 
       await(connector.rejectedApplication) shouldBe Some(
         ApplicationEntityDetails(
+          applicationCreationDate = LocalDate.parse("2019-01-21"),
           ApplicationStatus("rejected"),
           "Tradingname",
           "email@domain.com",
@@ -64,7 +65,7 @@ class AgentOverseasApplicationConnectorISpec extends BaseISpec with AgentOversea
     }
 
     "return None when no applications were found in the BE" in {
-      given404GetOverseasApplication
+      given404OverseasApplications
 
       await(connector.rejectedApplication) shouldBe None
     }
