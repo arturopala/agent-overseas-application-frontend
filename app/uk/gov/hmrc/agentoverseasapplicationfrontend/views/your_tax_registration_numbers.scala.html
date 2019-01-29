@@ -24,7 +24,7 @@
 
 @(doYouWantToAddAnotherTrnForm: Form[DoYouWantToAddAnotherTrn], trns: SortedSet[String], backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
-@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("yourTaxRegistrationNumbers.title")) {
+@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = error_prefix(doYouWantToAddAnotherTrnForm) + Messages("yourTaxRegistrationNumbers.title")) {
 
 <a href="@backLink.getOrElse(routes.ApplicationController.showTaxRegistrationNumberForm)" class="link-back">@Messages("button.back")</a>
 

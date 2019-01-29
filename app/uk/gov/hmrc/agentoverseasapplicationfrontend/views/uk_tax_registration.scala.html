@@ -7,7 +7,7 @@
 
 @(registeredForUkTaxForm: Form[RadioConfirm], backLinkRoute: String)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
-@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("ukTaxRegistration.title")) {
+@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = error_prefix(registeredForUkTaxForm) + Messages("ukTaxRegistration.title")) {
 
     <a href="@backLinkRoute" class="link-back">@Messages("button.back")</a>
 
