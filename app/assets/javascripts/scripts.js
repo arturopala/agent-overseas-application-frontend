@@ -122,6 +122,8 @@ $(function () {
     });
 
     //by default the amlsForm will be hidden so we we need this to make the form visible after loaded
-    $('#amlsForm').css('visibility', 'visible')
+    $('#amlsForm').css('visibility', 'visible');
+
+    GOVUK.details.init();
 
 });
