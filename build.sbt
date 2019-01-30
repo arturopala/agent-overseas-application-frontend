@@ -16,19 +16,19 @@ lazy val scoverageSettings = {
 
 lazy val compileDeps = Seq(
   ws,
-  "uk.gov.hmrc" %% "bootstrap-play-25" % "4.2.0",
+  "uk.gov.hmrc" %% "bootstrap-play-25" % "4.8.0",
   "uk.gov.hmrc" %% "govuk-template" % "5.26.0-play-25",
-  "uk.gov.hmrc" %% "play-ui" % "7.27.0-play-25",
-  "uk.gov.hmrc" %% "auth-client" % "2.17.0-play-25",
+  "uk.gov.hmrc" %% "play-ui" % "7.31.0-play-25",
+  "uk.gov.hmrc" %% "auth-client" % "2.18.0-play-25",
   "uk.gov.hmrc" %% "play-partials" % "6.3.0",
   "uk.gov.hmrc" %% "agent-kenshoo-monitoring" % "3.3.0",
   "uk.gov.hmrc" %% "agent-mtd-identifiers" % "0.12.0",
-  "uk.gov.hmrc" %% "http-caching-client" % "7.1.0",
+  "uk.gov.hmrc" %% "http-caching-client" % "8.0.0",
   "uk.gov.hmrc" %% "play-conditional-form-mapping" % "0.2.0"
 )
 
 def testDeps(scope: String) = Seq(
-  "uk.gov.hmrc" %% "hmrctest" % "3.3.0" % scope,
+  "uk.gov.hmrc" %% "hmrctest" % "3.4.0-play-25" % scope,
   "org.scalatest" %% "scalatest" % "3.0.5" % scope,
   "org.mockito" % "mockito-core" % "2.23.4" % scope,
   "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.1" % scope,

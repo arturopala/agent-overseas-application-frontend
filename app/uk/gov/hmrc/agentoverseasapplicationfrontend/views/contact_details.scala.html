@@ -5,7 +5,7 @@
 
 @(contactDetailsFrom: Form[ContactDetails], backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
-@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("contactDetails.title")) {
+@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = error_prefix(contactDetailsFrom) + Messages("contactDetails.title")) {
 
     <a href="@backLink.getOrElse(routes.ApplicationController.showAntiMoneyLaunderingForm)" class="link-back">@Messages("button.back")</a>
 
