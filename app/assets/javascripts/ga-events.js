@@ -44,7 +44,6 @@ $(function() {
         // links
         $('a:not('+exclude+')').each(function(){
             $(this).click(function(e){
-                e.preventDefault();
                 ga('send', 'event', cat(this), title, striptext($(this)));
 
             });
