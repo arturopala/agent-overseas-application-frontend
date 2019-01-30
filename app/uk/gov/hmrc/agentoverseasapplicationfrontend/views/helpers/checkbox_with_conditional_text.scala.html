@@ -28,7 +28,7 @@
 @conditionalDivId = @{ field.id + "-conditional" }
 
 <div class="multiple-choice" data-target="@conditionalDivId">
-    <input type="checkbox" id="@checkboxId" name="@checkboxId" value="true" @if(hasValue){ checked="checked" }>
+    <input type="checkbox" id="@checkboxId" name="@checkboxId" value="true" @if(hasValue || field.hasErrors){ checked="checked" }>
     <label class="@if(hasValue){ selected }" for="@checkboxId">@labelCheckbox</label>
 </div>
 

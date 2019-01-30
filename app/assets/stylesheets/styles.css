@@ -71,6 +71,21 @@
     padding-top: 3px;
 }
 
+.report-error .report-error__toggle {
+    color: #005ea5;
+}
+
+.report-error {
+    margin: 0;
+}
+
+.panels-conditionals .panel {
+    margin-left: 15px;
+    border-left-width: 10px;
+    padding-left: 32px;
+    padding-top: 0;
+}
+
 @media print {
     .app-check-your-answers {
         font-family: sans-serif;
