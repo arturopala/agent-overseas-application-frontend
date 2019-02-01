@@ -2,16 +2,16 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import java.time.{Clock, LocalDate}
 
+import play.api.mvc.{Action, AnyContent}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.stubs._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
-import uk.gov.hmrc.http.HeaderCarrier
 
 class StartControllerISpec extends BaseISpec with AgentOverseasApplicationStubs {
 
   private lazy val controller = app.injector.instanceOf[StartController]
-  implicit val hc = HeaderCarrier()
+
 
   "GET /not-agent" should {
     "display the non-agent  page when the current user is logged in" in {
@@ -64,12 +64,6 @@ class StartControllerISpec extends BaseISpec with AgentOverseasApplicationStubs 
 
       an[RuntimeException] shouldBe thrownBy(await(controller.applicationStatus(basicRequest(FakeRequest()))))
     }
-
-    "RuntimeException when unexpected application status" in {
-      given200OverseasAcceptedApplication
-
-      an[RuntimeException] shouldBe thrownBy(await(controller.applicationStatus(basicRequest(FakeRequest()))))
-    }
   }
 
   "GET /application-status applicationStatus Rejected status" should {
@@ -93,10 +87,28 @@ class StartControllerISpec extends BaseISpec with AgentOverseasApplicationStubs 
       an[RuntimeException] shouldBe thrownBy(await(controller.applicationStatus(basicRequest(FakeRequest()))))
     }
 
-    "RuntimeException when unexpected application status" in {
-      given200OverseasAcceptedApplication
+  }
 
-      an[RuntimeException] shouldBe thrownBy(await(controller.applicationStatus(basicRequest(FakeRequest()))))
+  "GET / application-status applicationStatus Accepted status" should {
+
+    behave like redirectToSubscriptionFrontend("accepted", controller.applicationStatus)
+  }
+
+  "GET / application-status applicationStatus Registered status" should {
+
+    behave like redirectToSubscriptionFrontend("registered", controller.applicationStatus)
+  }
+
+  "GET / application-status applicationStatus Complete status" should {
+
+    behave like redirectToSubscriptionFrontend("complete", controller.applicationStatus)
+  }
+
+  def redirectToSubscriptionFrontend(status: String, action: Action[AnyContent]): Unit = {
+
+    "303 when application status neither Rejected nor Pending" in {
+      given200OverseasRedirectStatusApplication(status)
+      redirectLocation(await(action(basicRequest(FakeRequest())))).get shouldBe "/agent-services/apply-from-outside-uk/create-account"
     }
   }
 }

@@ -75,6 +75,14 @@ trait AgentOverseasApplicationStubs {
     )
   }
 
+  def given200OverseasRedirectStatusApplication(redirectStatus: String): Unit = {
+    val responseData = StubsTestData.applicationInRedirectStatus(redirectStatus)
+    stubFor(get(urlEqualTo(s"/agent-overseas-application/application?$allStatuses"))
+    .willReturn(aResponse()
+    .withBody(responseData)
+    .withStatus(200)))
+  }
+
   def given200GetOverseasApplications(allRejected: Boolean): Unit = {
     val requestBody = if (allRejected) StubsTestData.allRejected else StubsTestData.notAllRejected
     stubFor(get(urlEqualTo(s"/agent-overseas-application/application?$allStatuses"))

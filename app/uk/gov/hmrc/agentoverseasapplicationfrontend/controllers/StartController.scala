@@ -26,6 +26,7 @@ class StartController @Inject()(
   sessionStoreService: SessionStoreService,
   applicationService: ApplicationService,
   @Named("maintainer-application-review-days") daysToReviewApplication: Int,
+  @Named("agent-overseas-subscription-frontend.root-path") subscriptionRootPath: String,
   basicAgentAuthAction: BasicAgentAuthAction)(implicit val configuration: Configuration, ec: ExecutionContext)
     extends FrontendController with I18nSupport {
 
@@ -37,7 +38,7 @@ class StartController @Inject()(
     Ok(not_agent())
   }
 
-  def applicationStatus: Action[AnyContent] = basicAgentAuthAction.async { implicit request =>
+  def applicationStatus: Action[AnyContent] = basicAuthAction.async { implicit request =>
     applicationService.getCurrentApplication.map {
       case Some(application) if application.status == Pending => {
         val createdOnPrettifyDate: String = application.applicationCreationDate.format(
@@ -46,11 +47,8 @@ class StartController @Inject()(
         Ok(application_not_ready(application.tradingName, createdOnPrettifyDate, daysUntilReviewed))
       }
       case Some(application) if application.status == Rejected => Ok(status_rejected(application))
-      case unexpected =>
-        unexpected match {
-          case Some(application) => throw new RuntimeException(s"Found unexpected status: ${application.status.key} ")
-          case None              => throw new RuntimeException("Could not find an application for user authProviderId")
-        }
+      case Some(_)                                             => SeeOther(subscriptionRootPath)
+      case _                                                   => throw new RuntimeException("Could not find an application for user authProviderId")
     }
   }
 
@@ -59,7 +57,6 @@ class StartController @Inject()(
       .now(Clock.systemUTC())
       .until(applicationCreationDate.plusDays(daysToReviewApplication), ChronoUnit.DAYS)
       .toInt
-
     if (daysUntilAppReviewed > 0) daysUntilAppReviewed else 0
   }
 }
