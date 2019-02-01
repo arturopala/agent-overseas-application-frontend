@@ -3,7 +3,7 @@
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
 
 
-@(agentSession: AgentSession)(implicit request: Request[_], messages: Messages, configuration: Configuration)
+@(tradingName: String, contactEmail: String)(implicit request: Request[_], messages: Messages, configuration: Configuration)
 
 @main_template(title = Messages("applicationComplete.title")){
 
@@ -11,13 +11,12 @@
                 <h1 class="flush--top bold-xlarge">@Messages("applicationComplete.title")</h1>
                 <div class="flush--bottom font-large">
                     @Messages("applicationComplete.panel.body")
-                        @agentSession.tradingName.getOrElse("")
+                        @tradingName
                 </div>
             </div>
             <h2 class="heading-medium">@Messages("applicationComplete.whatHappensNext.heading")</h2>
             <p>
-               @Html(Messages("applicationComplete.whatHappensNext.para1",Html(s"<strong class=${"bold"}>${agentSession.contactDetails.fold("")(_.businessEmail)}</strong>")))
-
+               @Html(Messages("applicationComplete.whatHappensNext.para1",Html(s"<strong class=${"bold"}>$contactEmail</strong>")))
             </p>
             <p>
                 @Messages("applicationComplete.whatHappensNext.para2")

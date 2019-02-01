@@ -8,14 +8,14 @@ import javax.inject.{Inject, Named}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.{AgentAffinityNoHmrcAsAgentAuthAction, BasicAuthAction}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.{AgentAffinityNoHmrcAsAgentAuthAction, BasicAgentAuthAction, BasicAuthAction}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.{Pending, Rejected}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.{application_not_ready, not_agent, status_rejected}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class StartController @Inject()(
   override val messagesApi: MessagesApi,
@@ -25,20 +25,19 @@ class StartController @Inject()(
   validApplicantAction: AgentAffinityNoHmrcAsAgentAuthAction,
   sessionStoreService: SessionStoreService,
   applicationService: ApplicationService,
-  @Named("maintainer-application-review-days") daysToReviewApplication: Int)(
-  implicit val configuration: Configuration,
-  ec: ExecutionContext)
+  @Named("maintainer-application-review-days") daysToReviewApplication: Int,
+  basicAgentAuthAction: BasicAgentAuthAction)(implicit val configuration: Configuration, ec: ExecutionContext)
     extends FrontendController with I18nSupport {
 
   def root: Action[AnyContent] = basicAuthAction { implicit request =>
     Redirect(routes.ApplicationController.showAntiMoneyLaunderingForm())
   }
 
-  def showNotAgent: Action[AnyContent] = basicAuthAction.async { implicit request =>
-    Future.successful(Ok(not_agent()))
+  def showNotAgent: Action[AnyContent] = basicAuthAction { implicit request =>
+    Ok(not_agent())
   }
 
-  def applicationStatus: Action[AnyContent] = basicAuthAction.async { implicit request =>
+  def applicationStatus: Action[AnyContent] = basicAgentAuthAction.async { implicit request =>
     applicationService.getCurrentApplication.map {
       case Some(application) if application.status == Pending => {
         val createdOnPrettifyDate: String = application.applicationCreationDate.format(

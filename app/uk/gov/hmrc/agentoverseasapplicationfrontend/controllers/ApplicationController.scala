@@ -5,7 +5,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.config.{AMLSLoader, CountryNamesLoader}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
+import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.{AgentAffinityNoHmrcAsAgentAuthAction, BasicAgentAuthAction}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession.{IsRegisteredForUkTax, IsRegisteredWithHmrc}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.Rejected
@@ -27,7 +27,10 @@ class ApplicationController @Inject()(
   validApplicantAction: AgentAffinityNoHmrcAsAgentAuthAction,
   val sessionStoreService: SessionStoreService,
   val applicationService: ApplicationService,
-  countryNamesLoader: CountryNamesLoader)(implicit val configuration: Configuration, override val ec: ExecutionContext)
+  countryNamesLoader: CountryNamesLoader,
+  basicAgentAuthAction: BasicAgentAuthAction)(
+  implicit val configuration: Configuration,
+  override val ec: ExecutionContext)
     extends FrontendController with SessionBehaviour with I18nSupport {
 
   private val countries = countryNamesLoader.load
@@ -541,13 +544,22 @@ class ApplicationController @Inject()(
   }
 
   def submitCheckYourAnswers: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    applicationService.createApplication(request.agentSession).map { _ =>
+    for {
+      _ <- applicationService.createApplication(request.agentSession)
+      _ <- sessionStoreService.removeAgentSession
+    } yield
       Redirect(routes.ApplicationController.showApplicationComplete())
-    }
+        .flashing(
+          "tradingName"   -> request.agentSession.tradingName.getOrElse(""),
+          "contactDetail" -> request.agentSession.contactDetails.fold("")(_.businessEmail))
   }
 
-  def showApplicationComplete: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    Ok(application_complete(request.agentSession))
+  def showApplicationComplete: Action[AnyContent] = basicAgentAuthAction.async { implicit request =>
+    val tradingName = request.flash.get("tradingName")
+    val contactDetail = request.flash.get("contactDetail")
+
+    if (tradingName.isDefined && contactDetail.isDefined) Ok(application_complete(tradingName.get, contactDetail.get))
+    else Redirect(routes.ApplicationController.showAntiMoneyLaunderingForm())
   }
 
   private def ukTaxRegistrationBackLink(session: AgentSession) = Some(session) match {

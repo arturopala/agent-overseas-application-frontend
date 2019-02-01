@@ -63,7 +63,7 @@ class AgentAffinityNoEnrolmentAuthActionImpl @Inject()(
             if (env.mode.equals(Mode.Test)) false else config.getString("run.mode").forall(Mode.Dev.toString.equals)
           toGGLogin(if (isDevEnv) s"http://${request.host}${request.uri}" else s"${request.uri}")
         case _: UnsupportedAffinityGroup =>
-          Redirect(routes.StartController.showNotAgent)
+          Redirect(routes.StartController.showNotAgent())
       }
   }
 

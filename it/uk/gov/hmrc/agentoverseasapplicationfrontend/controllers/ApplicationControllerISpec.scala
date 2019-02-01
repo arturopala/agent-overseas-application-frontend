@@ -4,7 +4,7 @@ import org.jsoup.Jsoup
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{LOCATION, redirectLocation}
+import play.api.test.Helpers.{LOCATION, redirectLocation, flash}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetails.RadioOption
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetails.RadioOption.SaUtrChoice
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
@@ -1952,6 +1952,11 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
       status(result) shouldBe 303
       result.header.headers(LOCATION) shouldBe routes.ApplicationController.showApplicationComplete().url
+
+      flash(result).get("tradingName").get shouldBe "tradingName"
+      flash(result).get("contactDetail").get shouldBe "test@email.com"
+
+      await(sessionStoreService.fetchAgentSession).isDefined shouldBe false
     }
 
     "return exception when agent-overseas-application backend is unavailable" in {
@@ -1975,14 +1980,11 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
   "GET / application-complete" should {
     "should display the page data as expected" in {
+      val tradingName = "testTradingName"
+      val email = "testEmail@test.com"
 
-      sessionStoreService.currentSession.agentSession = Some(
-        AgentSession(
-         contactDetails = Some(contactDetails),
-          tradingName = Some("tradingName")
-        ))
-
-      val result = await(controller.showApplicationComplete(cleanCredsAgent(FakeRequest())))
+      val result = await(controller.showApplicationComplete(basicAgentRequest(FakeRequest().withFlash("tradingName" -> tradingName,
+        "contactDetail" -> email))))
 
       status(result) shouldBe 200
       result should containMessages(
@@ -2003,8 +2005,15 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       )
 
       bodyOf(result).contains(htmlEscapedMessage( "applicationComplete.whatHappensNext.para1", contactDetails.businessEmail))
-      result should containSubstrings("We will send a confirmation email to","test@email.com", "tradingName")
+      result should containSubstrings("We will send a confirmation email to", email, tradingName)
+    }
 
+    "303 to JOURNEY START when no required fields in flash, authAction should deal with routing circumstances" in {
+      val result = await(controller.showApplicationComplete(basicAgentRequest(FakeRequest())))
+
+      //as the Agent should have no agentSession at this point, previous last created application would be shown or start of Journey
+      status(result) shouldBe 303
+      redirectLocation(result).get shouldBe routes.ApplicationController.showAntiMoneyLaunderingForm().url
     }
   }
 }

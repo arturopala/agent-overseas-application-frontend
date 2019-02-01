@@ -31,4 +31,7 @@ class TestSessionStoreService extends SessionStoreService(null) {
 
   override def cacheAgentSession(agentSession: AgentSession)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
     Future.successful(currentSession.agentSession = Some(agentSession))
+
+  override def removeAgentSession(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
+    Future.successful(sessions.remove(sessionKey).map(_ => ()))
 }
