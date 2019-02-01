@@ -254,16 +254,6 @@
                         @check_answers_div(Messages("checkAnswers.agentCode.corporationTax"), ct, "ct", routes.ChangingAnswersController.changeAgentCodes())
                         <script>gaSendEvent('check-answers-ct')</script>
                     }
-
-                    @agentSession.agentCodes.flatMap(_.vat).map { vat =>
-                        @check_answers_div(Messages("checkAnswers.agentCode.vat"), vat, "vat", routes.ChangingAnswersController.changeAgentCodes())
-                        <script>gaSendEvent('check-answers-vat')</script>
-                    }
-
-                    @agentSession.agentCodes.flatMap(_.paye).map { paye =>
-                        @check_answers_div(Messages("checkAnswers.agentCode.paye"), paye, "paye", routes.ChangingAnswersController.changeAgentCodes())
-                        <script>gaSendEvent('check-answers-paye')</script>
-                    }
                 }
 
                 @if(isRegistered == Yes && agentSession.agentCodes.map(_.isEmpty).contains(true)) {

@@ -13,8 +13,6 @@ case class CreateApplicationRequest(
   isHmrcAgentRegistered: YesNo,
   saAgentCode: Option[String],
   ctAgentCode: Option[String],
-  vatAgentCode: Option[String],
-  payeAgentCode: Option[String],
   regNo: Option[String],
   utr: Option[SaUtr],
   nino: Option[Nino],
@@ -39,8 +37,6 @@ object CreateApplicationRequest {
         isHmrcAgentRegistered,
         agentSession.agentCodes.flatMap(_.selfAssessment),
         agentSession.agentCodes.flatMap(_.corporationTax),
-        agentSession.agentCodes.flatMap(_.vat),
-        agentSession.agentCodes.flatMap(_.paye),
         agentSession.companyRegistrationNumber.flatMap(_.registrationNumber),
         agentSession.personalDetails.flatMap(_.saUtr),
         agentSession.personalDetails.flatMap(_.nino),
@@ -57,8 +53,6 @@ object CreateApplicationRequest {
       (__ \ "businessDetail" \ "extraInfo" \ "isHmrcAgentRegistered").write[YesNo] and
       (__ \ "businessDetail" \ "extraInfo" \ "saAgentCode").write[Option[String]] and
       (__ \ "businessDetail" \ "extraInfo" \ "ctAgentCode").write[Option[String]] and
-      (__ \ "businessDetail" \ "extraInfo" \ "vatAgentCode").write[Option[String]] and
-      (__ \ "businessDetail" \ "extraInfo" \ "payeAgentCode").write[Option[String]] and
       (__ \ "businessDetail" \ "extraInfo" \ "regNo").write[Option[String]] and
       (__ \ "businessDetail" \ "extraInfo" \ "utr").write[Option[SaUtr]] and
       (__ \ "businessDetail" \ "extraInfo" \ "nino").write[Option[Nino]] and
@@ -74,8 +68,6 @@ object CreateApplicationRequest {
       request.isHmrcAgentRegistered,
       request.saAgentCode,
       request.ctAgentCode,
-      request.vatAgentCode,
-      request.payeAgentCode,
       request.regNo,
       request.utr,
       request.nino,
@@ -92,8 +84,6 @@ object CreateApplicationRequest {
       (__ \ "businessDetail" \ "extraInfo" \ "isHmrcAgentRegistered").read[YesNo] and
       (__ \ "businessDetail" \ "extraInfo" \ "saAgentCode").readNullable[String] and
       (__ \ "businessDetail" \ "extraInfo" \ "ctAgentCode").readNullable[String] and
-      (__ \ "businessDetail" \ "extraInfo" \ "vatAgentCode").readNullable[String] and
-      (__ \ "businessDetail" \ "extraInfo" \ "payeAgentCode").readNullable[String] and
       (__ \ "businessDetail" \ "extraInfo" \ "regNo").readNullable[String] and
       (__ \ "businessDetail" \ "extraInfo" \ "utr").readNullable[SaUtr] and
       (__ \ "businessDetail" \ "extraInfo" \ "nino").readNullable[Nino] and
@@ -108,15 +98,12 @@ object CreateApplicationRequest {
       isHmrcAgentRegistered,
       saAgentCode,
       ctAgentCode,
-      vatAgentCode,
-      payeAgentCode,
       regNo,
       utr,
       nino,
       taxRegNo) => CreateApplicationRequest(AmlsDetails(supervisoryBody, membershipNumber),
     contactDetails, tradingName, businessAddress,
     isUkRegisteredTaxOrNino, isHmrcAgentRegistered,
-    saAgentCode, ctAgentCode, vatAgentCode, payeAgentCode,
-    regNo, utr, nino, taxRegNo))
+    saAgentCode, ctAgentCode, regNo, utr, nino, taxRegNo))
 
 }

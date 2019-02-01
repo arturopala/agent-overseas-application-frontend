@@ -414,10 +414,6 @@ class CommonValidatorsSpec extends UnitSpec with EitherValues {
     testAgentCode("ctAgentCode")(ctAgentCode.withPrefix("testKey"))
   }
 
-  "PAYE agent code binding" should {
-    testAgentCode("payeAgentCode")(payeAgentCode.withPrefix("testKey"))
-  }
-
   def testAgentCode(codeType: String)(mapping: => Mapping[String]) = {
     def bind(fieldValue: String) = mapping.bind(Map("testKey" -> fieldValue))
 
@@ -452,43 +448,6 @@ class CommonValidatorsSpec extends UnitSpec with EitherValues {
       "it has no-alphanumeric characters" in {
         bind("SA**12222") should matchPattern {
           case Left(List(FormError("testKey", List(invalidMessage), _))) =>
-        }
-      }
-    }
-  }
-
-  "VAT agent code binding" should {
-    val mapping = vatAgentCode.withPrefix("testKey")
-    def bind(fieldValue: String) = mapping.bind(Map("testKey" -> fieldValue))
-
-    s"accept valid vatAgentCode" in {
-      bind("VAT123455") shouldBe Right("VAT123455")
-    }
-
-    s"give error.vatAgentCode.blank error when it is empty" in {
-      bind("").left.value should contain only FormError("testKey", s"error.vatAgentCode.blank")
-    }
-
-    s"give error.vatAgentCode.blank error when it only contains a space" in {
-      bind(" ").left.value should contain only FormError("testKey", s"error.vatAgentCode.blank")
-    }
-
-    s"give error.vatAgentCode.maxlength error" when {
-      "it has more than 9 characters" in {
-        bind("SA20000000000") should matchPattern {
-          case Left(List(FormError("testKey", List("error.vatAgentCode.maxlength"), _))) =>
-        }
-      }
-
-      "it has fewer than 9 characters" in {
-        bind("SA200") should matchPattern {
-          case Left(List(FormError("testKey", List("error.vatAgentCode.maxlength"), _))) =>
-        }
-      }
-
-      "it has no-alphanumeric characters" in {
-        bind("VAT**12222") should matchPattern {
-          case Left(List(FormError("testKey", List("error.vatAgentCode.invalid"), _))) =>
         }
       }
     }

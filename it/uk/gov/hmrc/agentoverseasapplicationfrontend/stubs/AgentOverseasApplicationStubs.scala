@@ -44,8 +44,6 @@ trait AgentOverseasApplicationStubs {
        |      },
        |      "saAgentCode": "SA123456",
        |      "ctAgentCode": "CT123456",
-       |      "vatAgentCode": "VAT123456",
-       |      "payeAgentCode": "PAYE123456",
        |      "regNo": "1234",
        |      "utr": "4000000009",
        |      "nino": "AB123456A",

@@ -206,7 +206,7 @@ class CommonRoutingSpec extends UnitSpec {
       FakeRouting.sessionStoreService.cacheAgentSession(
         detailsUpToRegisteredWithHmrc.copy(
           registeredWithHmrc = Some(Yes),
-          agentCodes = Some(AgentCodes(Some("saCode"), None, None, None))
+          agentCodes = Some(AgentCodes(Some("saCode"), None))
         )))
 
     await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showCheckYourAnswers()
@@ -218,7 +218,7 @@ class CommonRoutingSpec extends UnitSpec {
         FakeRouting.sessionStoreService.cacheAgentSession(
           detailsUpToRegisteredWithHmrc.copy(
             registeredWithHmrc = Some(Yes),
-            agentCodes = Some(AgentCodes(None, None, None, None)),
+            agentCodes = Some(AgentCodes(None, None)),
             registeredForUkTax = None
           )))
 
@@ -230,7 +230,7 @@ class CommonRoutingSpec extends UnitSpec {
         FakeRouting.sessionStoreService.cacheAgentSession(
           detailsUpToRegisteredWithHmrc.copy(
             registeredWithHmrc = Some(Yes),
-            agentCodes = Some(AgentCodes(None, None, None, None)),
+            agentCodes = Some(AgentCodes(None, None)),
             registeredForUkTax = Some(Yes),
             personalDetails = None
           )))
@@ -240,13 +240,14 @@ class CommonRoutingSpec extends UnitSpec {
 
     s"return showCompanyRegistrationNumberForm when Uk Tax registered choice was No" in {
       await(
-        FakeRouting.sessionStoreService.cacheAgentSession(detailsUpToRegisteredWithHmrc.copy(
-          registeredWithHmrc = Some(Yes),
-          agentCodes = Some(AgentCodes(None, None, None, None)),
-          registeredForUkTax = Some(No),
-          personalDetails = None,
-          companyRegistrationNumber = None
-        )))
+        FakeRouting.sessionStoreService.cacheAgentSession(
+          detailsUpToRegisteredWithHmrc.copy(
+            registeredWithHmrc = Some(Yes),
+            agentCodes = Some(AgentCodes(None, None)),
+            registeredForUkTax = Some(No),
+            personalDetails = None,
+            companyRegistrationNumber = None
+          )))
 
       await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showCompanyRegistrationNumberForm()
     }

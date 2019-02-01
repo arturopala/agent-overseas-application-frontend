@@ -14,18 +14,12 @@ object AgentCodesForm {
         "self-assessment-checkbox" -> boolean,
         "self-assessment"          -> mandatoryIfTrue("self-assessment-checkbox", saAgentCode),
         "corporation-tax-checkbox" -> boolean,
-        "corporation-tax"          -> mandatoryIfTrue("corporation-tax-checkbox", ctAgentCode),
-        "vat-checkbox"             -> boolean,
-        "vat"                      -> mandatoryIfTrue("vat-checkbox", vatAgentCode),
-        "paye-checkbox"            -> boolean,
-        "paye"                     -> mandatoryIfTrue("paye-checkbox", payeAgentCode)
+        "corporation-tax"          -> mandatoryIfTrue("corporation-tax-checkbox", ctAgentCode)
       )(
-        (hasSa, sa, hasCt, ct, hasVat, vat, hasPaye, paye) =>
+        (hasSa, sa, hasCt, ct) =>
           AgentCodes(
             sa.filter(_ => hasSa),
-            ct.filter(_ => hasCt),
-            vat.filter(_ => hasVat),
-            paye.filter(_ => hasPaye)
+            ct.filter(_ => hasCt)
         ))(
         (codes: AgentCodes) =>
           Some(
@@ -33,11 +27,7 @@ object AgentCodesForm {
               codes.selfAssessment.isDefined,
               codes.selfAssessment,
               codes.corporationTax.isDefined,
-              codes.corporationTax,
-              codes.vat.isDefined,
-              codes.vat,
-              codes.paye.isDefined,
-              codes.paye
+              codes.corporationTax
             )))
     )
 }

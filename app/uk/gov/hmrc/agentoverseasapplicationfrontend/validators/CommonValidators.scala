@@ -14,14 +14,12 @@ object CommonValidators {
   private val NameRegex = "[a-zA-Z' \\-\\s]+"
   private val MembershipNumberRegex = "[a-zA-Z0-9\\/ \\-\\s]+"
   private val AgentCodeRegex = """^[a-zA-Z0-9]*$"""
-  private val VatAgentCodeRegex = """^[a-zA-Z0-9]*$"""
   private val CrnRegex = """^([0-9]{8})|([a-zA-Z]{2}[0-9]{6})$"""
   private val TrnRegex = """^[a-zA-Z0-9 ]*$"""
   private val OverseasAgencyNameRegex = "^[A-Za-z0-9 \\-,.\\/]*"
   private val OverseasAddressRegex = "^[A-Za-z0-9 \\-,.&']*"
 
   private val AgentCodeMaxLength = 6
-  private val VatAgentCodeMaxLength = 9
   private val UtrMaxLength = 10
   private val JobTitleMinLength = 2
   private val JobTitleMaxLength = 50
@@ -40,11 +38,6 @@ object CommonValidators {
   def saAgentCode = text verifying agentCodeConstraint("saAgentCode")
 
   def ctAgentCode: Mapping[String] = text verifying agentCodeConstraint("ctAgentCode")
-
-  def payeAgentCode: Mapping[String] = text verifying agentCodeConstraint("payeAgentCode")
-
-  def vatAgentCode: Mapping[String] =
-    text verifying agentCodeConstraint("vatAgentCode", VatAgentCodeRegex, VatAgentCodeMaxLength)
 
   def saUtr: Mapping[String] =
     text verifying utrConstraint(("error.sautr.blank", "error.sautr.invalid"))

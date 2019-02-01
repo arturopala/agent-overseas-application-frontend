@@ -72,14 +72,6 @@ error.ctAgentCode.blank=Enter a Corporation Tax agent code
 error.ctAgentCode.invalid=Corporation Tax agent code must be only include letters a to z and numbers
 error.ctAgentCode.maxlength=Corporation Tax agent code must be 6 characters, like 12345A or A1234A
 
-error.vatAgentCode.blank=Enter a VAT agent code
-error.vatAgentCode.invalid=VAT agent code must be only include letters a to z and numbers
-error.vatAgentCode.maxlength=VAT agent code must be 9 characters
-
-error.payeAgentCode.blank=Enter a PAYE agent code
-error.payeAgentCode.invalid=PAYE agent code must be only include letters a to z and numbers
-error.payeAgentCode.maxlength=PAYE agent code must be 6 characters
-
 error.nino.blank=Enter your National Insurance number
 error.nino.invalid=Enter a National Insurance number in the correct format
 
@@ -188,10 +180,6 @@ agentCodes.form.self-assessment.label=Self Assessment
 agentCodes.form.self-assessment.inset=Self Assessment agent code
 agentCodes.form.corporation-tax.label=Corporation Tax
 agentCodes.form.corporation-tax.inset=Corporation Tax agent code
-agentCodes.form.vat.label=VAT
-agentCodes.form.vat.inset=VAT agent code
-agentCodes.form.paye.label=PAYE
-agentCodes.form.paye.inset=PAYE agent code
 
 # Personal details
 personalDetails.title=Your UK tax or National Insurance details
@@ -267,8 +255,6 @@ checkAnswers.agentCode.title=Agent Codes
 checkAnswers.agentCode.empty=No codes given
 checkAnswers.agentCode.selfAssessment=Self Assessment agent code
 checkAnswers.agentCode.corporationTax=Corporation Tax agent code
-checkAnswers.agentCode.paye=PAYE agent code
-checkAnswers.agentCode.vat=VAT agent code
 
 checkAnswers.registeredForUKTax.title=Registered to pay UK tax or National Insurance?
 

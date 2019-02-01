@@ -608,7 +608,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
         new UkTaxRegistrationSetup(
           defaultAgentSession.copy(
             registeredWithHmrc = Some(Yes),
-            agentCodes = Some(AgentCodes(None, None, None, None))
+            agentCodes = Some(AgentCodes(None, None))
           )) {
           result should containLink(
             expectedMessageKey = "button.back",
@@ -1227,8 +1227,8 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       )
     }
 
-    "ask for optional self-assessment, corporation-tax, vat, and paye agent codes" in new UkTaxRegistrationSetup {
-      Seq("self-assessment", "corporation-tax", "vat", "paye").foreach { agentCode =>
+    "ask for optional self-assessment and corporation-tax" in new UkTaxRegistrationSetup {
+      Seq("self-assessment", "corporation-tax").foreach { agentCode =>
         result should containMessages(
           s"agentCodes.form.$agentCode.label",
           s"agentCodes.form.$agentCode.inset"
@@ -1258,7 +1258,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
     "show existing selection if session already contains choice" in
       new UkTaxRegistrationSetup(
         defaultAgentSession.copy(
-          agentCodes = Some(AgentCodes(Some("saTestCode"), None, None, None))
+          agentCodes = Some(AgentCodes(Some("saTestCode"), None))
         )) {
         result should containElement(
           id = "self-assessment-checkbox",
@@ -1324,11 +1324,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
           "self-assessment-checkbox" -> "true",
           "self-assessment"          -> "SA1234",
           "corporation-tax-checkbox" -> "true",
-          "corporation-tax"          -> "123456",
-          "vat-checkbox"             -> "true",
-          "vat"                      -> "123456789",
-          "paye-checkbox"            -> "true",
-          "paye"                     -> "123456"
+          "corporation-tax"          -> "123456"
         )
 
       val result = await(controller.submitAgentCodes(authenticatedRequest))
@@ -1341,8 +1337,6 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       session.agentCodes shouldBe Some(
         AgentCodes(
           Some("SA1234"),
-          Some("123456"),
-          Some("123456789"),
           Some("123456")
         ))
 
@@ -1359,9 +1353,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody(
           "self-assessment" -> "",
-          "corporation-tax" -> "",
-          "vat"             -> "",
-          "paye"            -> ""
+          "corporation-tax" -> ""
         )
       val result = await(controller.submitAgentCodes(authenticatedRequest))
 
@@ -1369,11 +1361,11 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       result.header.headers(LOCATION) shouldBe routes.ApplicationController.showUkTaxRegistrationForm().url
 
       val session = await(sessionStoreService.fetchAgentSession).get
-      session.agentCodes shouldBe Some(AgentCodes(None, None, None, None))
+      session.agentCodes shouldBe Some(AgentCodes(None, None))
       session.changingAnswers shouldBe false
     }
 
-    Seq("saAgentCode" -> "self-assessment", "ctAgentCode" -> "corporation-tax", "vatAgentCode" -> "vat", "payeAgentCode" -> "paye").foreach { case (key, value) =>
+    Seq("saAgentCode" -> "self-assessment", "ctAgentCode" -> "corporation-tax").foreach { case (key, value) =>
       s"show validation error if $value checkbox was selected but the text does not pass validation" in {
 
         sessionStoreService.currentSession.agentSession = Some(
@@ -1385,9 +1377,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
           .withFormUrlEncodedBody(
             s"$value-checkbox" -> "true",
             "self-assessment"      -> "",
-            "corporation-tax"      -> "",
-            "vat"                  -> "",
-            "paye"                 -> ""
+            "corporation-tax"      -> ""
           )
 
         await(controller.submitAgentCodes(authenticatedRequest)) should containMessages(s"error.$key.blank")
@@ -1643,8 +1633,6 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
     def testAgentCodes(body: String, result: Boolean) = {
       body.contains("selfAssessmentCode") shouldBe result
       body.contains("corporationTaxCode") shouldBe result
-      body.contains("vatCode") shouldBe result
-      body.contains("payeCode") shouldBe result
     }
 
     def testMandatoryContent(result: Result) = {
@@ -1665,7 +1653,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       "agent codes are available" in {
         val registeredWithHmrc = Some(Yes)
         val agentCodes =
-          AgentCodes(Some("selfAssessmentCode"), Some("corporationTaxCode"), Some("vatCode"), Some("payeCode"))
+          AgentCodes(Some("selfAssessmentCode"), Some("corporationTaxCode"))
 
         sessionStoreService.currentSession.agentSession = Some(
           AgentSession(
@@ -1684,9 +1672,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
         result should containMessages(
 
           "checkAnswers.agentCode.selfAssessment",
-          "checkAnswers.agentCode.corporationTax",
-          "checkAnswers.agentCode.paye",
-          "checkAnswers.agentCode.vat"
+          "checkAnswers.agentCode.corporationTax"
         )
 
         result shouldNot containMessages(
@@ -1703,7 +1689,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
           "CompanyRegistrationNumber is empty" in {
             val registeredWithHmrc = Some(Yes)
             val agentCodes =
-              AgentCodes(None, None, None, None)
+              AgentCodes(None, None)
 
             sessionStoreService.currentSession.agentSession = Some(
               AgentSession(
@@ -1736,7 +1722,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
           "CompanyRegistrationNumber is non empty" in {
             val registeredWithHmrc = Some(Yes)
             val agentCodes =
-              AgentCodes(None, None, None, None)
+              AgentCodes(None, None)
 
             sessionStoreService.currentSession.agentSession = Some(
               AgentSession(
@@ -1768,8 +1754,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
           "TaxRegistrationNumbers is empty" in {
             val registeredWithHmrc = Some(Yes)
-            val agentCodes =
-              AgentCodes(None, None, None, None)
+            val agentCodes= AgentCodes(None, None)
 
             sessionStoreService.currentSession.agentSession = Some(
               AgentSession(
@@ -1805,7 +1790,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
           "TaxRegistrationNumbers is non empty" in {
             val registeredWithHmrc = Some(Yes)
             val agentCodes =
-              AgentCodes(None, None, None, None)
+              AgentCodes(None, None)
 
             sessionStoreService.currentSession.agentSession = Some(
               AgentSession(
@@ -1841,7 +1826,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
         "UkTaxRegistration is No" in {
           val registeredWithHmrc = Some(Yes)
           val agentCodes =
-            AgentCodes(None, None, None, None)
+            AgentCodes(None, None)
 
           sessionStoreService.currentSession.agentSession = Some(
             AgentSession(
@@ -1929,7 +1914,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
     def initialTestSetup = {
       val registeredWithHmrc = Some(Yes)
       val agentCodes =
-        AgentCodes(Some("selfAssessmentCode"), Some("corporationTaxCode"), Some("vatCode"), Some("payeCode"))
+        AgentCodes(Some("selfAssessmentCode"), Some("corporationTaxCode"))
 
       val agentSession =  AgentSession(
         amlsDetails = Some(amlsDetails),
