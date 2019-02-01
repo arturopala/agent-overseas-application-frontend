@@ -11,7 +11,7 @@ class SignOutControllerISpec extends BaseISpec{
     5 seconds
   }
 
-  private lazy val controller: SignOutController = app.injector.instanceOf[SignOutController]
+  private val controller: SignOutController = app.injector.instanceOf[SignOutController]
 
   "signOut" should {
     "303 lose existing session and redirect to gg sign-in" in {
@@ -22,6 +22,18 @@ class SignOutControllerISpec extends BaseISpec{
 
       result.session.get(someExistingKey) shouldBe None
       redirectLocation(result) shouldBe Some("/baseISpec/gg/sign-in")
+    }
+  }
+
+  "signOutWithContinueUrl" should {
+    "303 to GG-registration-frontend with continueUrl to start of overseas journey" in {
+      val someExistingKey = "storedInSessionKey"
+
+      implicit val request = FakeRequest().withSession(someExistingKey -> "testValue")
+      val result = await(controller.signOutWithContinueUrl(request))
+
+      result.session.get(someExistingKey) shouldBe None
+      redirectLocation(result).get shouldBe "/government-gateway-registration-frontend?accountType=agent&origin=unknown&continue=%2Fagent-services%2Fapply-from-outside-uk%2Fmoney-laundering"
     }
   }
 }
