@@ -33,7 +33,7 @@ class ApplicationServiceISpec extends BaseISpec with AgentOverseasApplicationStu
     }
 
     "return empty results for an auth provider id" in {
-      given404OverseasApplications
+      given404OverseasApplications()
       await(service.getCurrentApplication) shouldBe None
     }
   }

@@ -60,7 +60,7 @@ class StartControllerISpec extends BaseISpec with AgentOverseasApplicationStubs 
     }
 
     "RuntimeException when Pending application not found" in {
-      given404OverseasApplications
+      given404OverseasApplications()
 
       an[RuntimeException] shouldBe thrownBy(await(controller.applicationStatus(basicRequest(FakeRequest()))))
     }
@@ -83,7 +83,7 @@ class StartControllerISpec extends BaseISpec with AgentOverseasApplicationStubs 
     }
 
     "RuntimeException, was initialised correctly, however no application to support this and provide data was found" in {
-      given404OverseasApplications
+      given404OverseasApplications()
       an[RuntimeException] shouldBe thrownBy(await(controller.applicationStatus(basicRequest(FakeRequest()))))
     }
 

@@ -66,7 +66,7 @@ class AgentAffinityNoHmrcAsAgentAuthActionISpec extends BaseISpec with AgentOver
 
     "check for existing application when no AgentSession defined/initialised by journey" when {
       "no existing application found for userId then show AMLS page" in {
-        given404OverseasApplications
+        given404OverseasApplications()
         val result = await(testController.withValidApplicant(cleanCredsAgent(FakeRequest())))
 
         redirectLocation(result).get shouldBe routes.ApplicationController.showAntiMoneyLaunderingForm().url

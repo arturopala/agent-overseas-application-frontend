@@ -65,13 +65,13 @@ class AgentOverseasApplicationConnectorISpec extends BaseISpec with AgentOversea
     }
 
     "return None when no applications were found in the BE" in {
-      given404OverseasApplications
+      given404OverseasApplications()
 
       await(connector.rejectedApplication) shouldBe None
     }
 
     "An exception should be thrown when there is a problem with the BE server" in {
-      given500GetOverseasApplication
+      given500GetOverseasApplication()
 
       an[Exception] should be thrownBy await(connector.rejectedApplication)
     }

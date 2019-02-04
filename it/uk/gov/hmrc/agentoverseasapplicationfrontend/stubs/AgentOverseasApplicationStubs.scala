@@ -64,7 +64,7 @@ trait AgentOverseasApplicationStubs {
     )
   }
 
-  def given200OverseasAcceptedApplication: Unit = {
+  def given200OverseasAcceptedApplication(): Unit = {
     val responseData = StubsTestData.acceptedApplication
     stubFor(get(urlEqualTo(s"/agent-overseas-application/application?$allStatuses"))
       .willReturn(aResponse()
@@ -90,13 +90,13 @@ trait AgentOverseasApplicationStubs {
     )
   }
 
-  def given404OverseasApplications: Unit = {
+  def given404OverseasApplications(): Unit = {
     stubFor(get(urlEqualTo(s"/agent-overseas-application/application?$allStatuses"))
       .willReturn(aResponse()
         .withStatus(404)))
   }
 
-  def given500GetOverseasApplication: Unit = {
+  def given500GetOverseasApplication(): Unit = {
     stubFor(get(urlEqualTo(s"/agent-overseas-application/application?$allStatuses"))
       .willReturn(aResponse()
         .withStatus(500)))

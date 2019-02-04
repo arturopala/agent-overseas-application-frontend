@@ -35,7 +35,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
   "GET /money-laundering" should {
     "redirect to it self when agentSession not initialised, should only be done once as auth action should initialise agentSession" in {
-      given404OverseasApplications
+      given404OverseasApplications()
       val result = await(controller.showAntiMoneyLaunderingForm(cleanCredsAgent(FakeRequest())))
 
       redirectLocation(result).get shouldBe routes.ApplicationController.showAntiMoneyLaunderingForm().url
@@ -43,6 +43,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
     }
 
     "display the money-laundering form" in {
+      given404OverseasApplications()
       await(sessionStoreService.cacheAgentSession(AgentSession()))
       val result = await(controller.showAntiMoneyLaunderingForm(cleanCredsAgent(FakeRequest())))
 
@@ -61,6 +62,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
     }
 
     "display the money-laundering form with correct back button link when user is CHANGING ANSWERS" in {
+      given404OverseasApplications()
       await(sessionStoreService.cacheAgentSession(AgentSession(changingAnswers = true)))
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
 
