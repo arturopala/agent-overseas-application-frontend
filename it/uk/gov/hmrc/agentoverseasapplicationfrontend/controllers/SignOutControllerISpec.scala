@@ -1,7 +1,7 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import play.api.test.FakeRequest
-import play.api.test.Helpers.redirectLocation
+import play.api.test.Helpers.{LOCATION, redirectLocation}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
 
 class SignOutControllerISpec extends BaseISpec{
@@ -34,6 +34,15 @@ class SignOutControllerISpec extends BaseISpec{
 
       result.session.get(someExistingKey) shouldBe None
       redirectLocation(result).get shouldBe "/government-gateway-registration-frontend?accountType=agent&origin=unknown&continue=%2Fagent-services%2Fapply-from-outside-uk%2Fmoney-laundering"
+    }
+  }
+
+  "startSurvey" should {
+    "redirect to feedback survey page" in {
+      val result = await(controller.startFeedbackSurvey(basicRequest(FakeRequest())))
+
+      status(result) shouldBe 303
+      result.header.headers(LOCATION) should include("/feedback/OVERSEAS_AGENTS")
     }
   }
 }

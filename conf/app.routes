@@ -63,5 +63,6 @@ GET         /change-your-tax-registration-numbers        @uk.gov.hmrc.agentovers
 
 GET         /sign-out/create-account                     @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.SignOutController.signOutWithContinueUrl
 POST        /sign-out                                    @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.SignOutController.signOut
+GET         /start-survey                                @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.SignOutController.startFeedbackSurvey
 
 GET         /assets/*file                                controllers.Assets.at(path="/public", file)

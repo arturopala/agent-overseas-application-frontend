@@ -31,6 +31,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 
     bindProperty("appName")
     bindProperty("country.list.location")
+    bindProperty("feedback-survey-url")
     bindIntProperty("maintainer-application-review-days")
 
     bind(classOf[SessionCache]).to(classOf[ApplicationSessionCache])

@@ -1992,7 +1992,10 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       )
 
       bodyOf(result).contains(htmlEscapedMessage( "applicationComplete.whatHappensNext.para1", contactDetails.businessEmail))
-      result should containSubstrings("We will send a confirmation email to", email, tradingName)
+      result should containSubstrings("We will send a confirmation email to",
+        email,
+        tradingName,
+        routes.SignOutController.startFeedbackSurvey().url)
     }
 
     "303 to JOURNEY START when no required fields in flash, authAction should deal with routing circumstances" in {

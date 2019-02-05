@@ -1,5 +1,7 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
+import java.net.URL
+
 import javax.inject.{Inject, Named, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
@@ -18,7 +20,8 @@ class SignOutController @Inject()(
   val env: Environment,
   @Named("companyAuthSignInUrl") val signInUrl: String,
   basicAuthAction: BasicAuthAction,
-  @Named("government-gateway-registration-frontend.sosRedirect-path") sosRedirectPath: String)(
+  @Named("government-gateway-registration-frontend.sosRedirect-path") sosRedirectPath: String,
+  @Named("feedback-survey-url") feedbackSurveyUrl: String)(
   implicit val configuration: Configuration,
   ec: ExecutionContext)
     extends FrontendController with I18nSupport {
@@ -30,5 +33,9 @@ class SignOutController @Inject()(
   def signOutWithContinueUrl = Action { implicit request =>
     val continueUrl = routes.ApplicationController.showAntiMoneyLaunderingForm().url
     SeeOther(CallOps.addParamsToUrl(sosRedirectPath, "continue" -> Some(continueUrl))).withNewSession
+  }
+
+  def startFeedbackSurvey: Action[AnyContent] = basicAuthAction { implicit request =>
+    SeeOther(new URL(feedbackSurveyUrl).toString).withNewSession
   }
 }

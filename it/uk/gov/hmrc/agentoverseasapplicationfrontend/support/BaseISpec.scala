@@ -34,6 +34,7 @@ class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with A
         "cachable.session-cache.port" -> wireMockPort,
         "cachable.session-cache.domain" -> "keystore",
         "maintainer-application-review-days" -> 28,
+        "feedback-survey-url" -> "http://localhost:9514/feedback/OVERSEAS_AGENTS",
         "metrics.enabled" -> true,
         "auditing.enabled" -> true,
         "auditing.consumer.baseUri.host" -> wireMockHost,

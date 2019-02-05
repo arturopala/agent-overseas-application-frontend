@@ -1,7 +1,7 @@
 @import play.api.Configuration
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
-
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
 
 @(tradingName: String, contactEmail: String)(implicit request: Request[_], messages: Messages, configuration: Configuration)
 
@@ -39,7 +39,7 @@
             <a href="javascript:window.print()" class="print-link">@Messages("applicationComplete.print")</a>
             </p>
             <div class="form-group">
-            <a href="#">@Messages("applicationComplete.feedback.link")</a>
+            <a href="@routes.SignOutController.startFeedbackSurvey">@Messages("applicationComplete.feedback.link")</a>
             @Messages("applicationComplete.feedback.text")
             </div>
 
