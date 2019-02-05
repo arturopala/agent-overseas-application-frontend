@@ -33,7 +33,7 @@ class SignOutControllerISpec extends BaseISpec{
       val result = await(controller.signOutWithContinueUrl(request))
 
       result.session.get(someExistingKey) shouldBe None
-      redirectLocation(result).get shouldBe "/government-gateway-registration-frontend?accountType=agent&origin=unknown&continue=%2Fagent-services%2Fapply-from-outside-uk%2Fmoney-laundering"
+      redirectLocation(result).get shouldBe "http://localhost:8571/government-gateway-registration-frontend?accountType=agent&origin=unknown&continue=%2Fagent-services%2Fapply-from-outside-uk%2Fmoney-laundering"
     }
   }
 

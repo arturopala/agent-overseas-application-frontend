@@ -1,12 +1,12 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth
 
 import com.google.inject.ImplementedBy
-import javax.inject.Inject
-import play.api.mvc.Results.{Forbidden, NotImplemented, Redirect}
+import javax.inject.{Inject, Named}
+import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionBuilder, ActionFunction, Request, Result}
 import play.api.{Configuration, Environment, Mode}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.{Pending, Rejected}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.Rejected
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, CredentialRequest}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
@@ -24,7 +24,8 @@ class AgentAffinityNoEnrolmentAuthActionImpl @Inject()(
   val authConnector: AuthConnector,
   val config: Configuration,
   applicationService: ApplicationService,
-  sessionStoreService: SessionStoreService)(implicit ec: ExecutionContext)
+  sessionStoreService: SessionStoreService,
+  @Named("agent-services-account.root-path") agentServicesAccountRootPath: String)(implicit ec: ExecutionContext)
     extends AgentAffinityNoHmrcAsAgentAuthAction with AuthorisedFunctions with AuthRedirects {
 
   def invokeBlock[A](request: Request[A], block: CredentialRequest[A] => Future[Result]): Future[Result] = {
@@ -34,8 +35,8 @@ class AgentAffinityNoEnrolmentAuthActionImpl @Inject()(
     authorised(AuthProviders(GovernmentGateway) and AffinityGroup.Agent)
       .retrieve(credentials and authorisedEnrolments) {
         case creds ~ enrolments =>
-          if (!isEnrolledForHmrcAsAgent(enrolments)) {
-
+          if (isEnrolledForHmrcAsAgent(enrolments)) Future.successful(Redirect(agentServicesAccountRootPath))
+          else {
             sessionStoreService.fetchAgentSession.flatMap {
               case Some(agentSession) => block(CredentialRequest(creds.providerId, request, agentSession))
               case None =>
@@ -49,10 +50,10 @@ class AgentAffinityNoEnrolmentAuthActionImpl @Inject()(
                       .cacheAgentSession(AgentSession())
                       .map(_ => Redirect(routes.StartController.applicationStatus()))
                   case Some(_) =>
-                    Future.successful(Redirect(routes.StartController.applicationStatus())) // if is going to continue to create application need to initialiseAgentSession
+                    Future.successful(Redirect(routes.StartController.applicationStatus()))
                 }
             }
-          } else Future.successful(Forbidden)
+          }
       }
       .recover {
         case _: NoActiveSession =>

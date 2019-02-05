@@ -105,10 +105,9 @@ class StartControllerISpec extends BaseISpec with AgentOverseasApplicationStubs 
   }
 
   def redirectToSubscriptionFrontend(status: String, action: Action[AnyContent]): Unit = {
-
     "303 when application status neither Rejected nor Pending" in {
       given200OverseasRedirectStatusApplication(status)
-      redirectLocation(await(action(basicRequest(FakeRequest())))).get shouldBe "/agent-services/apply-from-outside-uk/create-account"
+      redirectLocation(await(action(basicRequest(FakeRequest())))).get shouldBe "http://localhost:9403/agent-services/apply-from-outside-uk/create-account"
     }
   }
 }

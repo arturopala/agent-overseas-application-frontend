@@ -37,7 +37,8 @@ class AgentAffinityNoHmrcAsAgentAuthActionISpec extends BaseISpec with AgentOver
       val authenticatedRequest = agentWithAuthorisedEnrolment(FakeRequest(), Enrolment("HMRC-AS-AGENT", "AgentReferenceNumber", "TARN0000001"))
       val result = await(testController.withValidApplicant(authenticatedRequest))
 
-      status(result) shouldBe 403
+      status(result) shouldBe 303
+      redirectLocation(result).get shouldBe "http://localhost:9401/agent-services-account"
     }
 
     "redirect to gg sign in page if the user is not logged in" in {

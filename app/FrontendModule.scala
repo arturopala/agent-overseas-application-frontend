@@ -40,6 +40,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
     bindServiceConfigProperty[String]("companyAuthSignInUrl")
     bindServiceConfigProperty[String]("agent-overseas-subscription-frontend.root-path")
     bindServiceConfigProperty[String]("government-gateway-registration-frontend.sosRedirect-path")
+    bindServiceConfigProperty[String]("agent-services-account.root-path")
 
     bindBaseUrl("auth")
     bindBaseUrl("cachable.session-cache")
