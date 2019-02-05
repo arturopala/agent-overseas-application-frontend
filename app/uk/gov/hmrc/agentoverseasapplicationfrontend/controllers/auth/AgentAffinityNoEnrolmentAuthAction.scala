@@ -44,15 +44,12 @@ class AgentAffinityNoEnrolmentAuthActionImpl @Inject()(
                     sessionStoreService
                       .cacheAgentSession(AgentSession())
                       .map(_ => Redirect(routes.ApplicationController.showAntiMoneyLaunderingForm()))
-                  case Some(application) if application.status == Pending => {
-                    Future.successful(Redirect(routes.StartController.applicationStatus()))
-                  }
                   case Some(application) if application.status == Rejected =>
                     sessionStoreService
                       .cacheAgentSession(AgentSession())
                       .map(_ => Redirect(routes.StartController.applicationStatus()))
-                  case _ =>
-                    Future.successful(NotImplemented) // if is going to continue to create application need to initialiseAgentSession
+                  case Some(_) =>
+                    Future.successful(Redirect(routes.StartController.applicationStatus())) // if is going to continue to create application need to initialiseAgentSession
                 }
             }
           } else Future.successful(Forbidden)
