@@ -1,9 +1,15 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
+import java.time.LocalDate
+
+import org.mockito.Mockito.when
+import org.scalatest.mockito.MockitoSugar
 import play.api.mvc.Results
+import uk.gov.hmrc.agentoverseasapplicationfrontend.connectors.AgentOverseasApplicationConnector
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.{Accepted, AttemptingRegistration, Complete, Registered, Rejected}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetails.RadioOption
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
-import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
+import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.TestSessionCache
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
@@ -11,6 +17,7 @@ import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class CommonRoutingSpec extends UnitSpec {
   implicit val hc = HeaderCarrier(sessionId = Some(SessionId("sessionId123456")))
@@ -21,6 +28,8 @@ class CommonRoutingSpec extends UnitSpec {
   private val personalDetails = PersonalDetails(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
   private val companyRegistrationNumber = CompanyRegistrationNumber(Some(true), Some("123"))
 
+  private val subscriptionRootPath = "/agent-services/apply-from-outside-uk/create-account"
+
   private val detailsUpToRegisteredWithHmrc =
     AgentSession(
       amlsDetails = Some(amlsDetails),
@@ -28,6 +37,14 @@ class CommonRoutingSpec extends UnitSpec {
       tradingName = Some("some name"),
       mainBusinessAddress = Some(mainBusinessAddress)
     )
+
+  private val applicationEntityDetails = ApplicationEntityDetails(
+    applicationCreationDate = LocalDate.now(),
+    status = ApplicationStatus.Pending,
+    tradingName = "some name",
+    businessEmail = "someemail@example.com",
+    maintainerReviewedOn = None
+  )
 
   "lookupNextPage" should {
     "return showAntiMoneyLaunderingForm when AmlsDetails are not found in session" in {
@@ -253,8 +270,41 @@ class CommonRoutingSpec extends UnitSpec {
     }
   }
 
+  "routesForApplicationStatuses" should {
+    "return applicationStatus page" when {
+      "the application status is pending" in {
+        testRoutesForApplicationStatuses(List(applicationEntityDetails), "/application-status")
+      }
+
+      "the application status is rejected" in {
+        testRoutesForApplicationStatuses(List(applicationEntityDetails.copy(status = Rejected)), "/application-status")
+      }
+    }
+
+    "return overseas-subscription-frontend root page" when {
+      Set(Accepted, AttemptingRegistration, Registered, Complete).foreach { status =>
+        s"the application status is ${status.key}" in {
+          testRoutesForApplicationStatuses(List(applicationEntityDetails.copy(status = status)), subscriptionRootPath)
+        }
+      }
+    }
+
+    "return /money-laundering page" in {
+      testRoutesForApplicationStatuses(List.empty, "/money-laundering")
+    }
+  }
+
+  def testRoutesForApplicationStatuses(applications: List[ApplicationEntityDetails], responseRoute: String) = {
+    when(FakeRouting.connector.getUserApplications).thenReturn(Future.successful(applications))
+
+    await(FakeRouting.routesForApplicationStatuses(subscriptionRootPath)).url shouldBe responseRoute
+  }
+
 }
 
-object FakeRouting extends CommonRouting with Results {
+object FakeRouting extends CommonRouting with Results with MockitoSugar {
+  val connector = mock[AgentOverseasApplicationConnector]
+
   override val sessionStoreService = new SessionStoreService(new TestSessionCache())
+  override val applicationService = new ApplicationService(connector)
 }

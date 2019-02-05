@@ -6,7 +6,7 @@ import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.config.CountryNamesLoader
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
-import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
+import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
@@ -19,6 +19,7 @@ class ChangingAnswersController @Inject()(
   val env: Environment,
   validApplicantAction: AgentAffinityNoHmrcAsAgentAuthAction,
   val sessionStoreService: SessionStoreService,
+  override val applicationService: ApplicationService,
   countryNamesLoader: CountryNamesLoader)(implicit val configuration: Configuration, override val ec: ExecutionContext)
     extends FrontendController with SessionBehaviour with I18nSupport {
 

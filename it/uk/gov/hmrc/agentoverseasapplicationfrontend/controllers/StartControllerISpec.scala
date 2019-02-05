@@ -59,10 +59,12 @@ class StartControllerISpec extends BaseISpec with AgentOverseasApplicationStubs 
       result should containSubstrings(htmlMessage("application_not_ready.p3", 28))
     }
 
-    "RuntimeException when Pending application not found" in {
+    "redirect to application root page when Pending application not found" in {
       given404OverseasApplications()
 
-      an[RuntimeException] shouldBe thrownBy(await(controller.applicationStatus(basicRequest(FakeRequest()))))
+      val result = await(controller.applicationStatus(basicRequest(FakeRequest())))
+
+      redirectLocation(result).get shouldBe routes.StartController.root().url
     }
   }
 
@@ -81,12 +83,6 @@ class StartControllerISpec extends BaseISpec with AgentOverseasApplicationStubs 
 
       result should containLink("statusRejected.link.text", routes.ApplicationController.showAntiMoneyLaunderingForm().url)
     }
-
-    "RuntimeException, was initialised correctly, however no application to support this and provide data was found" in {
-      given404OverseasApplications()
-      an[RuntimeException] shouldBe thrownBy(await(controller.applicationStatus(basicRequest(FakeRequest()))))
-    }
-
   }
 
   "GET / application-status applicationStatus Accepted status" should {

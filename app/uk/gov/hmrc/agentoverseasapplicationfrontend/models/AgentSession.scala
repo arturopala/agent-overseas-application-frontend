@@ -48,6 +48,9 @@ case class AgentSession(
 }
 
 object AgentSession {
+
+  def empty = AgentSession()
+
   implicit val format: OFormat[AgentSession] = Json.format[AgentSession]
 
   object MissingAmlsDetails {

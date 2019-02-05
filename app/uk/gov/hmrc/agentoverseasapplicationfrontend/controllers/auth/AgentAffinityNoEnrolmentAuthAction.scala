@@ -1,13 +1,12 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth
 
 import com.google.inject.ImplementedBy
-import javax.inject.{Inject, Named}
+import javax.inject.{Inject, Named, Singleton}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionBuilder, ActionFunction, Request, Result}
 import play.api.{Configuration, Environment, Mode}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.Rejected
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, CredentialRequest}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.{CommonRouting, routes}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.CredentialRequest
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core._
@@ -19,14 +18,16 @@ import uk.gov.hmrc.play.bootstrap.config.AuthRedirects
 
 import scala.concurrent.{ExecutionContext, Future}
 
+@Singleton
 class AgentAffinityNoEnrolmentAuthActionImpl @Inject()(
   val env: Environment,
   val authConnector: AuthConnector,
   val config: Configuration,
-  applicationService: ApplicationService,
-  sessionStoreService: SessionStoreService,
-  @Named("agent-services-account.root-path") agentServicesAccountRootPath: String)(implicit ec: ExecutionContext)
-    extends AgentAffinityNoHmrcAsAgentAuthAction with AuthorisedFunctions with AuthRedirects {
+  val applicationService: ApplicationService,
+  val sessionStoreService: SessionStoreService,
+  @Named("agent-services-account.root-path") agentServicesAccountRootPath: String,
+  @Named("agent-overseas-subscription-frontend.root-path") subscriptionRootPath: String)(implicit ec: ExecutionContext)
+    extends AgentAffinityNoHmrcAsAgentAuthAction with CommonRouting with AuthorisedFunctions with AuthRedirects {
 
   def invokeBlock[A](request: Request[A], block: CredentialRequest[A] => Future[Result]): Future[Result] = {
     implicit val hc: HeaderCarrier =
@@ -35,25 +36,13 @@ class AgentAffinityNoEnrolmentAuthActionImpl @Inject()(
     authorised(AuthProviders(GovernmentGateway) and AffinityGroup.Agent)
       .retrieve(credentials and authorisedEnrolments) {
         case creds ~ enrolments =>
-          if (isEnrolledForHmrcAsAgent(enrolments)) Future.successful(Redirect(agentServicesAccountRootPath))
-          else {
+          if (isEnrolledForHmrcAsAgent(enrolments))
+            Future.successful(Redirect(agentServicesAccountRootPath))
+          else
             sessionStoreService.fetchAgentSession.flatMap {
               case Some(agentSession) => block(CredentialRequest(creds.providerId, request, agentSession))
-              case None =>
-                applicationService.getCurrentApplication.flatMap {
-                  case None =>
-                    sessionStoreService
-                      .cacheAgentSession(AgentSession())
-                      .map(_ => Redirect(routes.ApplicationController.showAntiMoneyLaunderingForm()))
-                  case Some(application) if application.status == Rejected =>
-                    sessionStoreService
-                      .cacheAgentSession(AgentSession())
-                      .map(_ => Redirect(routes.StartController.applicationStatus()))
-                  case Some(_) =>
-                    Future.successful(Redirect(routes.StartController.applicationStatus()))
-                }
+              case None               => routesForApplicationStatuses(subscriptionRootPath).map(Redirect)
             }
-          }
       }
       .recover {
         case _: NoActiveSession =>

@@ -48,7 +48,7 @@ class StartController @Inject()(
       }
       case Some(application) if application.status == Rejected => Ok(status_rejected(application))
       case Some(_)                                             => SeeOther(subscriptionRootPath)
-      case _                                                   => throw new RuntimeException("Could not find an application for user authProviderId")
+      case None                                                => Redirect(routes.StartController.root())
     }
   }
 

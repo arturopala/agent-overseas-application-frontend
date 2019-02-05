@@ -1,17 +1,20 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
-import play.api.mvc.{Call, Results}
+import play.api.http.HttpVerbs.GET
+import play.api.mvc.Call
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession._
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.{Accepted, AttemptingRegistration, Complete, Pending, Registered, Rejected}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, No, Yes}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
+import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 trait CommonRouting {
-  this: Results =>
 
   val sessionStoreService: SessionStoreService
+
+  val applicationService: ApplicationService
 
   def lookupNextPage(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Call] =
     sessionStoreService.fetchAgentSession.map { session =>
@@ -26,6 +29,25 @@ trait CommonRouting {
         case _                           => routes.ApplicationController.showAntiMoneyLaunderingForm()
       }
     }
+
+  def routesForApplicationStatuses(
+    subscriptionRootPath: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Call] = {
+    def routing: Future[Call] = applicationService.getCurrentApplication.map {
+      case Some(application) if application.status == Rejected || application.status == Pending =>
+        routes.StartController.applicationStatus()
+      case Some(application)
+          if Set(Accepted, AttemptingRegistration, Registered, Complete).contains(application.status) =>
+        Call(GET, subscriptionRootPath)
+      case None =>
+        routes.ApplicationController.showAntiMoneyLaunderingForm()
+    }
+
+    for {
+      _    <- sessionStoreService.removeAgentSession
+      _    <- sessionStoreService.cacheAgentSession(AgentSession.empty)
+      call <- routing
+    } yield call
+  }
 
   private def routesFromAgentCodesOnwards(agentSession: Option[AgentSession]): Call = agentSession match {
     case MissingAgentCodes()                  => routes.ApplicationController.showAgentCodesForm()
