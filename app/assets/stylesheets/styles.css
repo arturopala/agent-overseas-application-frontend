@@ -225,6 +225,11 @@
     margin-top: 0px !important;
 }
 
+.form-group-error {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
 /* no js style for dates */
 .no-js .form-date .form-field--error {
     border-left: none;
