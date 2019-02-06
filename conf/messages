@@ -93,7 +93,7 @@ error.personalDetails.no-radio.selected=Select if you want to enter a National I
 error.removeTrn.no-radio.selected=Select yes if you want to remove this tax registration number
 
 # Service specific messages
-app.name=agent-services - apply-from-outside-uk
+app.name=Apply for an agent services account if you are not in the UK
 servicename.titleSuffix=Apply for approval to create an agent services account
 
 # Common
