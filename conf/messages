@@ -94,7 +94,7 @@ error.removeTrn.no-radio.selected=Select yes if you want to remove this tax regi
 
 # Service specific messages
 app.name=Apply for an agent services account if you are not in the UK
-servicename.titleSuffix=Apply for approval to create an agent services account
+servicename.titleSuffix=Apply for an agent services account if you are not in the UK - GOV.UK
 
 # Common
 button.continue=Continue
