@@ -70,12 +70,12 @@ trait AuthStubs {
          |      "affinityGroup": "Agent"
          |    }
          |  ],
-         |  "retrieve":["authorisedEnrolments"]
+         |  "retrieve":["allEnrolments"]
          |}
            """.stripMargin,
       s"""
          |{
-         |"authorisedEnrolments": [
+         |"allEnrolments": [
          |  { "key":"${enrolment.serviceName}", "identifiers": [
          |    {"key":"${enrolment.identifierName}", "value": "${enrolment.identifierValue}"}
          |  ]}
@@ -98,12 +98,12 @@ trait AuthStubs {
          |      "affinityGroup": "Agent"
          |    }
          |  ],
-         |  "retrieve":["authorisedEnrolments"]
+         |  "retrieve":["allEnrolments"]
          |}
            """.stripMargin,
       s"""
          |{
-         |"authorisedEnrolments": [],
+         |"allEnrolments": [],
          |    "credentials": {
          |    "providerId": "12345-credId",
          |    "providerType": "GovernmentGateway"
