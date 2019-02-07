@@ -10,7 +10,7 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.models.CredentialRequest
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.Retrievals.{authorisedEnrolments, credentials}
+import uk.gov.hmrc.auth.core.retrieve.Retrievals.{allEnrolments, credentials}
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
@@ -34,7 +34,7 @@ class AgentAffinityNoEnrolmentAuthActionImpl @Inject()(
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
 
     authorised(AuthProviders(GovernmentGateway) and AffinityGroup.Agent)
-      .retrieve(credentials and authorisedEnrolments) {
+      .retrieve(credentials and allEnrolments) {
         case creds ~ enrolments =>
           if (isEnrolledForHmrcAsAgent(enrolments))
             Future.successful(Redirect(agentServicesAccountRootPath))
