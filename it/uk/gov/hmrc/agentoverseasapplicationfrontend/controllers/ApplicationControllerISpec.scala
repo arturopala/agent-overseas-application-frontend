@@ -270,6 +270,23 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
       redirectLocation(result) shouldBe Some(routes.ApplicationController.showAntiMoneyLaunderingForm().url)
     }
+
+    "prefill trading name if previously has used the endpoint POST /trading-name" in {
+      sessionStoreService.currentSession.agentSession =
+        Some(agentSession.copy(tradingName = Some("tradingName")))
+
+      val result = await(controller.showTradingNameForm(cleanCredsAgent(FakeRequest())))
+
+      status(result) shouldBe 200
+      result should containMessages(
+        "tradingName.title",
+        "tradingName.p1"
+      )
+
+      val doc = Jsoup.parse(bodyOf(result))
+
+      doc.getElementById("tradingName").attr("value") shouldBe "tradingName"
+    }
   }
 
   "POST /trading-name" should {
@@ -1040,7 +1057,8 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
     "display the company-registration-number form with correct back button link in case user selects No option in the /uk-tax-registration page" in {
       sessionStoreService.currentSession.agentSession =
-        Some(agentSession.copy(registeredForUkTax = Some(No), companyRegistrationNumber = None))
+        Some(agentSession.copy(registeredForUkTax = Some(No),
+          companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(false), None))))
 
       val result = await(controller.showCompanyRegistrationNumberForm(cleanCredsAgent(FakeRequest())))
       val backButtonUrl = routes.ApplicationController.showUkTaxRegistrationForm().url
@@ -1052,6 +1070,10 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       )
 
       result should containSubstrings(backButtonUrl)
+
+      val doc = Jsoup.parse(bodyOf(result))
+
+      doc.getElementById("confirmRegistration_false").attr("checked") shouldBe "checked"
     }
   }
 
