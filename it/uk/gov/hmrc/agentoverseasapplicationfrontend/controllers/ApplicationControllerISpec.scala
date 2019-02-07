@@ -1651,6 +1651,64 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
         "checkAnswers.confirm.button")
     }
 
+    "have correct back link" when {
+      "provided agent codes journey branch, back link to show agent codes page" in {
+        sessionStoreService.currentSession.agentSession = Some(
+          AgentSession(
+            Some(amlsDetails),
+            Some(contactDetails),
+            Some("tradingName"),
+            Some(mainBusinessAddress),
+            registeredWithHmrc = Some(Yes),
+            agentCodes = Some(AgentCodes(Some("selfAssessmentCode"), Some("corporationTaxCode")))))
+
+        val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
+
+        status(result) shouldBe 200
+        result should containLink("button.back", routes.ApplicationController.showAgentCodesForm().url)
+      }
+
+      "no agent codes provided hence longer journey branch & any taxRegNumber/s provided, back link to your-tax-registration-numbers" in {
+        sessionStoreService.currentSession.agentSession = Some(
+          AgentSession(
+            Some(amlsDetails),
+            Some(contactDetails),
+            Some("tradingName"),
+            Some(mainBusinessAddress),
+            registeredWithHmrc = Some(Yes),
+            agentCodes = Some(AgentCodes(None,None)),
+            registeredForUkTax = Some(No),
+            companyRegistrationNumber = Some(CompanyRegistrationNumber(None, None)),
+            hasTaxRegNumbers = Some(true),
+            taxRegistrationNumbers = Some(SortedSet("someTaxRegNo"))))
+
+        val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
+
+        status(result) shouldBe 200
+        result should containLink("button.back", routes.ApplicationController.showYourTaxRegNumbersForm().url)
+      }
+
+      "no agent codes no taxRegNumbers provided, back link to ask if has tax-registration-number" in {
+        sessionStoreService.currentSession.agentSession = Some(
+          AgentSession(
+            Some(amlsDetails),
+            Some(contactDetails),
+            Some("tradingName"),
+            Some(mainBusinessAddress),
+            registeredWithHmrc = Some(Yes),
+            agentCodes = Some(AgentCodes(None,None)),
+            registeredForUkTax = Some(No),
+            companyRegistrationNumber = Some(CompanyRegistrationNumber(None, None)),
+            hasTaxRegNumbers = Some(true),
+            taxRegistrationNumbers = None))
+
+        val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
+
+        status(result) shouldBe 200
+        result should containLink("button.back", routes.ApplicationController.showTaxRegistrationNumberForm().url)
+      }
+    }
+
     "display the form with all data as expected when user goes through 'RegsiteredWithHmrc=Yes' flow" when {
       "agent codes are available" in {
         val registeredWithHmrc = Some(Yes)
