@@ -272,7 +272,7 @@ checkAnswers.confirm.p1=By submitting this application you are confirming that, 
 checkAnswers.confirm.button=Confirm answers and send application
 
 # Application Complete
-applicationComplete.title=Application Complete
+applicationComplete.title=Application complete
 applicationComplete.panel.body=We received your application for
 applicationComplete.whatHappensNext.heading=What happens next
 applicationComplete.whatHappensNext.para1=We will send a confirmation email to {0}.
