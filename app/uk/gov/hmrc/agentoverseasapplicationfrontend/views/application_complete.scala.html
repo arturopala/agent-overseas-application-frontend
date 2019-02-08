@@ -3,7 +3,7 @@
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
 
-@(tradingName: String, contactEmail: String)(implicit request: Request[_], messages: Messages, configuration: Configuration)
+@(tradingName: String, contactEmail: String, guidanceApplicationUrl: String)(implicit request: Request[_], messages: Messages, configuration: Configuration)
 
 @main_template(title = Messages("applicationComplete.title")){
 
@@ -28,7 +28,7 @@
                 @Messages("applicationComplete.whatHappensNext.para4")
             </p>
             <h2 class="heading-medium">@Messages("applicationComplete.whatYouCanDoNext.heading")</h2>
-            <p><a href="#">@Messages("applicationComplete.whatYouCanDoNext.link")</a>
+            <p><a href="@guidanceApplicationUrl">@Messages("applicationComplete.whatYouCanDoNext.link")</a>
                 @Messages("applicationComplete.whatYouCanDoNext.text")
             </p>
             <h2 class="heading-medium">@Messages("applicationComplete.help.heading")</h2>

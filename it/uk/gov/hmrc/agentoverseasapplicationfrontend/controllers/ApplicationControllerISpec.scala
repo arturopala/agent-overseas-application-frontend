@@ -2071,6 +2071,8 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
         "applicationComplete.feedback.text"
       )
 
+      result should containLink("applicationComplete.whatYouCanDoNext.link", "guidancePageUrl")
+
       bodyOf(result).contains(htmlEscapedMessage( "applicationComplete.whatHappensNext.para1", contactDetails.businessEmail))
       result should containSubstrings("We will send a confirmation email to",
         email,

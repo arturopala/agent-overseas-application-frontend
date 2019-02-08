@@ -28,6 +28,7 @@ class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with A
         "appName" -> "agent-overseas-application-frontend",
         "microservice.services.auth.port" -> wireMockPort,
         "microservice.services.companyAuthSignInUrl" -> "/baseISpec/gg/sign-in",
+        "microservice.services.guidancePageApplicationUrl" -> "guidancePageUrl",
         "government-gateway-registration-frontend.sosRedirect-path" -> "http://localhost:8571/government-gateway-registration-frontend?accountType=agent&origin=unknown",
         "agent-overseas-subscription-frontend" -> "http://localhost:9403/agent-services/apply-from-outside-uk/create-account",
         "agent-services-account.root-path" -> "http://localhost:9401/agent-services-account",

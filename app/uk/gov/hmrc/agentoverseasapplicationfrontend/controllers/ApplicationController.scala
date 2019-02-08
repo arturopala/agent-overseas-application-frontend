@@ -1,6 +1,6 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.{Inject, Named, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment, Logger}
@@ -28,7 +28,8 @@ class ApplicationController @Inject()(
   val sessionStoreService: SessionStoreService,
   val applicationService: ApplicationService,
   countryNamesLoader: CountryNamesLoader,
-  basicAgentAuthAction: BasicAgentAuthAction)(
+  basicAgentAuthAction: BasicAgentAuthAction,
+  @Named("guidancePageApplicationUrl") guidanceApplicationPageUrl: String)(
   implicit val configuration: Configuration,
   override val ec: ExecutionContext)
     extends FrontendController with SessionBehaviour with I18nSupport {
@@ -558,7 +559,8 @@ class ApplicationController @Inject()(
     val tradingName = request.flash.get("tradingName")
     val contactDetail = request.flash.get("contactDetail")
 
-    if (tradingName.isDefined && contactDetail.isDefined) Ok(application_complete(tradingName.get, contactDetail.get))
+    if (tradingName.isDefined && contactDetail.isDefined)
+      Ok(application_complete(tradingName.get, contactDetail.get, guidanceApplicationPageUrl))
     else Redirect(routes.ApplicationController.showAntiMoneyLaunderingForm())
   }
 
