@@ -4,7 +4,7 @@
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.helpers._
 @import uk.gov.hmrc.play.views.html.helpers.{form, input, errorSummary}
 
-@(amlsForm: Form[AmlsDetails], amlsBodies: Map[String, String], backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
+@(amlsForm: Form[AmlsDetails], backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
 @uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = error_prefix(amlsForm) + Messages("amls.title")) {
 
@@ -25,15 +25,12 @@
         <div class="panel panel-border-wide margin-bottom-30">@Messages("amls.inset.p1")</div>
 
         <div class="form-group">
-            @amls_dropdown(
-            amlsForm("amlsBody"),
-            amlsBodies.toSeq,
-            true,
-            '_errorsAboveInput -> true,
-            '_label -> Messages("amls.form.supervisory_body"),
-            '_inputClass -> "form-control input--cleared",
-            '_labelClass -> "soft--ends",
-            '_selectWrapper -> Html("""class="autocomplete-wrapper"""")
+            @input(
+                amlsForm("amlsBody"),
+                '_label -> Messages("amls.form.supervisory_body"),
+                '_inputClass -> "form-control--block",
+                '_labelClass -> "soft--ends",
+                '_labelTextClass -> "form-label"
             )
         </div>
 

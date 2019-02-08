@@ -22,8 +22,8 @@ error.jobTitle.blank=Enter your job title
 error.jobTitle.invalid=Job title must only include letters a to z, apostrophes, hyphens and spaces
 error.jobTitle.length=Job title must be between 2 and 50 characters
 
-error.moneyLaunderingCompliance.amlsbody.empty=Enter the name of the supervisory body
-error.moneyLaunderingCompliance.amlsbody.invalid=Name of supervisory body must only include letters a to z, numbers, commas, apostrophes, hyphens, ampersands, forward slashes, round brackets and spaces
+error.moneyLaunderingCompliance.amlsbody.blank=Enter the name of the supervisory body
+error.moneyLaunderingCompliance.amlsbody.invalid=Name of supervisory body must only include letters a to z, numbers, apostrophes, commas, ampersands (&), round brackets, forward slashes, full stops, hyphens and spaces
 error.moneyLaunderingCompliance.amlsbody.maxlength=Name of supervisory body must be 100 characters or less
 
 error.firstName.blank=Enter your first name

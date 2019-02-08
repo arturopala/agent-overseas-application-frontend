@@ -480,19 +480,45 @@ class CommonValidatorsSpec extends UnitSpec with EitherValues {
   }
 
   "amlsBody bind" should {
-    val amlsCodeMapping = amlsCode(Set("AA", "BB")).withPrefix("testKey")
-    def bind(fieldValue: String) = amlsCodeMapping.bind(Map("testKey" -> fieldValue))
+    val amlsBodyMapping = amlsBody.withPrefix("testKey")
+    def bind(fieldValue: String) = amlsBodyMapping.bind(Map("testKey" -> fieldValue))
+
+    def shouldAcceptFieldValue(fieldValue: String): Unit =
+      bind(fieldValue) shouldBe Right(fieldValue)
+
+    def shouldRejectFieldValueAsInvalid(fieldValue: String): Unit =
+      bind(fieldValue) should matchPattern {
+        case Left(List(FormError("testKey", List("error.moneyLaunderingCompliance.amlsbody.invalid"), _))) =>
+      }
 
     "accept valid AMLS body" in {
-      bind("AA") shouldBe Right("AA")
+      shouldAcceptFieldValue("Association of Accounting Technicians (AAT)")
+      shouldAcceptFieldValue("Association of Accounting Technicians 12345")
+      shouldAcceptFieldValue("Association of Accounting  & Technicians")
+      shouldAcceptFieldValue("Association, Accounting, Technicians")
+      shouldAcceptFieldValue("Association' Accounting'Technicians")
+      shouldAcceptFieldValue("Association Accounting / Technicians")
+      shouldAcceptFieldValue("Association Accounting Technicians.")
+      shouldAcceptFieldValue("Association-Accounting-Technicians")
     }
 
     "return validation error if the field is blank" in {
-      bind("").left.value should contain only FormError("testKey", "error.moneyLaunderingCompliance.amlsbody.empty")
+      bind("").left.value should contain only FormError("testKey", "error.moneyLaunderingCompliance.amlsbody.blank")
+    }
+
+    "return validation error if the field length is more than 100 chars" in {
+      bind(randomString(101)).left.value should contain only FormError(
+        "testKey",
+        "error.moneyLaunderingCompliance.amlsbody.maxlength")
     }
 
     "return validation error if the field is invalid " in {
-      bind("CC").left.value should contain only FormError("testKey", "error.moneyLaunderingCompliance.amlsbody.invalid")
+      shouldRejectFieldValueAsInvalid("CC*")
+      shouldRejectFieldValueAsInvalid("CC ££")
+      shouldRejectFieldValueAsInvalid("CC $$")
+      shouldRejectFieldValueAsInvalid("C++")
+      shouldRejectFieldValueAsInvalid("C+===")
+      shouldRejectFieldValueAsInvalid("Universitätsstadt im Süden von Deutschland")
     }
   }
 

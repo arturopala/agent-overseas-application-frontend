@@ -131,7 +131,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
       status(result) shouldBe 200
 
-      result should containMessages("error.moneyLaunderingCompliance.amlsbody.empty")
+      result should containMessages("error.moneyLaunderingCompliance.amlsbody.blank")
     }
   }
 

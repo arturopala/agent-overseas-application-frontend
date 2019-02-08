@@ -4,7 +4,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment, Logger}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.config.{AMLSLoader, CountryNamesLoader}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.config.CountryNamesLoader
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.{AgentAffinityNoHmrcAsAgentAuthAction, BasicAgentAuthAction}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession.{IsRegisteredForUkTax, IsRegisteredWithHmrc}
@@ -35,12 +35,11 @@ class ApplicationController @Inject()(
 
   private val countries = countryNamesLoader.load
   private val validCountryCodes = countries.keys.toSet
-  private val amlsBodies: Map[String, String] = AMLSLoader.load("/amls.csv")
 
   private val showCheckYourAnswersUrl = routes.ApplicationController.showCheckYourAnswers().url
 
   def showAntiMoneyLaunderingForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    val form = AmlsDetailsForm.form(amlsBodies.values.toSet)
+    val form = AmlsDetailsForm.form
 
     val backUrl: Future[Option[String]] = {
       if (request.agentSession.changingAnswers) Future.successful(Some(showCheckYourAnswersUrl))
@@ -52,24 +51,19 @@ class ApplicationController @Inject()(
         }
     }
 
-    backUrl.map(url =>
-      Ok(anti_money_laundering(request.agentSession.amlsDetails.fold(form)(form.fill), amlsBodies, url)))
+    backUrl.map(url => Ok(anti_money_laundering(request.agentSession.amlsDetails.fold(form)(form.fill), url)))
   }
 
   def submitAntiMoneyLaundering: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    AmlsDetailsForm
-      .form(amlsBodies.values.toSet)
+    AmlsDetailsForm.form
       .bindFromRequest()
       .fold(
         formWithErrors => {
           sessionStoreService.fetchAgentSession.map {
-            case Some(session) =>
-              if (session.changingAnswers) {
-                Ok(anti_money_laundering(formWithErrors, amlsBodies, Some(showCheckYourAnswersUrl)))
-              } else {
-                Ok(anti_money_laundering(formWithErrors, amlsBodies))
-              }
-            case None => Ok(anti_money_laundering(formWithErrors, amlsBodies))
+            case Some(session) if session.changingAnswers =>
+              Ok(anti_money_laundering(formWithErrors, Some(showCheckYourAnswersUrl)))
+            case _ =>
+              Ok(anti_money_laundering(formWithErrors))
           }
         },
         validForm => {

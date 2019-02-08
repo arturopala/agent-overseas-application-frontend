@@ -18,6 +18,7 @@ object CommonValidators {
   private val TrnRegex = """^[a-zA-Z0-9 ]*$"""
   private val OverseasAgencyNameRegex = "^[A-Za-z0-9 \\-,.\\/]*"
   private val OverseasAddressRegex = "^[A-Za-z0-9 \\-,.&']*"
+  private val AmlsBodyRegex = "^[A-Za-z0-9 \\-,.'&()\\/]*$"
 
   private val AgentCodeMaxLength = 6
   private val UtrMaxLength = 10
@@ -31,6 +32,7 @@ object CommonValidators {
   private val AddresslineMaxLength = 35
   private val CrnMaxLength = 8
   private val TrnMaxLength = 24
+  private val AmlsBodyMaxLength = 100
 
   private type UtrErrors = (String, String)
   private val DefaultUtrErrors = ("error.utr.blank", "error.utr.invalid")
@@ -44,7 +46,8 @@ object CommonValidators {
 
   def nino: Mapping[String] = text verifying ninoConstraint
 
-  def amlsCode(bodies: Set[String]): Mapping[String] = text verifying amlsBodyConstraint(bodies)
+  def amlsBody: Mapping[String] =
+    text verifying commonFormConstraint("moneyLaunderingCompliance.amlsbody", AmlsBodyRegex, AmlsBodyMaxLength)
 
   def jobTitle: Mapping[String] = text verifying jobTitleConstraint
 
