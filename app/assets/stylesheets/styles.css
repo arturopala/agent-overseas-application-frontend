@@ -154,20 +154,19 @@
     .app-check-your-answers__answer,
     .app-check-your-answers__change {
         display: table-cell;
-        /*padding: 0.63158em 1.05263em 0.47368em 0;*/
         padding: 0;
     }
 }
 
 .app-check-your-answers__question {
     font-weight: bold;
-    /*margin: 0.63158em 4em 0.21053em 0;*/
     margin: 0.63158em 1em 0.21053em 0
 }
 
 .app-check-your-answers__answer {
     /*padding-bottom: 0.47368em;*/
     padding-bottom: 0.3em;
+    word-break: break-all;
 }
 
 .app-check-your-answers--group {
