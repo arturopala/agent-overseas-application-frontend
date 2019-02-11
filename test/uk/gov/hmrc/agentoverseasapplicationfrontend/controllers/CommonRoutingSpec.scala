@@ -297,7 +297,7 @@ class CommonRoutingSpec extends UnitSpec {
   def testRoutesForApplicationStatuses(applications: List[ApplicationEntityDetails], responseRoute: String) = {
     when(FakeRouting.connector.getUserApplications).thenReturn(Future.successful(applications))
 
-    await(FakeRouting.routesForApplicationStatuses(subscriptionRootPath)).url shouldBe responseRoute
+    await(FakeRouting.routesIfExistingApplication(subscriptionRootPath)).url shouldBe responseRoute
   }
 
 }

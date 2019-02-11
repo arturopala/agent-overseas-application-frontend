@@ -11,6 +11,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
 
 trait CommonRouting {
+  case class StatusRouting(proceedTo: Call, initialiseAgentSession: Boolean)
 
   val sessionStoreService: SessionStoreService
 
@@ -30,23 +31,24 @@ trait CommonRouting {
       }
     }
 
-  def routesForApplicationStatuses(
+  def routesIfExistingApplication(
     subscriptionRootPath: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Call] = {
-    def routing: Future[Call] = applicationService.getCurrentApplication.map {
-      case Some(application) if application.status == Rejected || application.status == Pending =>
-        routes.StartController.applicationStatus()
+    def routing: Future[StatusRouting] = applicationService.getCurrentApplication.map {
+      case Some(application) if application.status == Rejected || application.status == Pending => {
+        val initialiseSession = application.status == Rejected
+        StatusRouting(routes.StartController.applicationStatus(), initialiseSession)
+      }
       case Some(application)
           if Set(Accepted, AttemptingRegistration, Registered, Complete).contains(application.status) =>
-        Call(GET, subscriptionRootPath)
-      case None =>
-        routes.ApplicationController.showAntiMoneyLaunderingForm()
+        StatusRouting(Call(GET, subscriptionRootPath), false)
+      case None => StatusRouting(routes.ApplicationController.showAntiMoneyLaunderingForm(), true)
     }
 
     for {
-      _    <- sessionStoreService.removeAgentSession
-      _    <- sessionStoreService.cacheAgentSession(AgentSession.empty)
-      call <- routing
-    } yield call
+      proceed <- routing
+      _ <- if (proceed.initialiseAgentSession) sessionStoreService.cacheAgentSession(AgentSession.empty)
+          else Future.successful(())
+    } yield proceed.proceedTo
   }
 
   private def routesFromAgentCodesOnwards(agentSession: Option[AgentSession]): Call = agentSession match {

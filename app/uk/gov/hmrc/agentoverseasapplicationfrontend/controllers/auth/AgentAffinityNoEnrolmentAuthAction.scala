@@ -41,7 +41,7 @@ class AgentAffinityNoEnrolmentAuthActionImpl @Inject()(
           else
             sessionStoreService.fetchAgentSession.flatMap {
               case Some(agentSession) => block(CredentialRequest(creds.providerId, request, agentSession))
-              case None               => routesForApplicationStatuses(subscriptionRootPath).map(Redirect)
+              case None               => routesIfExistingApplication(subscriptionRootPath).map(Redirect)
             }
       }
       .recover {

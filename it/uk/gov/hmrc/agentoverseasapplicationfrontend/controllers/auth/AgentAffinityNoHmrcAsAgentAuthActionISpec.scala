@@ -8,6 +8,7 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.stubs.AgentOverseasApplicati
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.{Accepted, AttemptingRegistration, Complete, Registered}
 
 class AgentAffinityNoHmrcAsAgentAuthActionISpec extends BaseISpec with AgentOverseasApplicationStubs {
 
@@ -79,6 +80,7 @@ class AgentAffinityNoHmrcAsAgentAuthActionISpec extends BaseISpec with AgentOver
         val result = await(testController.withValidApplicant(cleanCredsAgent(FakeRequest())))
 
         redirectLocation(result).get shouldBe routes.StartController.applicationStatus().url
+        isAgentSessionInitialised shouldBe false
       }
 
       "application found with status REJECTED, show appRejected page and initialise AgentSession" in {
@@ -88,6 +90,16 @@ class AgentAffinityNoHmrcAsAgentAuthActionISpec extends BaseISpec with AgentOver
         redirectLocation(result).get shouldBe routes.StartController.applicationStatus().url
         isAgentSessionInitialised shouldBe true
       }
+
+      Seq(Accepted, AttemptingRegistration, Registered, Complete).foreach( status =>
+        s"application found with status: ${status.key}, Redirect to overseas-subscription-frontend" in {
+          given200OverseasRedirectStatusApplication(status.key)
+
+          val result = await(testController.withValidApplicant(cleanCredsAgent(FakeRequest())))
+          redirectLocation(result).get shouldBe "http://localhost:9403/agent-services/apply-from-outside-uk/create-account"
+          isAgentSessionInitialised shouldBe false
+        }
+        )
     }
   }
 
