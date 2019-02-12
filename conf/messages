@@ -80,8 +80,8 @@ error.sautr.invalid=Self Assessment Unique Taxpayer Reference (UTR) must be 10 n
 error.sautr.maxlength=Self Assessment Unique Taxpayer Reference (UTR) must be 10 numbers
 
 error.crn.blank=Enter your company registration number or equivalent
-error.crn.invalid=Company registration number must be 8 numbers, or 2 letters followed by 6 numbers
-error.crn.maxlength=Company registration number must be 8 numbers, or 2 letters followed by 6 numbers
+error.crn.invalid=Company registration number must only include letters a to z, numbers, forward slashes, full stops, hyphens and spaces
+error.crn.maxlength=Company registration number must be 40 characters or less
 
 error.trn.blank=Enter your tax registration number
 error.trn.invalid=Tax registration number must only include letters a to z, numbers and spaces

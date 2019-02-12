@@ -14,7 +14,7 @@ object CommonValidators {
   private val NameRegex = "[a-zA-Z' \\-\\s]+"
   private val MembershipNumberRegex = "[a-zA-Z0-9\\/ \\-\\s]+"
   private val AgentCodeRegex = """^[a-zA-Z0-9]*$"""
-  private val CrnRegex = """^([0-9]{8})|([a-zA-Z]{2}[0-9]{6})$"""
+  private val CrnRegex = "^[A-Za-z0-9 \\-.\\/]*$"
   private val TrnRegex = """^[a-zA-Z0-9 ]*$"""
   private val OverseasAgencyNameRegex = "^[A-Za-z0-9 \\-,.\\/]*"
   private val OverseasAddressRegex = "^[A-Za-z0-9 \\-,.&']*"
@@ -30,7 +30,7 @@ object CommonValidators {
   private val EmailMaxLength = 132
   private val TradingNameMaxLength = 40
   private val AddresslineMaxLength = 35
-  private val CrnMaxLength = 8
+  private val CrnMaxLength = 40
   private val TrnMaxLength = 24
   private val AmlsBodyMaxLength = 100
 
@@ -74,7 +74,7 @@ object CommonValidators {
 
   def addressLine34(lineNumber: Int): Mapping[Option[String]] = optional(addressLine12(lineNumber))
 
-  def companyRegistrationNumber: Mapping[String] = text verifying crnConstraint
+  def companyRegistrationNumber: Mapping[String] = text verifying commonFormConstraint("crn", CrnRegex, CrnMaxLength)
 
   def taxRegistrationNumber: Mapping[String] = text verifying commonFormConstraint("trn", TrnRegex, TrnMaxLength)
 
@@ -157,17 +157,6 @@ object CommonValidators {
         Invalid(ValidationError("error.jobTitle.invalid"))
       case _ if fieldValue.length < JobTitleMinLength || fieldValue.length > JobTitleMaxLength =>
         Invalid(ValidationError("error.jobTitle.length"))
-      case _ => Valid
-    }
-  }
-
-  private val crnConstraint: Constraint[String] = Constraint[String] { fieldValue: String =>
-    Constraints.nonEmpty(fieldValue) match {
-      case _: Invalid => Invalid(ValidationError("error.crn.blank"))
-      case _ if !fieldValue.matches(CrnRegex) =>
-        Invalid(ValidationError("error.crn.invalid"))
-      case _ if fieldValue.length != CrnMaxLength =>
-        Invalid(ValidationError("error.crn.maxlength"))
       case _ => Valid
     }
   }

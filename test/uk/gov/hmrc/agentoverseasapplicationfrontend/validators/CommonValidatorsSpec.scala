@@ -542,6 +542,19 @@ class CommonValidatorsSpec extends UnitSpec with EitherValues {
     s"accept valid CRN" in {
       bind("12345678") shouldBe Right("12345678")
       bind("CN345678") shouldBe Right("CN345678")
+      bind("cn345678") shouldBe Right("cn345678")
+      bind("onlyalpha") shouldBe Right("onlyalpha")
+      bind("A") shouldBe Right("A")
+      bind("1") shouldBe Right("1")
+      bind("A 1") shouldBe Right("A 1")
+      bind("A-1") shouldBe Right("A-1")
+      bind("A/1") shouldBe Right("A/1")
+      bind("A.1") shouldBe Right("A.1")
+    }
+
+    "it is less than or equal to 40 characters" in {
+      val crn = randomString(40)
+      bind(crn) shouldBe Right(crn)
     }
 
     s"give error.crn.blank error when it is empty" in {
@@ -553,28 +566,22 @@ class CommonValidatorsSpec extends UnitSpec with EitherValues {
     }
 
     s"give error.crn.invalid error" when {
-      "it has no-alphanumeric characters" in {
-        bind("VAT*$") should matchPattern {
+      "it has invalid characters" in {
+        bind("BAD*CRN") should matchPattern {
           case Left(List(FormError("testKey", List("error.crn.invalid"), _))) =>
         }
-        bind("VAT**12") should matchPattern {
+        bind("BAD:CRN") should matchPattern {
           case Left(List(FormError("testKey", List("error.crn.invalid"), _))) =>
         }
 
-        bind("VAT**12222") should matchPattern {
+        bind("BAD#CRN") should matchPattern {
           case Left(List(FormError("testKey", List("error.crn.invalid"), _))) =>
         }
       }
 
-      "it has more than 2 letters" in {
-        bind("VAT12345") should matchPattern {
-          case Left(List(FormError("testKey", List("error.crn.invalid"), _))) =>
-        }
-      }
-
-      "it has more than 6 digits" in {
-        bind("VA1234567") should matchPattern {
-          case Left(List(FormError("testKey", List("error.crn.invalid"), _))) =>
+      "it has more than 40 characters" in {
+        bind(randomString(41)) should matchPattern {
+          case Left(List(FormError("testKey", List("error.crn.maxlength"), _))) =>
         }
       }
     }
