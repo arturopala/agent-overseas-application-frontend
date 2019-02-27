@@ -1,6 +1,6 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
-import java.time.{Clock, LocalDate}
+import java.time.{Clock, LocalDateTime}
 
 import play.api.mvc.{Action, AnyContent}
 import play.api.test.FakeRequest
@@ -36,7 +36,7 @@ class StartControllerISpec extends BaseISpec with AgentOverseasApplicationStubs 
 
   "/application-status applicationStatus PENDING status" should {
     "200 display content with application creation date & default 0 days if beyond 28 days from creation date" in {
-      given200OverseasPendingApplication(Some("2018-02-01"))
+      given200OverseasPendingApplication(Some("2018-02-01T15:11:51.729"))
 
       val result = await(controller.applicationStatus(basicRequest(FakeRequest())))
 
@@ -52,7 +52,7 @@ class StartControllerISpec extends BaseISpec with AgentOverseasApplicationStubs 
     }
 
     "200 28 days to review when fresh application" in {
-      given200OverseasPendingApplication(Some(LocalDate.now(Clock.systemUTC()).toString))
+      given200OverseasPendingApplication(Some(LocalDateTime.now(Clock.systemUTC()).toString))
 
       val result = await(controller.applicationStatus(basicRequest(FakeRequest())))
 
@@ -73,8 +73,8 @@ class StartControllerISpec extends BaseISpec with AgentOverseasApplicationStubs 
       given200GetOverseasApplications(true)
       val result = await(controller.applicationStatus(basicRequest(FakeRequest())))
 
-      val stubMatchingTradingName = "Tradingname"
-      val stubMatchingEmail = "email@domain.com"
+      val stubMatchingTradingName = "Testing Agency"
+      val stubMatchingEmail = "test@test.com"
 
       status(result) shouldBe 200
       result should containMessages("statusRejected.title", "statusRejected.heading", "statusRejected.para3")

@@ -2,7 +2,7 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.forms
 
 import play.api.data.Form
 import play.api.data.Forms._
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentCodes
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentCodes, CtAgentCode, SaAgentCode}
 import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
 import uk.gov.hmrc.agentoverseasapplicationfrontend.validators.CommonValidators._
 
@@ -18,16 +18,16 @@ object AgentCodesForm {
       )(
         (hasSa, sa, hasCt, ct) =>
           AgentCodes(
-            sa.filter(_ => hasSa),
-            ct.filter(_ => hasCt)
+            sa.collect { case x if hasSa => SaAgentCode(x) },
+            ct.collect { case x if hasCt => CtAgentCode(x) }
         ))(
         (codes: AgentCodes) =>
           Some(
             (
               codes.selfAssessment.isDefined,
-              codes.selfAssessment,
+              codes.selfAssessment.map(_.value),
               codes.corporationTax.isDefined,
-              codes.corporationTax
+              codes.corporationTax.map(_.value)
             )))
     )
 }

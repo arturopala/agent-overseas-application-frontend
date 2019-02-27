@@ -2,7 +2,7 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.time.{Clock, LocalDate, ZoneOffset}
+import java.time.{Clock, LocalDate, LocalDateTime, ZoneOffset}
 
 import javax.inject.{Inject, Named}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -52,7 +52,7 @@ class StartController @Inject()(
     }
   }
 
-  private def daysUntilApplicationReviewed(applicationCreationDate: LocalDate): Int = {
+  private def daysUntilApplicationReviewed(applicationCreationDate: LocalDateTime): Int = {
     val daysUntilAppReviewed = LocalDate
       .now(Clock.systemUTC())
       .until(applicationCreationDate.plusDays(daysToReviewApplication), ChronoUnit.DAYS)

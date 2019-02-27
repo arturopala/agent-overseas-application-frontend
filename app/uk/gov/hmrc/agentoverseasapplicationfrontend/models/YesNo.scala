@@ -1,28 +1,42 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.models
 
-import play.api.libs.json.Json
+import play.api.libs.json._
 import uk.gov.hmrc.http.BadRequestException
 
 case class RadioConfirm(value: Option[Boolean])
 
-sealed trait YesNo
+sealed trait YesNo {
+  val value: String
+}
 
-case object Yes extends YesNo
-case object No extends YesNo
+case object Yes extends YesNo { override val value = "yes" }
+
+case object No extends YesNo { override val value = "no" }
 
 object YesNo {
   def apply(str: String): YesNo = str.toLowerCase match {
-    case "yes" => Yes
-    case "no"  => No
-    case _     => throw new BadRequestException("Strange form input value")
+    case Yes.value => Yes
+    case No.value  => No
+    case _         => throw new BadRequestException("Strange form input value")
   }
 
   def unapply(answer: YesNo): Option[String] = answer match {
-    case Yes => Some("yes")
-    case No  => Some("no")
+    case Yes => Some(Yes.value)
+    case No  => Some(No.value)
   }
 
-  implicit val formats = Json.format[YesNo]
+  implicit val reads: Reads[YesNo] = new Reads[YesNo] {
+    override def reads(json: JsValue): JsResult[YesNo] =
+      json match {
+        case JsString(Yes.value) => JsSuccess(Yes)
+        case JsString(No.value)  => JsSuccess(No)
+        case invalid             => JsError(s"Invalid YesNo value found: $invalid")
+      }
+  }
+
+  implicit val writes: Writes[YesNo] = new Writes[YesNo] {
+    override def writes(o: YesNo): JsValue = JsString(o.value)
+  }
 
   def apply(radioConfirm: RadioConfirm): YesNo = radioConfirm.value match {
     case Some(true) => Yes

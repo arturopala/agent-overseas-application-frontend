@@ -1,24 +1,32 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.models
 
-import java.time.LocalDate
+import java.time.LocalDateTime
 
-import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.libs.json._
+
+case class MaintainerDetails(reviewedDate: LocalDateTime)
+
+object MaintainerDetails {
+  implicit val format = Json.format[MaintainerDetails]
+}
 
 case class ApplicationEntityDetails(
-  applicationCreationDate: LocalDate,
+  applicationCreationDate: LocalDateTime,
   status: ApplicationStatus,
   tradingName: String,
   businessEmail: String,
-  maintainerReviewedOn: Option[LocalDate])
+  maintainerReviewedOn: Option[LocalDateTime])
 
 object ApplicationEntityDetails {
   implicit val reads: Reads[ApplicationEntityDetails] = {
 
-    ((__ \ "applicationCreationDate").read[LocalDate] and
+    ((__ \ "createdDate").read[LocalDateTime] and
       (__ \ "status").read[ApplicationStatus] and
-      (__ \ "application" \ "businessDetail" \ "tradingName").read[String] and
-      (__ \ "application" \ "contactDetails" \ "businessEmail").read[String] and
-      (__ \ "maintainerReviewedOn").readNullable[LocalDate])(ApplicationEntityDetails.apply _)
+      (__ \ "tradingDetails" \ "tradingName").read[String] and
+      (__ \ "contactDetails" \ "businessEmail").read[String] and
+      (__ \ "maintainerDetails")
+        .readNullable[MaintainerDetails])((createdDate, status, name, email, maintainerDetails) =>
+      ApplicationEntityDetails(createdDate, status, name, email, maintainerDetails.map(_.reviewedDate)))
   }
 }

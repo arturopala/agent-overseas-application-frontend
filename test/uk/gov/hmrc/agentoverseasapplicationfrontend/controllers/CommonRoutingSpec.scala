@@ -1,6 +1,6 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
-import java.time.LocalDate
+import java.time.{LocalDate, LocalDateTime}
 
 import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
@@ -26,7 +26,7 @@ class CommonRoutingSpec extends UnitSpec {
   private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
   private val mainBusinessAddress = MainBusinessAddress("line1", "line2", None, None, "IE")
   private val personalDetails = PersonalDetails(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
-  private val companyRegistrationNumber = CompanyRegistrationNumber(Some(true), Some("123"))
+  private val companyRegistrationNumber = CompanyRegistrationNumber(Some(true), Some(Crn("123")))
 
   private val subscriptionRootPath = "/agent-services/apply-from-outside-uk/create-account"
 
@@ -39,7 +39,7 @@ class CommonRoutingSpec extends UnitSpec {
     )
 
   private val applicationEntityDetails = ApplicationEntityDetails(
-    applicationCreationDate = LocalDate.now(),
+    applicationCreationDate = LocalDateTime.now(),
     status = ApplicationStatus.Pending,
     tradingName = "some name",
     businessEmail = "someemail@example.com",
@@ -223,7 +223,7 @@ class CommonRoutingSpec extends UnitSpec {
       FakeRouting.sessionStoreService.cacheAgentSession(
         detailsUpToRegisteredWithHmrc.copy(
           registeredWithHmrc = Some(Yes),
-          agentCodes = Some(AgentCodes(Some("saCode"), None))
+          agentCodes = Some(AgentCodes(Some(SaAgentCode("saCode")), None))
         )))
 
     await(FakeRouting.lookupNextPage) shouldBe routes.ApplicationController.showCheckYourAnswers()

@@ -27,9 +27,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with BeforeAndAf
   private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
   private val mainBusinessAddress = MainBusinessAddress("line 1", "line 2", None, None, countryCode = "IE")
   private val personalDetails = PersonalDetails(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
-  private val agentCodes = AgentCodes(Some("SA123456"), Some("CT123456"))
+  private val agentCodes = AgentCodes(Some(SaAgentCode("SA123456")), Some(CtAgentCode("CT123456")))
 
-  private val crn = CompanyRegistrationNumber(Some(true), Some("123456"))
+  private val crn = CompanyRegistrationNumber(Some(true), Some(Crn("123456")))
 
   private val agentSession = AgentSession(
     amlsDetails = Some(amlsDetails),
@@ -42,7 +42,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with BeforeAndAf
     personalDetails = Some(personalDetails),
     companyRegistrationNumber = Some(crn),
     hasTaxRegNumbers = Some(true),
-    taxRegistrationNumbers = Some(SortedSet("123", "456")),
+    taxRegistrationNumbers = Some(SortedSet(Trn("123"), Trn("456"))),
     changingAnswers = false
   )
 

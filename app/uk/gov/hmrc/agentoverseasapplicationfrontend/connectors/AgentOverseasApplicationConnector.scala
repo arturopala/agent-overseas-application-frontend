@@ -1,17 +1,14 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.connectors
 
 import java.net.URL
-import java.time.LocalDate
+import java.time.{LocalDateTime, ZoneOffset}
 
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
 import javax.inject.{Inject, Named, Singleton}
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.Rejected
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{ApplicationEntityDetails, ApplicationStatus}
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.CreateApplicationRequest
-import uk.gov.hmrc.http.{HeaderCarrier, HttpPost, HttpResponse}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{ApplicationEntityDetails, ApplicationStatus, CreateApplicationRequest}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpPost, HttpResponse, _}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -24,7 +21,7 @@ class AgentOverseasApplicationConnector @Inject()(
 
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
 
-  implicit val localDateOrdering: Ordering[LocalDate] = Ordering.by(_.toEpochDay)
+  implicit val localDateTimeOrdering: Ordering[LocalDateTime] = Ordering.by(_.toEpochSecond(ZoneOffset.UTC))
 
   val allStatuses = ApplicationStatus.allStatuses.map(status => s"statusIdentifier=${status.key}").mkString("&")
 
@@ -38,20 +35,6 @@ class AgentOverseasApplicationConnector @Inject()(
           case _: NotFoundException => List.empty
           case e                    => throw new RuntimeException(s"Could not retrieve overseas agent application status: ${e.getMessage}")
         }
-    }
-
-  def rejectedApplication(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[ApplicationEntityDetails]] =
-    monitor(s"Agent-Overseas-Application-application-GET") {
-      http
-        .GET[List[ApplicationEntityDetails]](urlGetAllApplications.toString)
-        .map { apps =>
-          if (apps.forall(_.status == Rejected))
-            apps.sortBy(_.maintainerReviewedOn).reverse.headOption
-          else None
-        }
-    }.recover {
-      case _: NotFoundException => None
-      case e                    => throw new RuntimeException(s"Could not retrieve overseas agent application status: ${e.getMessage}")
     }
 
   def createOverseasApplication(request: CreateApplicationRequest)(

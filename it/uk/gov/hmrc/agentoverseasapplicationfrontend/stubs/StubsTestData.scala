@@ -3,465 +3,443 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.stubs
 object StubsTestData {
 
  def pendingApplication(appCreateDate: String) =
-   s"""[
-      |{
-      |    "applicationReference" : {
-      |        "value" : "25eaab89"
-      |    },
-      |    "applicationCreationDate" : "$appCreateDate",
-      |    "application" : {
-      |        "amls" : {
-      |            "supervisoryBody" : "International Association of Bookkeepers (IAB)",
-      |            "supervisionMemberId" : "0987654321"
-      |        },
-      |        "contactDetails" : {
-      |            "firstName" : "Testing",
-      |            "lastName" : "Agent",
-      |            "jobTitle" : "Tester",
-      |            "businessTelephone" : "011565438754",
-      |            "businessEmail" : "test@test.com"
-      |        },
-      |        "businessDetail" : {
-      |            "tradingName" : "Testing Agency",
-      |            "businessAddress" : {
-      |                "addressLine1" : "addressLine1",
-      |                "addressLine2" : "addressLine2",
-      |                "addressLine3" : "addressLine3",
-      |                "addressLine4" : "addressLine4",
-      |                "countryCode" : "TN"
-      |            },
-      |            "extraInfo" : {
-      |                "isUkRegisteredTaxOrNino" : {
-      |                    "str" : "yes"
-      |                },
-      |                "isHmrcAgentRegistered" : {
-      |                    "str" : "yes"
-      |                },
-      |                "saAgentCode" : "KOOH67",
-      |                "regNo" : "regNumber here",
-      |                "utr" : "4000000009",
-      |                "nino" : "AA000000A",
-      |                "taxRegNo" : [
-      |                    "anotherTaxRegNumber here",
-      |                    "taxRegNumber here"
-      |                ]
-      |            }
-      |        }
-      |    },
-      |    "status" : {
-      |        "typeIdentifier" : "pending"
-      |    },
-      |    "relatedAuthProviderIds" : [
-      |        "9865690"
-      |    ]
-      |}
-      |]""".stripMargin
+  s"""|[
+     |  {
+     |    "applicationReference": "25eaab89",
+     |    "createdDate": "$appCreateDate",
+     |    "amls": {
+     |      "supervisoryBody": "International Association of Bookkeepers (IAB)",
+     |      "membershipNumber": "0987654321"
+     |    },
+     |    "contactDetails": {
+     |      "firstName": "Testing",
+     |      "lastName": "Agent",
+     |      "jobTitle": "Tester",
+     |      "businessTelephone": "011565438754",
+     |      "businessEmail": "test@test.com"
+     |    },
+     |    "tradingDetails": {
+     |      "tradingName": "Testing Agency",
+     |      "tradingAddress": {
+     |        "addressLine1": "addressLine1",
+     |        "addressLine2": "addressLine2",
+     |        "addressLine3": "addressLine3",
+     |        "addressLine4": "addressLine4",
+     |        "countryCode": "TN"
+     |      },
+     |      "isUkRegisteredTaxOrNino": "yes",
+     |      "isHmrcAgentRegistered": "yes",
+     |      "saAgentCode": "KOOH67",
+     |      "companyRegistrationNumber": "regNumber here",
+     |      "taxRegistrationNumbers": [
+     |        "anotherTaxRegNumber here",
+     |        "taxRegNumber here"
+     |      ]
+     |    },
+     |    "personalDetails": {
+     |      "saUtr": "4000000009",
+     |      "nino": "AA000000A"
+     |    },
+     |    "status": "pending",
+     |    "authProviderIds": [
+     |      "9865690"
+     |    ]
+     |  }
+     |]
+   """.stripMargin
 
 
  def acceptedApplication =
-  s"""[
-     |{
-     |    "applicationReference" : {
-     |        "value" : "25eaab89"
+  s"""|[
+     |  {
+     |    "applicationReference": "25eaab89",
+     |    "createdDate": "2019-02-18T15:11:51.729",
+     |    "amls": {
+     |      "supervisoryBody": "International Association of Bookkeepers (IAB)",
+     |      "membershipNumber": "0987654321"
      |    },
-     |    "applicationCreationDate" : "2019-02-20",
-     |    "application" : {
-     |        "amls" : {
-     |            "supervisoryBody" : "International Association of Bookkeepers (IAB)",
-     |            "supervisionMemberId" : "0987654321"
-     |        },
-     |        "contactDetails" : {
-     |            "firstName" : "Testing",
-     |            "lastName" : "Agent",
-     |            "jobTitle" : "Tester",
-     |            "businessTelephone" : "011565438754",
-     |            "businessEmail" : "test@test.com"
-     |        },
-     |        "businessDetail" : {
-     |            "tradingName" : "Testing Agency",
-     |            "businessAddress" : {
-     |                "addressLine1" : "addressLine1",
-     |                "addressLine2" : "addressLine2",
-     |                "addressLine3" : "addressLine3",
-     |                "addressLine4" : "addressLine4",
-     |                "countryCode" : "TN"
-     |            },
-     |            "extraInfo" : {
-     |                "isUkRegisteredTaxOrNino" : {
-     |                    "str" : "yes"
-     |                },
-     |                "isHmrcAgentRegistered" : {
-     |                    "str" : "yes"
-     |                },
-     |                "saAgentCode" : "KOOH67",
-     |                "regNo" : "regNumber here",
-     |                "utr" : "4000000009",
-     |                "nino" : "AA000000A",
-     |                "taxRegNo" : [
-     |                    "anotherTaxRegNumber here",
-     |                    "taxRegNumber here"
-     |                ]
-     |            }
-     |        }
+     |    "contactDetails": {
+     |      "firstName": "Testing",
+     |      "lastName": "Agent",
+     |      "jobTitle": "Tester",
+     |      "businessTelephone": "011565438754",
+     |      "businessEmail": "test@test.com"
      |    },
-     |    "status" : {
-     |        "typeIdentifier" : "accepted"
+     |    "tradingDetails": {
+     |      "tradingName": "Testing Agency",
+     |      "tradingAddress": {
+     |        "addressLine1": "addressLine1",
+     |        "addressLine2": "addressLine2",
+     |        "addressLine3": "addressLine3",
+     |        "addressLine4": "addressLine4",
+     |        "countryCode": "TN"
+     |      },
+     |      "isUkRegisteredTaxOrNino": "yes",
+     |      "isHmrcAgentRegistered": "yes",
+     |      "saAgentCode": "KOOH67",
+     |      "companyRegistrationNumber": "regNumber here",
+     |      "taxRegistrationNumbers": [
+     |        "anotherTaxRegNumber here",
+     |        "taxRegNumber here"
+     |      ]
      |    },
-     |    "relatedAuthProviderIds" : [
-     |        "9865690"
+     |    "personalDetails": {
+     |      "saUtr": "4000000009",
+     |      "nino": "AA000000A"
+     |    },
+     |    "status": "accepted",
+     |    "authProviderIds": [
+     |      "9865690"
      |    ],
-     |    "maintainerReviewedOn" : "2019-02-18",
-     |    "reviewerPid" : "ID53421"
-     |}
-     |]""".stripMargin
+     |    "maintainerDetails": {
+     |      "reviewedDate": "2019-02-20T10:35:21.65",
+     |      "reviewerPid": "PID"
+     |    }
+     |  }
+     |]
+   """.stripMargin
 
  def applicationInRedirectStatus(redirectStatus: String) =
-  s"""[
-     |{
-     |    "applicationReference" : {
-     |        "value" : "25eaab89"
-     |    },
-     |    "applicationCreationDate" : "2019-02-20",
-     |    "application" : {
-     |        "amls" : {
-     |            "supervisoryBody" : "International Association of Bookkeepers (IAB)",
-     |            "supervisionMemberId" : "0987654321"
-     |        },
-     |        "contactDetails" : {
-     |            "firstName" : "Testing",
-     |            "lastName" : "Agent",
-     |            "jobTitle" : "Tester",
-     |            "businessTelephone" : "011565438754",
-     |            "businessEmail" : "test@test.com"
-     |        },
-     |        "businessDetail" : {
-     |            "tradingName" : "Testing Agency",
-     |            "businessAddress" : {
-     |                "addressLine1" : "addressLine1",
-     |                "addressLine2" : "addressLine2",
-     |                "addressLine3" : "addressLine3",
-     |                "addressLine4" : "addressLine4",
-     |                "countryCode" : "TN"
-     |            },
-     |            "extraInfo" : {
-     |                "isUkRegisteredTaxOrNino" : {
-     |                    "str" : "yes"
-     |                },
-     |                "isHmrcAgentRegistered" : {
-     |                    "str" : "yes"
-     |                },
-     |                "saAgentCode" : "KOOH67",
-     |                "regNo" : "regNumber here",
-     |                "utr" : "4000000009",
-     |                "nino" : "AA000000A",
-     |                "taxRegNo" : [
-     |                    "anotherTaxRegNumber here",
-     |                    "taxRegNumber here"
-     |                ]
-     |            }
-     |        }
-     |    },
-     |    "status" : {
-     |        "typeIdentifier" : "$redirectStatus"
-     |    },
-     |    "relatedAuthProviderIds" : [
-     |        "9865690"
-     |    ],
-     |    "maintainerReviewedOn" : "2019-02-18",
-     |    "reviewerPid" : "ID53421"
-     |}
-     |]""".stripMargin
+  s"""|[
+      |  {
+      |    "applicationReference": "25eaab89",
+      |    "createdDate": "2019-02-20T15:11:51.729",
+      |    "amls": {
+      |      "supervisoryBody": "International Association of Bookkeepers (IAB)",
+      |      "membershipNumber": "0987654321"
+      |    },
+      |    "contactDetails": {
+      |      "firstName": "Testing",
+      |      "lastName": "Agent",
+      |      "jobTitle": "Tester",
+      |      "businessTelephone": "011565438754",
+      |      "businessEmail": "test@test.com"
+      |    },
+      |    "tradingDetails": {
+      |      "tradingName": "Testing Agency",
+      |      "tradingAddress": {
+      |        "addressLine1": "addressLine1",
+      |        "addressLine2": "addressLine2",
+      |        "addressLine3": "addressLine3",
+      |        "addressLine4": "addressLine4",
+      |        "countryCode": "TN"
+      |      },
+      |      "isUkRegisteredTaxOrNino": "yes",
+      |      "isHmrcAgentRegistered": "yes",
+      |      "saAgentCode": "KOOH67",
+      |      "companyRegistrationNumber": "regNumber here",
+      |      "taxRegistrationNumbers": [
+      |        "anotherTaxRegNumber here",
+      |        "taxRegNumber here"
+      |      ]
+      |    },
+      |    "personalDetails": {
+      |      "saUtr": "4000000009",
+      |      "nino": "AA000000A"
+      |    },
+      |    "status": "$redirectStatus",
+      |    "authProviderIds": [
+      |      "9865690"
+      |    ],
+      |    "maintainerDetails": {
+      |      "reviewedDate": "2019-02-20T10:35:21.65",
+      |      "reviewerPid": "PID"
+      |    }
+      |  }
+      |]
+   """.stripMargin
 
 
  def allRejected =
-  """[
-    |    {
-    |        "applicationReference": {
-    |            "value": "8c61f8dc"
-    |        },
-    |        "applicationCreationDate": "2019-01-15",
-    |        "application": {
-    |            "amls": {
-    |                "supervisoryBody": "Association of Chartered Certified Accountants (ACCA)",
-    |                "supervisionMemberId": "1662309"
-    |            },
-    |            "contactDetails": {
-    |                "firstName": "Firstname",
-    |                "lastName": "Lastname",
-    |                "jobTitle": "Jobtitle",
-    |                "businessTelephone": "000-0000",
-    |                "businessEmail": "email@domain.com"
-    |            },
-    |            "businessDetail": {
-    |                "tradingName": "Tradingname",
-    |                "businessAddress": {
-    |                    "addressLine1": "Somestreet",
-    |                    "addressLine2": "Somewhere",
-    |                    "countryCode": "USA"
-    |                },
-    |                "extraInfo": {
-    |                    "isUkRegisteredTaxOrNino": {
-    |                        "str": "no"
-    |                    },
-    |                    "isHmrcAgentRegistered": {
-    |                        "str": "no"
-    |                    }
-    |                }
-    |            }
-    |        },
-    |        "status": {
-    |            "typeIdentifier": "rejected"
-    |        },
-    |        "relatedAuthProviderIds": [
-    |            "newuser"
-    |        ],
-    |        "maintainerReviewedOn": "2019-01-15",
-    |        "reviewerPid": "test StrideId",
-    |        "rejectedBecause": [
-    |            {
-    |                "rejectReason": "test reason"
-    |            }
-    |        ]
-    |    },
-    |
-    |    {
-    |        "applicationReference": {
-    |            "value": "8c61f8dc"
-    |        },
-    |        "applicationCreationDate": "2019-01-08",
-    |        "application": {
-    |            "amls": {
-    |                "supervisoryBody": "Association of Chartered Certified Accountants (ACCA)",
-    |                "supervisionMemberId": "1662309"
-    |            },
-    |            "contactDetails": {
-    |                "firstName": "Firstname",
-    |                "lastName": "Lastname",
-    |                "jobTitle": "Jobtitle",
-    |                "businessTelephone": "000-0000",
-    |                "businessEmail": "email@domain.com"
-    |            },
-    |            "businessDetail": {
-    |                "tradingName": "Tradingname",
-    |                "businessAddress": {
-    |                    "addressLine1": "Somestreet",
-    |                    "addressLine2": "Somewhere",
-    |                    "countryCode": "USA"
-    |                },
-    |                "extraInfo": {
-    |                    "isUkRegisteredTaxOrNino": {
-    |                        "str": "no"
-    |                    },
-    |                    "isHmrcAgentRegistered": {
-    |                        "str": "no"
-    |                    }
-    |                }
-    |            }
-    |        },
-    |        "status": {
-    |            "typeIdentifier": "rejected"
-    |        },
-    |        "relatedAuthProviderIds": [
-    |            "newuser"
-    |        ],
-    |        "maintainerReviewedOn": "2019-01-08",
-    |        "reviewerPid": "test StrideId",
-    |        "rejectedBecause": [
-    |            {
-    |                "rejectReason": "test reason"
-    |            }
-    |        ]
-    |    },
-    |     {
-    |        "applicationReference": {
-    |            "value": "8c61f8dc"
-    |        },
-    |        "applicationCreationDate": "2019-01-21",
-    |        "application": {
-    |            "amls": {
-    |                "supervisoryBody": "Association of Chartered Certified Accountants (ACCA)",
-    |                "supervisionMemberId": "1662309"
-    |            },
-    |            "contactDetails": {
-    |                "firstName": "Firstname",
-    |                "lastName": "Lastname",
-    |                "jobTitle": "Jobtitle",
-    |                "businessTelephone": "000-0000",
-    |                "businessEmail": "email@domain.com"
-    |            },
-    |            "businessDetail": {
-    |                "tradingName": "Tradingname",
-    |                "businessAddress": {
-    |                    "addressLine1": "Somestreet",
-    |                    "addressLine2": "Somewhere",
-    |                    "countryCode": "USA"
-    |                },
-    |                "extraInfo": {
-    |                    "isUkRegisteredTaxOrNino": {
-    |                        "str": "no"
-    |                    },
-    |                    "isHmrcAgentRegistered": {
-    |                        "str": "no"
-    |                    }
-    |                }
-    |            }
-    |        },
-    |        "status": {
-    |            "typeIdentifier": "rejected"
-    |        },
-    |        "relatedAuthProviderIds": [
-    |            "newuser"
-    |        ],
-    |        "maintainerReviewedOn": "2019-01-22",
-    |        "reviewerPid": "test StrideId",
-    |        "rejectedBecause": [
-    |            {
-    |                "rejectReason": "test reason"
-    |            }
-    |        ]
-    |    }
-    |]""".stripMargin
+  s"""|[
+     |  {
+     |    "applicationReference": "25eaab89",
+     |    "createdDate": "2019-02-20T15:11:51.729",
+     |    "amls": {
+     |      "supervisoryBody": "International Association of Bookkeepers (IAB)",
+     |      "membershipNumber": "0987654321"
+     |    },
+     |    "contactDetails": {
+     |      "firstName": "Testing",
+     |      "lastName": "Agent",
+     |      "jobTitle": "Tester",
+     |      "businessTelephone": "011565438754",
+     |      "businessEmail": "test@test.com"
+     |    },
+     |    "tradingDetails": {
+     |      "tradingName": "Testing Agency",
+     |      "tradingAddress": {
+     |        "addressLine1": "addressLine1",
+     |        "addressLine2": "addressLine2",
+     |        "addressLine3": "addressLine3",
+     |        "addressLine4": "addressLine4",
+     |        "countryCode": "TN"
+     |      },
+     |      "isUkRegisteredTaxOrNino": "yes",
+     |      "isHmrcAgentRegistered": "yes",
+     |      "saAgentCode": "KOOH67",
+     |      "companyRegistrationNumber": "regNumber here",
+     |      "taxRegistrationNumbers": [
+     |        "anotherTaxRegNumber here",
+     |        "taxRegNumber here"
+     |      ]
+     |    },
+     |    "personalDetails": {
+     |      "saUtr": "4000000009",
+     |      "nino": "AA000000A"
+     |    },
+     |    "status": "rejected",
+     |    "authProviderIds": [
+     |      "9865690"
+     |    ],
+     |    "maintainerDetails": {
+     |      "reviewedDate": "2019-02-21T10:35:21.65",
+     |      "reviewerPid": "PID",
+     |      "rejectReasons": [
+     |        "rejected reason"
+     |      ]
+     |    }
+     |  },
+     |  {
+     |    "applicationReference": "25eaab89",
+     |    "createdDate": "2019-02-20T15:11:51.729",
+     |    "amls": {
+     |      "supervisoryBody": "International Association of Bookkeepers (IAB)",
+     |      "membershipNumber": "0987654321"
+     |    },
+     |    "contactDetails": {
+     |      "firstName": "Testing",
+     |      "lastName": "Agent",
+     |      "jobTitle": "Tester",
+     |      "businessTelephone": "011565438754",
+     |      "businessEmail": "test@test.com"
+     |    },
+     |    "tradingDetails": {
+     |      "tradingName": "Testing Agency",
+     |      "tradingAddress": {
+     |        "addressLine1": "addressLine1",
+     |        "addressLine2": "addressLine2",
+     |        "addressLine3": "addressLine3",
+     |        "addressLine4": "addressLine4",
+     |        "countryCode": "TN"
+     |      },
+     |      "isUkRegisteredTaxOrNino": "yes",
+     |      "isHmrcAgentRegistered": "yes",
+     |      "saAgentCode": "KOOH67",
+     |      "companyRegistrationNumber": "regNumber here",
+     |      "taxRegistrationNumbers": [
+     |        "anotherTaxRegNumber here",
+     |        "taxRegNumber here"
+     |      ]
+     |    },
+     |    "personalDetails": {
+     |      "saUtr": "4000000009",
+     |      "nino": "AA000000A"
+     |    },
+     |    "status": "rejected",
+     |    "authProviderIds": [
+     |      "9865690"
+     |    ],
+     |    "maintainerDetails": {
+     |      "reviewedDate": "2019-02-20T10:35:21.65",
+     |      "reviewerPid": "PID",
+     |      "rejectReasons": [
+     |        "rejected reason"
+     |      ]
+     |    }
+     |  },
+     |  {
+     |    "applicationReference": "25eaab89",
+     |    "createdDate": "2019-02-20T15:11:51.729",
+     |    "amls": {
+     |      "supervisoryBody": "International Association of Bookkeepers (IAB)",
+     |      "membershipNumber": "0987654321"
+     |    },
+     |    "contactDetails": {
+     |      "firstName": "Testing",
+     |      "lastName": "Agent",
+     |      "jobTitle": "Tester",
+     |      "businessTelephone": "011565438754",
+     |      "businessEmail": "test@test.com"
+     |    },
+     |    "tradingDetails": {
+     |      "tradingName": "Testing Agency",
+     |      "tradingAddress": {
+     |        "addressLine1": "addressLine1",
+     |        "addressLine2": "addressLine2",
+     |        "addressLine3": "addressLine3",
+     |        "addressLine4": "addressLine4",
+     |        "countryCode": "TN"
+     |      },
+     |      "isUkRegisteredTaxOrNino": "yes",
+     |      "isHmrcAgentRegistered": "yes",
+     |      "saAgentCode": "KOOH67",
+     |      "companyRegistrationNumber": "regNumber here",
+     |      "taxRegistrationNumbers": [
+     |        "anotherTaxRegNumber here",
+     |        "taxRegNumber here"
+     |      ]
+     |    },
+     |    "personalDetails": {
+     |      "saUtr": "4000000009",
+     |      "nino": "AA000000A"
+     |    },
+     |    "status": "rejected",
+     |    "authProviderIds": [
+     |      "9865690"
+     |    ],
+     |    "maintainerDetails": {
+     |      "reviewedDate": "2019-02-20T10:35:21.65",
+     |      "reviewerPid": "PID",
+     |      "rejectReasons": [
+     |        "rejected reason"
+     |      ]
+     |    }
+     |  }
+     |]
+   """.stripMargin
 
  def notAllRejected =
+  s"""[
+     |  {
+     |    "applicationReference": "25eaab89",
+     |    "createdDate": "2019-02-20T15:11:51.729",
+     |    "amls": {
+     |      "supervisoryBody": "International Association of Bookkeepers (IAB)",
+     |      "membershipNumber": "0987654321"
+     |    },
+     |    "contactDetails": {
+     |      "firstName": "Testing",
+     |      "lastName": "Agent",
+     |      "jobTitle": "Tester",
+     |      "businessTelephone": "011565438754",
+     |      "businessEmail": "test@test.com"
+     |    },
+     |    "tradingDetails": {
+     |      "tradingName": "Testing Agency",
+     |      "tradingAddress": {
+     |        "addressLine1": "addressLine1",
+     |        "addressLine2": "addressLine2",
+     |        "addressLine3": "addressLine3",
+     |        "addressLine4": "addressLine4",
+     |        "countryCode": "TN"
+     |      },
+     |      "isUkRegisteredTaxOrNino": "yes",
+     |      "isHmrcAgentRegistered": "yes",
+     |      "saAgentCode": "KOOH67",
+     |      "companyRegistrationNumber": "regNumber here",
+     |      "taxRegistrationNumbers": [
+     |        "anotherTaxRegNumber here",
+     |        "taxRegNumber here"
+     |      ]
+     |    },
+     |    "personalDetails": {
+     |      "saUtr": "4000000009",
+     |      "nino": "AA000000A"
+     |    },
+     |    "status": "pending",
+     |    "authProviderIds": [
+     |      "9865690"
+     |    ]
+     |  },
+     |  {
+     |    "applicationReference": "25eaab89",
+     |    "createdDate": "2019-02-15T15:11:51.729",
+     |    "amls": {
+     |      "supervisoryBody": "International Association of Bookkeepers (IAB)",
+     |      "membershipNumber": "0987654321"
+     |    },
+     |    "contactDetails": {
+     |      "firstName": "Testing",
+     |      "lastName": "Agent",
+     |      "jobTitle": "Tester",
+     |      "businessTelephone": "011565438754",
+     |      "businessEmail": "test@test.com"
+     |    },
+     |    "tradingDetails": {
+     |      "tradingName": "Testing Agency",
+     |      "tradingAddress": {
+     |        "addressLine1": "addressLine1",
+     |        "addressLine2": "addressLine2",
+     |        "addressLine3": "addressLine3",
+     |        "addressLine4": "addressLine4",
+     |        "countryCode": "TN"
+     |      },
+     |      "isUkRegisteredTaxOrNino": "yes",
+     |      "isHmrcAgentRegistered": "yes",
+     |      "saAgentCode": "KOOH67",
+     |      "companyRegistrationNumber": "regNumber here",
+     |      "taxRegistrationNumbers": [
+     |        "anotherTaxRegNumber here",
+     |        "taxRegNumber here"
+     |      ]
+     |    },
+     |    "personalDetails": {
+     |      "saUtr": "4000000009",
+     |      "nino": "AA000000A"
+     |    },
+     |    "status": "rejected",
+     |    "authProviderIds": [
+     |      "9865690"
+     |    ],
+     |    "maintainerDetails": {
+     |      "reviewedDate": "2019-02-20T10:35:21.65",
+     |      "reviewerPid": "PID",
+     |      "rejectReasons": [
+     |        "rejected reason"
+     |      ]
+     |    }
+     |  },
+     |  {
+     |    "applicationReference": "25eaab89",
+     |    "createdDate": "2019-01-15T15:11:51.729",
+     |    "amls": {
+     |      "supervisoryBody": "International Association of Bookkeepers (IAB)",
+     |      "membershipNumber": "0987654321"
+     |    },
+     |    "contactDetails": {
+     |      "firstName": "Testing",
+     |      "lastName": "Agent",
+     |      "jobTitle": "Tester",
+     |      "businessTelephone": "011565438754",
+     |      "businessEmail": "test@test.com"
+     |    },
+     |    "tradingDetails": {
+     |      "tradingName": "Testing Agency",
+     |      "tradingAddress": {
+     |        "addressLine1": "addressLine1",
+     |        "addressLine2": "addressLine2",
+     |        "addressLine3": "addressLine3",
+     |        "addressLine4": "addressLine4",
+     |        "countryCode": "TN"
+     |      },
+     |      "isUkRegisteredTaxOrNino": "yes",
+     |      "isHmrcAgentRegistered": "yes",
+     |      "saAgentCode": "KOOH67",
+     |      "companyRegistrationNumber": "regNumber here",
+     |      "taxRegistrationNumbers": [
+     |        "anotherTaxRegNumber here",
+     |        "taxRegNumber here"
+     |      ]
+     |    },
+     |    "personalDetails": {
+     |      "saUtr": "4000000009",
+     |      "nino": "AA000000A"
+     |    },
+     |    "status": "rejected",
+     |    "authProviderIds": [
+     |      "9865690"
+     |    ],
+     |    "maintainerDetails": {
+     |      "reviewedDate": "2019-02-20T10:35:21.65",
+     |      "reviewerPid": "PID",
+     |      "rejectReasons": [
+     |        "rejected reason"
+     |      ]
+     |    }
+     |  }
+     |]
+   """.stripMargin
 
-  """[
-    |    {
-    |        "applicationReference": {
-    |            "value": "8c61f8dc"
-    |        },
-    |        "applicationCreationDate": "2019-01-22",
-    |        "application": {
-    |            "amls": {
-    |                "supervisoryBody": "Association of Chartered Certified Accountants (ACCA)",
-    |                "supervisionMemberId": "1662309"
-    |            },
-    |            "contactDetails": {
-    |                "firstName": "Firstname",
-    |                "lastName": "Lastname",
-    |                "jobTitle": "Jobtitle",
-    |                "businessTelephone": "000-0000",
-    |                "businessEmail": "email@domain.com"
-    |            },
-    |            "businessDetail": {
-    |                "tradingName": "Tradingname",
-    |                "businessAddress": {
-    |                    "addressLine1": "Somestreet",
-    |                    "addressLine2": "Somewhere",
-    |                    "countryCode": "USA"
-    |                },
-    |                "extraInfo": {
-    |                    "isUkRegisteredTaxOrNino": {
-    |                        "str": "no"
-    |                    },
-    |                    "isHmrcAgentRegistered": {
-    |                        "str": "no"
-    |                    }
-    |                }
-    |            }
-    |        },
-    |        "status": {
-    |            "typeIdentifier": "pending"
-    |        },
-    |        "relatedAuthProviderIds": [
-    |            "newuser"
-    |        ]
-    |    },
-    |    {
-    |        "applicationReference": {
-    |            "value": "8c61f8dc"
-    |        },
-    |        "applicationCreationDate": "2019-01-15",
-    |        "application": {
-    |            "amls": {
-    |                "supervisoryBody": "Association of Chartered Certified Accountants (ACCA)",
-    |                "supervisionMemberId": "1662309"
-    |            },
-    |            "contactDetails": {
-    |                "firstName": "Firstname",
-    |                "lastName": "Lastname",
-    |                "jobTitle": "Jobtitle",
-    |                "businessTelephone": "000-0000",
-    |                "businessEmail": "email@domain.com"
-    |            },
-    |            "businessDetail": {
-    |                "tradingName": "Tradingname",
-    |                "businessAddress": {
-    |                    "addressLine1": "Somestreet",
-    |                    "addressLine2": "Somewhere",
-    |                    "countryCode": "USA"
-    |                },
-    |                "extraInfo": {
-    |                    "isUkRegisteredTaxOrNino": {
-    |                        "str": "no"
-    |                    },
-    |                    "isHmrcAgentRegistered": {
-    |                        "str": "no"
-    |                    }
-    |                }
-    |            }
-    |        },
-    |        "status": {
-    |            "typeIdentifier": "rejected"
-    |        },
-    |        "relatedAuthProviderIds": [
-    |            "newuser"
-    |        ],
-    |        "maintainerReviewedOn": "2019-01-15",
-    |        "reviewerPid": "test StrideId",
-    |        "rejectedBecause": [
-    |            {
-    |                "rejectReason": "test reason"
-    |            }
-    |        ]
-    |    },
-    |             {
-    |        "applicationReference": {
-    |            "value": "8c61f8dc"
-    |        },
-    |        "applicationCreationDate": "2019-01-08",
-    |        "application": {
-    |            "amls": {
-    |                "supervisoryBody": "Association of Chartered Certified Accountants (ACCA)",
-    |                "supervisionMemberId": "1662309"
-    |            },
-    |            "contactDetails": {
-    |                "firstName": "Firstname",
-    |                "lastName": "Lastname",
-    |                "jobTitle": "Jobtitle",
-    |                "businessTelephone": "000-0000",
-    |                "businessEmail": "email@domain.com"
-    |            },
-    |            "businessDetail": {
-    |                "tradingName": "Tradingname",
-    |                "businessAddress": {
-    |                    "addressLine1": "Somestreet",
-    |                    "addressLine2": "Somewhere",
-    |                    "countryCode": "USA"
-    |                },
-    |                "extraInfo": {
-    |                    "isUkRegisteredTaxOrNino": {
-    |                        "str": "no"
-    |                    },
-    |                    "isHmrcAgentRegistered": {
-    |                        "str": "no"
-    |                    }
-    |                }
-    |            }
-    |        },
-    |        "status": {
-    |            "typeIdentifier": "rejected"
-    |        },
-    |        "relatedAuthProviderIds": [
-    |            "newuser"
-    |        ],
-    |        "maintainerReviewedOn": "2019-01-22",
-    |        "reviewerPid": "test StrideId",
-    |        "rejectedBecause": [
-    |            {
-    |                "rejectReason": "test reason"
-    |            }
-    |        ]
-    |    }
-    |]""".stripMargin
 
 }

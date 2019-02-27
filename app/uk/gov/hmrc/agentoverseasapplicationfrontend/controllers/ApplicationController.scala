@@ -384,7 +384,7 @@ class ApplicationController @Inject()(
   }
 
   def showTaxRegistrationNumberForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    val storedTrns = request.agentSession.taxRegistrationNumbers.getOrElse(SortedSet.empty[String])
+    val storedTrns = request.agentSession.taxRegistrationNumbers.getOrElse(SortedSet.empty[Trn])
 
     val whichTrnToPopulate = if (storedTrns.size == 1) {
       storedTrns.headOption
@@ -420,8 +420,8 @@ class ApplicationController @Inject()(
         formWithErrors => Ok(add_tax_registration_number(formWithErrors)),
         validForm => {
           val trns = request.agentSession.taxRegistrationNumbers match {
-            case Some(numbers) => numbers + validForm
-            case None          => SortedSet(validForm)
+            case Some(numbers) => numbers + Trn(validForm)
+            case None          => SortedSet(validForm).map(Trn.apply)
           }
           updateSessionAndRedirect(
             request.agentSession.copy(taxRegistrationNumbers = Some(trns)),
@@ -431,11 +431,15 @@ class ApplicationController @Inject()(
   }
 
   def showYourTaxRegNumbersForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    val trns = request.agentSession.taxRegistrationNumbers.getOrElse(SortedSet.empty[String])
+    val trns = request.agentSession.taxRegistrationNumbers.getOrElse(SortedSet.empty[Trn])
     if (request.agentSession.changingAnswers) {
-      Ok(your_tax_registration_numbers(DoYouWantToAddAnotherTrnForm.form, trns, Some(showCheckYourAnswersUrl)))
+      Ok(
+        your_tax_registration_numbers(
+          DoYouWantToAddAnotherTrnForm.form,
+          trns.map(_.value),
+          Some(showCheckYourAnswersUrl)))
     } else {
-      Ok(your_tax_registration_numbers(DoYouWantToAddAnotherTrnForm.form, trns))
+      Ok(your_tax_registration_numbers(DoYouWantToAddAnotherTrnForm.form, trns.map(_.value)))
     }
   }
 
@@ -444,11 +448,11 @@ class ApplicationController @Inject()(
       .bindFromRequest()
       .fold(
         formWithErrors => {
-          val trns = request.agentSession.taxRegistrationNumbers.getOrElse(SortedSet.empty[String])
+          val trns = request.agentSession.taxRegistrationNumbers.getOrElse(SortedSet.empty[Trn])
           if (request.agentSession.changingAnswers) {
-            Ok(your_tax_registration_numbers(formWithErrors, trns, Some(showCheckYourAnswersUrl)))
+            Ok(your_tax_registration_numbers(formWithErrors, trns.map(_.value), Some(showCheckYourAnswersUrl)))
           } else {
-            Ok(your_tax_registration_numbers(formWithErrors, trns))
+            Ok(your_tax_registration_numbers(formWithErrors, trns.map(_.value)))
           }
         },
         validForm => {
@@ -473,7 +477,7 @@ class ApplicationController @Inject()(
           validForm.updated match {
             case Some(updatedTrn) =>
               val updatedSet = request.agentSession.taxRegistrationNumbers
-                .fold[SortedSet[String]](SortedSet.empty)(trns => trns - validForm.original + updatedTrn)
+                .fold[SortedSet[Trn]](SortedSet.empty)(trns => trns - Trn(validForm.original) + Trn(updatedTrn))
 
               updateSessionAndRedirect(
                 request.agentSession.copy(taxRegistrationNumbers = Some(updatedSet)),
@@ -488,7 +492,7 @@ class ApplicationController @Inject()(
   }
 
   def showRemoveTaxRegNumber(trn: String): Action[AnyContent] = validApplicantAction.async { implicit request =>
-    if (request.agentSession.taxRegistrationNumbers.exists(_.contains(trn)))
+    if (request.agentSession.taxRegistrationNumbers.exists(_.contains(Trn(trn))))
       Ok(remove_tax_reg_number(RemoveTrnForm.form, trn))
     else
       Ok(error_template("global.error.404.title", "global.error.404.heading", "global.error.404.message"))
@@ -503,7 +507,7 @@ class ApplicationController @Inject()(
           validForm.value match {
             case Some(true) => {
               val updatedSet = request.agentSession.taxRegistrationNumbers
-                .fold[SortedSet[String]](SortedSet.empty)(trns => trns - trn)
+                .fold[SortedSet[Trn]](SortedSet.empty)(trns => trns - Trn(trn))
 
               val updateSession: AgentSession =
                 if (updatedSet.isEmpty)

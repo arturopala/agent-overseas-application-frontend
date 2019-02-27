@@ -11,12 +11,12 @@ case class CreateApplicationRequest(
   businessAddress: MainBusinessAddress,
   isUkRegisteredTaxOrNino: Option[YesNo],
   isHmrcAgentRegistered: YesNo,
-  saAgentCode: Option[String],
-  ctAgentCode: Option[String],
-  regNo: Option[String],
+  saAgentCode: Option[SaAgentCode],
+  ctAgentCode: Option[CtAgentCode],
+  regNo: Option[Crn],
   utr: Option[SaUtr],
   nino: Option[Nino],
-  taxRegNo: Option[Seq[String]])
+  taxRegNo: Option[Seq[Trn]])
 
 object CreateApplicationRequest {
 
@@ -45,18 +45,18 @@ object CreateApplicationRequest {
 
   implicit val writes: Writes[CreateApplicationRequest] = (
     (__ \ "amls" \ "supervisoryBody").write[String] and
-      (__ \ "amls" \ "supervisionMemberId").write[Option[String]] and
+      (__ \ "amls" \ "membershipNumber").write[Option[String]] and
       (__ \ "contactDetails").write[ContactDetails] and
-      (__ \ "businessDetail" \ "tradingName").write[String] and
-      (__ \ "businessDetail" \ "businessAddress").write[MainBusinessAddress] and
-      (__ \ "businessDetail" \ "extraInfo" \ "isUkRegisteredTaxOrNino").write[Option[YesNo]] and
-      (__ \ "businessDetail" \ "extraInfo" \ "isHmrcAgentRegistered").write[YesNo] and
-      (__ \ "businessDetail" \ "extraInfo" \ "saAgentCode").write[Option[String]] and
-      (__ \ "businessDetail" \ "extraInfo" \ "ctAgentCode").write[Option[String]] and
-      (__ \ "businessDetail" \ "extraInfo" \ "regNo").write[Option[String]] and
-      (__ \ "businessDetail" \ "extraInfo" \ "utr").write[Option[SaUtr]] and
-      (__ \ "businessDetail" \ "extraInfo" \ "nino").write[Option[Nino]] and
-      (__ \ "businessDetail" \ "extraInfo" \ "taxRegNo").write[Option[Seq[String]]]
+      (__ \ "tradingDetails" \ "tradingName").write[String] and
+      (__ \ "tradingDetails" \ "tradingAddress").write[MainBusinessAddress] and
+      (__ \ "tradingDetails" \ "isUkRegisteredTaxOrNino").write[Option[YesNo]] and
+      (__ \ "tradingDetails" \ "isHmrcAgentRegistered").write[YesNo] and
+      (__ \ "tradingDetails" \ "saAgentCode").write[Option[SaAgentCode]] and
+      (__ \ "tradingDetails" \ "ctAgentCode").write[Option[CtAgentCode]] and
+      (__ \ "tradingDetails" \ "companyRegistrationNumber").write[Option[Crn]] and
+      (__ \ "personalDetails" \ "saUtr").write[Option[SaUtr]] and
+      (__ \ "personalDetails" \ "nino").write[Option[Nino]] and
+      (__ \ "tradingDetails" \ "taxRegistrationNumbers").write[Option[Seq[Trn]]]
   ) { request: CreateApplicationRequest =>
     (
       request.amls.supervisoryBody,
@@ -76,18 +76,18 @@ object CreateApplicationRequest {
 
   implicit val reads: Reads[CreateApplicationRequest] = (
     (__ \ "amls" \ "supervisoryBody").read[String] and
-      (__ \ "amls" \ "supervisionMemberId").readNullable[String] and
+      (__ \ "amls" \ "membershipNumber").readNullable[String] and
       (__ \ "contactDetails").read[ContactDetails] and
-      (__ \ "businessDetail" \ "tradingName").read[String] and
-      (__ \ "businessDetail" \ "businessAddress").read[MainBusinessAddress] and
-      (__ \ "businessDetail" \ "extraInfo" \ "isUkRegisteredTaxOrNino").readNullable[YesNo] and
-      (__ \ "businessDetail" \ "extraInfo" \ "isHmrcAgentRegistered").read[YesNo] and
-      (__ \ "businessDetail" \ "extraInfo" \ "saAgentCode").readNullable[String] and
-      (__ \ "businessDetail" \ "extraInfo" \ "ctAgentCode").readNullable[String] and
-      (__ \ "businessDetail" \ "extraInfo" \ "regNo").readNullable[String] and
-      (__ \ "businessDetail" \ "extraInfo" \ "utr").readNullable[SaUtr] and
-      (__ \ "businessDetail" \ "extraInfo" \ "nino").readNullable[Nino] and
-      (__ \ "businessDetail" \ "extraInfo" \ "taxRegNo").readNullable[Seq[String]]
+      (__ \ "tradingDetails" \ "tradingName").read[String] and
+      (__ \ "tradingDetails" \ "tradingAddress").read[MainBusinessAddress] and
+      (__ \ "tradingDetails" \ "isUkRegisteredTaxOrNino").readNullable[YesNo] and
+      (__ \ "tradingDetails" \ "isHmrcAgentRegistered").read[YesNo] and
+      (__ \ "tradingDetails" \ "saAgentCode").readNullable[SaAgentCode] and
+      (__ \ "tradingDetails" \ "ctAgentCode").readNullable[CtAgentCode] and
+      (__ \ "tradingDetails" \ "companyRegistrationNumber").readNullable[Crn] and
+      (__ \ "personalDetails" \ "saUtr").readNullable[SaUtr] and
+      (__ \ "personalDetails" \ "nino").readNullable[Nino] and
+      (__ \ "tradingDetails" \ "taxRegistrationNumbers").readNullable[Seq[Trn]]
     ) ((
       supervisoryBody,
       membershipNumber,

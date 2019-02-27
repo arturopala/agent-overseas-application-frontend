@@ -882,7 +882,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       mainBusinessAddress = Some(mainBusinessAddress),
       registeredWithHmrc = Some(No),
       registeredForUkTax = Some(No),
-      companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some("ABC123")))
+      companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some(Crn("ABC123"))))
     )
 
     "page contains valid information on page the tax-registration-number page with form" in {
@@ -908,7 +908,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
     "if previously answered 'Yes' pre-populate form with 'Yes' and the value provided" in {
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
-      val taxRegNo = "tax_reg_number_123"
+      val taxRegNo = Trn("tax_reg_number_123")
       sessionStoreService.currentSession.agentSession =
         Some(currentApplication.copy(hasTaxRegNumbers = Some(true), taxRegistrationNumbers = Some(SortedSet(taxRegNo))))
 
@@ -920,7 +920,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
       bodyOf(result).contains(
         """<input id="canProvideTaxRegNo_true" type="radio" name="canProvideTaxRegNo" value="true" checked>""") shouldBe true
-      doc.getElementById("canProvideTaxRegNo_true_value").attr("value") shouldBe taxRegNo
+      doc.getElementById("canProvideTaxRegNo_true_value").attr("value") shouldBe taxRegNo.value
     }
 
     "if previously answered 'No' pre-populate form with checked 'No'" in {
@@ -944,14 +944,14 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       mainBusinessAddress = Some(mainBusinessAddress),
       registeredWithHmrc = Some(No),
       registeredForUkTax = Some(No),
-      companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some("ABC123")))
+      companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some(Crn("ABC123"))))
     )
 
     "Provided selected 'Yes' on radioButton with included identifier, submit and redirect to next page /your-tax-registration-number" in {
       sessionStoreService.currentSession.agentSession = Some(currentApplication)
-      val taxRegNo = "someTaxRegNo"
+      val taxRegNo = Trn("someTaxRegNo")
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
-        .withFormUrlEncodedBody("canProvideTaxRegNo" -> "true", "value" -> taxRegNo)
+        .withFormUrlEncodedBody("canProvideTaxRegNo" -> "true", "value" -> taxRegNo.value)
 
       val result = await(controller.submitTaxRegistrationNumber(authenticatedRequest))
 
@@ -1095,7 +1095,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
       result.header.headers(LOCATION) shouldBe routes.ApplicationController.showTaxRegistrationNumberForm().url
       await(sessionStoreService.fetchAgentSession).get.companyRegistrationNumber shouldBe Some(
-        CompanyRegistrationNumber(Some(true), Some("AB123456")))
+        CompanyRegistrationNumber(Some(true), Some(Crn("AB123456"))))
     }
 
     "store choice in session after successful submission and redirect to check-your-answers page if user is changing answers" in {
@@ -1119,7 +1119,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
       val session = await(sessionStoreService.fetchAgentSession).get
 
-      session.companyRegistrationNumber shouldBe Some(CompanyRegistrationNumber(Some(true), Some("AB123456")))
+      session.companyRegistrationNumber shouldBe Some(CompanyRegistrationNumber(Some(true), Some(Crn("AB123456"))))
       session.changingAnswers shouldBe false
     }
 
@@ -1194,14 +1194,14 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
   "POST /add-tax-registration-number" should {
     "submit form and then redirect to your-tax-registration-number page" when {
       "current session has some tax reg. numbers" in {
-        testSubmitAddTaxRegNo(Some(SortedSet("67890")))
+        testSubmitAddTaxRegNo(Some(SortedSet(Trn("67890"))))
       }
       "current session does not have any tax reg numbers" in {
         testSubmitAddTaxRegNo()
       }
     }
 
-    def testSubmitAddTaxRegNo(numbers: Option[SortedSet[String]] = None) = {
+    def testSubmitAddTaxRegNo(numbers: Option[SortedSet[Trn]] = None) = {
       sessionStoreService.currentSession.agentSession = Some(agentSession.copy(taxRegistrationNumbers = numbers))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
@@ -1213,11 +1213,11 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       result.header.headers(LOCATION) shouldBe routes.ApplicationController.showYourTaxRegNumbersForm().url
 
       val taxRegNumbers = await(sessionStoreService.fetchAgentSession).get.taxRegistrationNumbers.get
-      taxRegNumbers should contain("123456")
+      taxRegNumbers should contain(Trn("123456"))
     }
 
     "show validation error when TRN is blank when submitting the form" in {
-      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet.empty[String])))
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet.empty[Trn])))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody("trn" -> "")
@@ -1282,7 +1282,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
     "show existing selection if session already contains choice" in
       new UkTaxRegistrationSetup(
         defaultAgentSession.copy(
-          agentCodes = Some(AgentCodes(Some("saTestCode"), None))
+          agentCodes = Some(AgentCodes(Some(SaAgentCode("saTestCode")), None))
         )) {
         result should containElement(
           id = "self-assessment-checkbox",
@@ -1360,8 +1360,8 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
       session.agentCodes shouldBe Some(
         AgentCodes(
-          Some("SA1234"),
-          Some("123456")
+          Some(SaAgentCode("SA1234")),
+          Some(CtAgentCode("123456"))
         ))
 
       session.changingAnswers shouldBe false
@@ -1414,7 +1414,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
   "GET /your-tax-registration-numbers" should {
     "display the /your-tax-registration-numbers page with DoYouWantToAddAnotherTrn form" in {
       sessionStoreService.currentSession.agentSession =
-        Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet("123"))))
+        Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet(Trn("123")))))
 
       val result = await(controller.showYourTaxRegNumbersForm(cleanCredsAgent(FakeRequest())))
 
@@ -1433,7 +1433,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
     "display the /your-tax-registration-numbers page with /check-your-answers back link if user is changing answers" in {
       sessionStoreService.currentSession.agentSession =
-        Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet("123")), changingAnswers = true))
+        Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet(Trn("123"))), changingAnswers = true))
 
       val result = await(controller.showYourTaxRegNumbersForm(cleanCredsAgent(FakeRequest())))
 
@@ -1514,7 +1514,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
     "submit the form (with original and updated trns populated) and should correctly update the trn stored in the session" in {
       sessionStoreService.currentSession.agentSession =
-        Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet("abc123"))))
+        Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet(Trn("abc123")))))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody("original" -> "abc123", "updated" -> "abc12345")
@@ -1523,7 +1523,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
       status(result) shouldBe 303
       result.header.headers(LOCATION) shouldBe routes.ApplicationController.showYourTaxRegNumbersForm().url
-      sessionStoreService.fetchAgentSession.get.taxRegistrationNumbers shouldBe Some(Set("abc12345"))
+      sessionStoreService.fetchAgentSession.get.taxRegistrationNumbers shouldBe Some(SortedSet(Trn("abc12345")))
     }
 
     "submit form and initially redirect to /update-tax-registration-number again with UpdateTrn form if 'updated' trn field is not set in the form" in {
@@ -1541,7 +1541,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
   "GET remove-tax-registration-number/:trn" should {
     "display the remove-tax-registration-number form" in {
-      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet("abc123"))))
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet(Trn("abc123")))))
 
       val result = await(controller.showRemoveTaxRegNumber("abc123")(cleanCredsAgent(FakeRequest())))
 
@@ -1556,7 +1556,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
     }
 
     "contain back button in the remove-tax-registration-number form" in {
-      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet("abc123"))))
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet(Trn("abc123")))))
 
       val result = await(controller.showRemoveTaxRegNumber("abc123")(cleanCredsAgent(FakeRequest())))
 
@@ -1577,7 +1577,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
     }
 
     "return 404 error page when the remove-tax-registration-number is called without trn" in {
-      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet("abc123"))))
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet(Trn("abc123")))))
 
       val result = await(controller.showRemoveTaxRegNumber("")(cleanCredsAgent(FakeRequest())))
 
@@ -1595,7 +1595,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
     "submit the form and should correctly remove the trn stored in the session & redirect to ask whether user does poses any taxRegNumber" in {
       sessionStoreService.currentSession.agentSession =
-        Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet("abc123"))))
+        Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet(Trn("abc123")))))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody("isRemovingTrn" -> "true", "value" -> "abc123")
@@ -1610,7 +1610,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
     "submit the form and should correctly remove the trn stored in the session" in {
       sessionStoreService.currentSession.agentSession =
-        Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet("abc123", "anotherRegNumber"))))
+        Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet(Trn("abc123"), Trn("anotherRegNumber")))))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody("isRemovingTrn" -> "true", "value" -> "abc123")
@@ -1619,12 +1619,12 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
       status(result) shouldBe 303
       result.header.headers(LOCATION) shouldBe routes.ApplicationController.showYourTaxRegNumbersForm().url
-      sessionStoreService.fetchAgentSession.get.taxRegistrationNumbers shouldBe Some(SortedSet("anotherRegNumber"))
+      sessionStoreService.fetchAgentSession.get.taxRegistrationNumbers shouldBe Some(SortedSet(Trn("anotherRegNumber")))
     }
 
     "redirect to showYourTaxRegNumbersForm page when the choice selected is No and the trn should not be removed" in {
       sessionStoreService.currentSession.agentSession =
-        Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet("abc123"))))
+        Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet(Trn("abc123")))))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody("isRemovingTrn" -> "false", "value" -> "abc123")
@@ -1633,12 +1633,12 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
       status(result) shouldBe 303
       result.header.headers(LOCATION) shouldBe routes.ApplicationController.showYourTaxRegNumbersForm().url
-      sessionStoreService.fetchAgentSession.get.taxRegistrationNumbers shouldBe Some(SortedSet("abc123"))
+      sessionStoreService.fetchAgentSession.get.taxRegistrationNumbers shouldBe Some(SortedSet(Trn("abc123")))
     }
 
     "return validation error when the form is submitted without a choice selection" in {
       sessionStoreService.currentSession.agentSession =
-        Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet("abc123"))))
+        Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet(Trn("abc123")))))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody("isRemovingTrn" -> "", "value" -> "abc123")
@@ -1682,7 +1682,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
             Some("tradingName"),
             Some(mainBusinessAddress),
             registeredWithHmrc = Some(Yes),
-            agentCodes = Some(AgentCodes(Some("selfAssessmentCode"), Some("corporationTaxCode")))))
+            agentCodes = Some(AgentCodes(Some(SaAgentCode("selfAssessmentCode")), Some(CtAgentCode("corporationTaxCode"))))))
 
         val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
 
@@ -1702,7 +1702,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
             registeredForUkTax = Some(No),
             companyRegistrationNumber = Some(CompanyRegistrationNumber(None, None)),
             hasTaxRegNumbers = Some(true),
-            taxRegistrationNumbers = Some(SortedSet("someTaxRegNo"))))
+            taxRegistrationNumbers = Some(SortedSet(Trn("someTaxRegNo")))))
 
         val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
 
@@ -1735,7 +1735,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       "agent codes are available" in {
         val registeredWithHmrc = Some(Yes)
         val agentCodes =
-          AgentCodes(Some("selfAssessmentCode"), Some("corporationTaxCode"))
+          AgentCodes(Some(SaAgentCode("selfAssessmentCode")), Some(CtAgentCode("corporationTaxCode")))
 
         sessionStoreService.currentSession.agentSession = Some(
           AgentSession(
@@ -1816,7 +1816,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
                 Some(agentCodes),
                 registeredForUkTax = Some(Yes),
                 personalDetails = Some(PersonalDetails(Some(SaUtrChoice), None, Some(SaUtr("SA12345")))),
-                companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some("999999"))),
+                companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some(Crn("999999")))),
                 hasTaxRegNumbers = Some(false)))
 
             val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
@@ -1884,9 +1884,9 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
                 Some(agentCodes),
                 registeredForUkTax = Some(Yes),
                 personalDetails = Some(PersonalDetails(Some(SaUtrChoice), None, Some(SaUtr("SA12345")))),
-                companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some("123456"))),
+                companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some(Crn("123456")))),
                 hasTaxRegNumbers = Some(true),
-                taxRegistrationNumbers = Some(SortedSet("TX12345"))))
+                taxRegistrationNumbers = Some(SortedSet(Trn("TX12345")))))
 
             val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
 
@@ -1959,9 +1959,9 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
           registeredWithHmrc,
           registeredForUkTax = Some(Yes),
           personalDetails = Some(personalDetails),
-          companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some("crnCode"))),
+          companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some(Crn("crnCode")))),
           hasTaxRegNumbers = Some(true),
-          taxRegistrationNumbers = Some(SortedSet("trn1", "trn2"))
+          taxRegistrationNumbers = Some(SortedSet(Trn("trn1"), Trn("trn2")))
         ))
 
       val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
@@ -1996,7 +1996,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
     def initialTestSetup = {
       val registeredWithHmrc = Some(Yes)
       val agentCodes =
-        AgentCodes(Some("selfAssessmentCode"), Some("corporationTaxCode"))
+        AgentCodes(Some(SaAgentCode("selfAssessmentCode")), Some(CtAgentCode("corporationTaxCode")))
 
       val agentSession =  AgentSession(
         amlsDetails = Some(amlsDetails),

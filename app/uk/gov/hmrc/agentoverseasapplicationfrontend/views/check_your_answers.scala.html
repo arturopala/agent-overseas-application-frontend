@@ -47,7 +47,7 @@
 
     @agentSession.companyRegistrationNumber.map(_.registrationNumber).map { crn =>
         @if(crn.nonEmpty) {
-            @check_answers_div(Messages("checkAnswers.companyRegistrationNumber.title"), crn.get, "companyRegNo", routes.ChangingAnswersController.changeCompanyRegistrationNumber())
+            @check_answers_div(Messages("checkAnswers.companyRegistrationNumber.title"), crn.get.value, "companyRegNo", routes.ChangingAnswersController.changeCompanyRegistrationNumber())
         } else {
             @check_answers_div(Messages("checkAnswers.companyRegistrationNumber.title"), Messages("checkAnswers.companyRegistrationNumber.empty"), "companyRegNo",
             routes.ChangingAnswersController.changeCompanyRegistrationNumber())
@@ -61,7 +61,7 @@
         case Some(trns) if trns.nonEmpty => {
             @check_answers_div(
                 Messages("checkAnswers.taxRegistrationNumbers.title"),
-                Html(agentSession.taxRegistrationNumbers.getOrElse(SortedSet.empty[String]).mkString("<br>")),
+                Html(agentSession.taxRegistrationNumbers.map(_.map(_.value)).getOrElse(SortedSet.empty[String]).mkString("<br>")),
               "taxRegistrationNumbersTitle",
                 routes.ChangingAnswersController.changeYourTaxRegistrationNumbers())
             
@@ -246,12 +246,12 @@
                 </script>
                 @if(isRegistered == Yes && agentSession.agentCodes.map(_.hasOneOrMoreCodes).contains(true)) {
                     @agentSession.agentCodes.flatMap(_.selfAssessment).map { sa =>
-                        @check_answers_div(Messages("checkAnswers.agentCode.selfAssessment"), sa, "sa", routes.ChangingAnswersController.changeAgentCodes())
+                        @check_answers_div(Messages("checkAnswers.agentCode.selfAssessment"), sa.value, "sa", routes.ChangingAnswersController.changeAgentCodes())
                         <script>gaSendEvent('check-answers-sa')</script>
                     }
 
                     @agentSession.agentCodes.flatMap(_.corporationTax).map { ct =>
-                        @check_answers_div(Messages("checkAnswers.agentCode.corporationTax"), ct, "ct", routes.ChangingAnswersController.changeAgentCodes())
+                        @check_answers_div(Messages("checkAnswers.agentCode.corporationTax"), ct.value, "ct", routes.ChangingAnswersController.changeAgentCodes())
                         <script>gaSendEvent('check-answers-ct')</script>
                     }
                 }

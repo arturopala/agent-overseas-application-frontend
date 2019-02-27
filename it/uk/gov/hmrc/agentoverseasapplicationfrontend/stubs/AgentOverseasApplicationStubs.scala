@@ -15,11 +15,10 @@ trait AgentOverseasApplicationStubs {
   }
 
   val defaultRequestBody =
-    s"""
-       |{
+    s"""|{
        |  "amls": {
        |    "supervisoryBody": "Association of AccountingTechnicians (AAT)",
-       |    "supervisionMemberId": "12121"
+       |    "membershipNumber": "12121"
        |  },
        |  "contactDetails": {
        |    "firstName": "Bob",
@@ -28,35 +27,33 @@ trait AgentOverseasApplicationStubs {
        |    "businessTelephone": "123456789",
        |    "businessEmail": "test@example.com"
        |  },
-       |  "businessDetail": {
+       |  "tradingDetails": {
        |    "tradingName": "Some business trading Name",
-       |    "businessAddress": {
+       |    "tradingAddress": {
        |      "addressLine1": "50 SomeStreet",
        |      "addressLine2": "Some town",
        |      "countryCode": "IE"
        |    },
-       |    "extraInfo": {
-       |      "isUkRegisteredTaxOrNino": {
-       |        "str": "yes"
-       |      },
-       |      "isHmrcAgentRegistered": {
-       |        "str": "no"
-       |      },
-       |      "saAgentCode": "SA123456",
-       |      "ctAgentCode": "CT123456",
-       |      "regNo": "1234",
-       |      "utr": "4000000009",
-       |      "nino": "AB123456A",
-       |      "taxRegNo": ["1234567"]
-       |    }
+       |    "isUkRegisteredTaxOrNino": "yes",
+       |    "isHmrcAgentRegistered": "no",
+       |    "saAgentCode": "SA123456",
+       |    "ctAgentCode": "CT123456",
+       |    "companyRegistrationNumber": "1234",
+       |    "taxRegistrationNumbers": [
+       |      "1234567"
+       |    ]
+       |  },
+       |  "personalDetails": {
+       |    "saUtr": "4000000009",
+       |    "nino": "AB123456A"
        |  }
        |}
      """.stripMargin
 
   val defaultCreateApplicationRequest: CreateApplicationRequest = Json.parse(defaultRequestBody).as[CreateApplicationRequest]
 
-  def given200OverseasPendingApplication(appCreateDate: Option[String] = Some("2019-01-18")): Unit = {
-    val responseData = StubsTestData.pendingApplication(appCreateDate.getOrElse("2019-01-18"))
+  def given200OverseasPendingApplication(appCreateDate: Option[String] = Some("2019-02-20T15:11:51.729")): Unit = {
+    val responseData = StubsTestData.pendingApplication(appCreateDate.getOrElse("2019-02-20T15:11:51.729"))
     stubFor(get(urlEqualTo(s"/agent-overseas-application/application?$allStatuses"))
       .willReturn(aResponse()
         .withBody(responseData)

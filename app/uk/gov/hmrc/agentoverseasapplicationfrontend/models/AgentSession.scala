@@ -15,7 +15,7 @@ case class AgentSession(
   personalDetails: Option[PersonalDetails] = None,
   companyRegistrationNumber: Option[CompanyRegistrationNumber] = None,
   hasTaxRegNumbers: Option[Boolean] = None,
-  taxRegistrationNumbers: Option[SortedSet[String]] = None,
+  taxRegistrationNumbers: Option[SortedSet[Trn]] = None,
   changingAnswers: Boolean = false) {
 
   def sanitize: AgentSession = {
