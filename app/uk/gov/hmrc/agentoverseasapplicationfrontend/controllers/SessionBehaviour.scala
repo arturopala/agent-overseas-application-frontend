@@ -1,5 +1,5 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
-import play.api.mvc.{Result, Results}
+import play.api.mvc.{Call, Result, Results}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
@@ -11,9 +11,9 @@ trait SessionBehaviour extends CommonRouting with Results {
   val sessionStoreService: SessionStoreService
   implicit val ec: ExecutionContext
 
-  def updateSessionAndRedirect(agentSession: AgentSession, redirectTo: Option[String] = None)(
+  def updateSessionAndRedirect(agentSession: AgentSession)(redirectTo: String)(
     implicit hc: HeaderCarrier): Future[Result] =
     sessionStoreService
       .cacheAgentSession(agentSession)
-      .flatMap(_ => redirectTo.fold(lookupNextPage.map(Redirect))(Redirect(_)))
+      .flatMap(_ => Redirect(redirectTo))
 }

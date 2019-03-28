@@ -11,10 +11,11 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession.{IsRegis
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.Rejected
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, No, Yes, _}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.collection.immutable.SortedSet
 import scala.concurrent.{ExecutionContext, Future}
@@ -43,7 +44,7 @@ class ApplicationController @Inject()(
     val form = AmlsDetailsForm.form
 
     val backUrl: Future[Option[String]] = {
-      if (request.agentSession.changingAnswers) Future.successful(Some(showCheckYourAnswersUrl))
+      if (request.agentSession.changingAnswers) Some(showCheckYourAnswersUrl)
       else
         applicationService.getCurrentApplication.map {
           case Some(application) if application.status == Rejected =>
@@ -68,18 +69,10 @@ class ApplicationController @Inject()(
           }
         },
         validForm => {
-          sessionStoreService.fetchAgentSession.flatMap {
-            case Some(session) =>
-              if (session.changingAnswers) {
-                updateSessionAndRedirect(
-                  session.copy(amlsDetails = Some(validForm), changingAnswers = false),
-                  Some(showCheckYourAnswersUrl))
-              } else {
-                updateSessionAndRedirect(session.copy(amlsDetails = Some(validForm)))
-              }
-
-            case None => updateSessionAndRedirect(AgentSession(Some(validForm)))
-          }
+          sessionStoreService.fetchAgentSession
+            .map(_.getOrElse(AgentSession()))
+            .map(_.copy(amlsDetails = Some(validForm)))
+            .flatMap(updateSession(_)(routes.ApplicationController.showContactDetailsForm().url))
         }
       )
   }
@@ -105,13 +98,8 @@ class ApplicationController @Inject()(
           }
         },
         validForm => {
-          if (request.agentSession.changingAnswers) {
-            updateSessionAndRedirect(
-              request.agentSession.copy(contactDetails = Some(validForm), changingAnswers = false),
-              Some(showCheckYourAnswersUrl))
-          } else {
-            updateSessionAndRedirect(request.agentSession.copy(contactDetails = Some(validForm)))
-          }
+          updateSession(request.agentSession.copy(contactDetails = Some(validForm)))(
+            routes.ApplicationController.showTradingNameForm().url)
         }
       )
   }
@@ -137,13 +125,8 @@ class ApplicationController @Inject()(
           }
         },
         validForm =>
-          if (request.agentSession.changingAnswers) {
-            updateSessionAndRedirect(
-              request.agentSession.copy(tradingName = Some(validForm), changingAnswers = false),
-              Some(showCheckYourAnswersUrl))
-          } else {
-            updateSessionAndRedirect(request.agentSession.copy(tradingName = Some(validForm)))
-        }
+          updateSession(request.agentSession.copy(tradingName = Some(validForm)))(
+            routes.ApplicationController.showMainBusinessAddressForm().url)
       )
   }
 
@@ -172,15 +155,9 @@ class ApplicationController @Inject()(
             Ok(main_business_address(formWithErrors, countries))
           }
         },
-        validForm => {
-          if (request.agentSession.changingAnswers) {
-            updateSessionAndRedirect(
-              request.agentSession.copy(mainBusinessAddress = Some(validForm), changingAnswers = false),
-              Some(showCheckYourAnswersUrl))
-          } else {
-            updateSessionAndRedirect(request.agentSession.copy(mainBusinessAddress = Some(validForm)))
-          }
-        }
+        validForm =>
+          updateSession(request.agentSession.copy(mainBusinessAddress = Some(validForm)))(
+            routes.ApplicationController.showRegisteredWithHmrcForm().url)
       )
   }
 
@@ -203,24 +180,24 @@ class ApplicationController @Inject()(
       .fold(
         formWithErrors => Ok(registered_with_hmrc(formWithErrors)),
         validFormValue => {
+          val newValue = YesNo(validFormValue)
+          val redirectTo =
+            if (Yes == newValue) routes.ApplicationController.showAgentCodesForm().url
+            else routes.ApplicationController.showUkTaxRegistrationForm().url
+          val toUpdate = request.agentSession.copy(registeredWithHmrc = Some(newValue))
           if (request.agentSession.changingAnswers) {
             request.agentSession.registeredWithHmrc match {
               case Some(oldValue) =>
-                if (oldValue == YesNo(validFormValue)) {
-                  updateSessionAndRedirect(
-                    request.agentSession.copy(changingAnswers = false),
-                    Some(routes.ApplicationController.showCheckYourAnswers().url))
+                if (oldValue == newValue) {
+                  updateSession(request.agentSession.copy(changingAnswers = false))(showCheckYourAnswersUrl)
                 } else {
-                  updateSessionAndRedirect(
-                    request.agentSession
-                      .copy(registeredWithHmrc = Some(YesNo(validFormValue)), changingAnswers = false))
+                  updateSession(toUpdate.copy(changingAnswers = false))(redirectTo)
                 }
               case None =>
-                updateSessionAndRedirect(
-                  request.agentSession.copy(registeredWithHmrc = Some(YesNo(validFormValue)), changingAnswers = false))
+                updateSession(toUpdate.copy(changingAnswers = false))(redirectTo)
             }
           } else {
-            updateSessionAndRedirect(request.agentSession.copy(registeredWithHmrc = Some(YesNo(validFormValue))))
+            updateSession(toUpdate)(redirectTo)
           }
         }
       )
@@ -251,13 +228,12 @@ class ApplicationController @Inject()(
           }
         },
         validFormValue => {
-          if (request.agentSession.changingAnswers && validFormValue.hasOneOrMoreCodes) {
-            updateSessionAndRedirect(
-              request.agentSession.copy(agentCodes = Some(validFormValue), changingAnswers = false),
-              Some(showCheckYourAnswersUrl))
+          if (validFormValue.hasOneOrMoreCodes) {
+            updateSession(request.agentSession.copy(agentCodes = Some(validFormValue), changingAnswers = false))(
+              showCheckYourAnswersUrl)
           } else {
-            updateSessionAndRedirect(
-              request.agentSession.copy(agentCodes = Some(validFormValue), changingAnswers = false))
+            updateSession(request.agentSession.copy(agentCodes = Some(validFormValue), changingAnswers = false))(
+              routes.ApplicationController.showUkTaxRegistrationForm().url)
           }
         }
       )
@@ -290,24 +266,26 @@ class ApplicationController @Inject()(
           }
         },
         validFormValue => {
+          val newValue = YesNo(validFormValue)
+          val redirectTo =
+            if (Yes == newValue) routes.ApplicationController.showPersonalDetailsForm().url
+            else routes.ApplicationController.showCompanyRegistrationNumberForm().url
+          val toUpdate = request.agentSession.copy(registeredForUkTax = Some(newValue))
+
           if (request.agentSession.changingAnswers) {
             request.agentSession.registeredForUkTax match {
               case Some(oldValue) =>
-                if (oldValue == YesNo(validFormValue)) {
-                  updateSessionAndRedirect(
-                    request.agentSession.copy(changingAnswers = false),
-                    Some(routes.ApplicationController.showCheckYourAnswers().url))
+                if (oldValue == newValue) {
+                  updateSession(request.agentSession.copy(changingAnswers = false))(
+                    routes.ApplicationController.showCheckYourAnswers().url)
                 } else {
-                  updateSessionAndRedirect(
-                    request.agentSession
-                      .copy(registeredForUkTax = Some(YesNo(validFormValue)), changingAnswers = false))
+                  updateSession(toUpdate.copy(changingAnswers = false))(redirectTo)
                 }
               case None =>
-                updateSessionAndRedirect(
-                  request.agentSession.copy(registeredForUkTax = Some(YesNo(validFormValue)), changingAnswers = false))
+                updateSession(toUpdate.copy(changingAnswers = false))(redirectTo)
             }
           } else {
-            updateSessionAndRedirect(request.agentSession.copy(registeredForUkTax = Some(YesNo(validFormValue))))
+            updateSession(toUpdate)(redirectTo)
           }
         }
       )
@@ -334,13 +312,8 @@ class ApplicationController @Inject()(
           }
         },
         validForm => {
-          if (request.agentSession.changingAnswers) {
-            updateSessionAndRedirect(
-              request.agentSession.copy(personalDetails = Some(validForm), changingAnswers = false),
-              Some(showCheckYourAnswersUrl))
-          } else {
-            updateSessionAndRedirect(request.agentSession.copy(personalDetails = Some(validForm)))
-          }
+          updateSession(request.agentSession.copy(personalDetails = Some(validForm)))(
+            routes.ApplicationController.showCompanyRegistrationNumberForm().url)
         }
       )
   }
@@ -372,13 +345,8 @@ class ApplicationController @Inject()(
           }
         },
         validFormValue => {
-          if (request.agentSession.changingAnswers) {
-            updateSessionAndRedirect(
-              request.agentSession.copy(companyRegistrationNumber = Some(validFormValue), changingAnswers = false),
-              Some(showCheckYourAnswersUrl))
-          } else {
-            updateSessionAndRedirect(request.agentSession.copy(companyRegistrationNumber = Some(validFormValue)))
-          }
+          updateSession(request.agentSession.copy(companyRegistrationNumber = Some(validFormValue)))(
+            routes.ApplicationController.showTaxRegistrationNumberForm().url)
         }
       )
   }
@@ -401,11 +369,17 @@ class ApplicationController @Inject()(
       .bindFromRequest()
       .fold(
         formWithErrors => Ok(tax_registration_number(formWithErrors)),
-        validForm =>
-          updateSessionAndRedirect(
+        validForm => {
+          val redirectLink = if (validForm.canProvideTaxRegNo.contains(true)) {
+            routes.ApplicationController.showYourTaxRegNumbersForm().url
+          } else {
+            routes.ApplicationController.showCheckYourAnswers().url
+          }
+          updateSession(
             request.agentSession.copy(
               hasTaxRegNumbers = validForm.canProvideTaxRegNo,
-              taxRegistrationNumbers = validForm.value.flatMap(taxId => Some(SortedSet(taxId)))))
+              taxRegistrationNumbers = validForm.value.flatMap(taxId => Some(SortedSet(taxId)))))(redirectLink)
+        }
       )
   }
 
@@ -423,9 +397,8 @@ class ApplicationController @Inject()(
             case Some(numbers) => numbers + Trn(validForm)
             case None          => SortedSet(validForm).map(Trn.apply)
           }
-          updateSessionAndRedirect(
-            request.agentSession.copy(taxRegistrationNumbers = Some(trns)),
-            Some(routes.ApplicationController.showYourTaxRegNumbersForm().url))
+          updateSession(request.agentSession.copy(taxRegistrationNumbers = Some(trns)))(
+            routes.ApplicationController.showYourTaxRegNumbersForm().url)
         }
       )
   }
@@ -479,9 +452,8 @@ class ApplicationController @Inject()(
               val updatedSet = request.agentSession.taxRegistrationNumbers
                 .fold[SortedSet[Trn]](SortedSet.empty)(trns => trns - Trn(validForm.original) + Trn(updatedTrn))
 
-              updateSessionAndRedirect(
-                request.agentSession.copy(taxRegistrationNumbers = Some(updatedSet)),
-                Some(routes.ApplicationController.showYourTaxRegNumbersForm().url))
+              updateSession(request.agentSession.copy(taxRegistrationNumbers = Some(updatedSet)))(
+                routes.ApplicationController.showYourTaxRegNumbersForm().url)
 
             case None =>
               Ok(
@@ -509,16 +481,15 @@ class ApplicationController @Inject()(
               val updatedSet = request.agentSession.taxRegistrationNumbers
                 .fold[SortedSet[Trn]](SortedSet.empty)(trns => trns - Trn(trn))
 
-              val updateSession: AgentSession =
+              val toUpdate: AgentSession =
                 if (updatedSet.isEmpty)
                   request.agentSession.copy(hasTaxRegNumbers = None, taxRegistrationNumbers = None)
                 else request.agentSession.copy(taxRegistrationNumbers = Some(updatedSet))
 
-              updateSessionAndRedirect(
-                updateSession,
-                if (updatedSet.nonEmpty) Some(routes.ApplicationController.showYourTaxRegNumbersForm().url)
-                else Some(routes.ApplicationController.showTaxRegistrationNumberForm().url)
-              )
+              val redirectUrl =
+                if (updatedSet.nonEmpty) routes.ApplicationController.showYourTaxRegNumbersForm().url
+                else routes.ApplicationController.showTaxRegistrationNumberForm().url
+              updateSession(toUpdate)(redirectUrl)
             }
             case _ => Redirect(routes.ApplicationController.showYourTaxRegNumbersForm())
           }
@@ -528,24 +499,26 @@ class ApplicationController @Inject()(
 
   def showCheckYourAnswers: Action[AnyContent] = validApplicantAction.async { implicit request =>
     //make sure user has gone through all the required pages, if not redirect to appropriate page
-    lookupNextPage.map { call =>
-      if (call == routes.ApplicationController.showCheckYourAnswers() || call == routes.ApplicationController
-            .showYourTaxRegNumbersForm()) {
-        val countryCode = request.agentSession.mainBusinessAddress.map(_.countryCode)
-        val countryName = countryCode
-          .flatMap(countries.get)
-          .getOrElse(sys.error(s"No country found for code: '${countryCode.getOrElse("")}'"))
+    sessionStoreService.fetchAgentSession
+      .map(lookupNextPage)
+      .map { call =>
+        if (call == routes.ApplicationController.showCheckYourAnswers() || call == routes.ApplicationController
+              .showYourTaxRegNumbersForm()) {
+          val countryCode = request.agentSession.mainBusinessAddress.map(_.countryCode)
+          val countryName = countryCode
+            .flatMap(countries.get)
+            .getOrElse(sys.error(s"No country found for code: '${countryCode.getOrElse("")}'"))
 
-        val backLink =
-          if (request.agentSession.agentCodes.exists(_.hasOneOrMoreCodes))
-            routes.ApplicationController.showAgentCodesForm().url
-          else if (request.agentSession.taxRegistrationNumbers.exists(_.nonEmpty))
-            routes.ApplicationController.showYourTaxRegNumbersForm().url
-          else routes.ApplicationController.showTaxRegistrationNumberForm().url
+          val backLink =
+            if (request.agentSession.agentCodes.exists(_.hasOneOrMoreCodes))
+              routes.ApplicationController.showAgentCodesForm().url
+            else if (request.agentSession.taxRegistrationNumbers.exists(_.nonEmpty))
+              routes.ApplicationController.showYourTaxRegNumbersForm().url
+            else routes.ApplicationController.showTaxRegistrationNumberForm().url
 
-        Ok(check_your_answers(request.agentSession, countryName, backLink))
-      } else Redirect(call)
-    }
+          Ok(check_your_answers(request.agentSession, countryName, backLink))
+        } else Redirect(call)
+      }
   }
 
   def submitCheckYourAnswers: Action[AnyContent] = validApplicantAction.async { implicit request =>
@@ -567,6 +540,13 @@ class ApplicationController @Inject()(
       Ok(application_complete(tradingName.get, contactDetail.get, guidanceApplicationPageUrl))
     else Redirect(routes.ApplicationController.showAntiMoneyLaunderingForm())
   }
+
+  private def updateSession(agentSession: AgentSession)(redirectTo: String)(implicit hc: HeaderCarrier) =
+    if (agentSession.changingAnswers) {
+      updateSessionAndRedirect(agentSession.copy(changingAnswers = false))(showCheckYourAnswersUrl)
+    } else {
+      updateSessionAndRedirect(agentSession)(redirectTo)
+    }
 
   private def ukTaxRegistrationBackLink(session: AgentSession) = Some(session) match {
     case IsRegisteredWithHmrc(Yes) => routes.ApplicationController.showAgentCodesForm()

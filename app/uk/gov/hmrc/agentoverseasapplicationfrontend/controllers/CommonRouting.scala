@@ -17,18 +17,16 @@ trait CommonRouting {
 
   val applicationService: ApplicationService
 
-  def lookupNextPage(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Call] =
-    sessionStoreService.fetchAgentSession.map { session =>
-      session match {
-        case MissingAmlsDetails()        => routes.ApplicationController.showAntiMoneyLaunderingForm()
-        case MissingContactDetails()     => routes.ApplicationController.showContactDetailsForm()
-        case MissingTradingName()        => routes.ApplicationController.showTradingNameForm()
-        case MissingTradingAddress()     => routes.ApplicationController.showMainBusinessAddressForm()
-        case MissingRegisteredWithHmrc() => routes.ApplicationController.showRegisteredWithHmrcForm()
-        case IsRegisteredWithHmrc(Yes)   => routesFromAgentCodesOnwards(session)
-        case IsRegisteredWithHmrc(No)    => routesFromUkTaxRegistrationOnwards(session)
-        case _                           => routes.ApplicationController.showAntiMoneyLaunderingForm()
-      }
+  def lookupNextPage(agentSession: Option[AgentSession]): Call =
+    agentSession match {
+      case MissingAmlsDetails()        => routes.ApplicationController.showAntiMoneyLaunderingForm()
+      case MissingContactDetails()     => routes.ApplicationController.showContactDetailsForm()
+      case MissingTradingName()        => routes.ApplicationController.showTradingNameForm()
+      case MissingTradingAddress()     => routes.ApplicationController.showMainBusinessAddressForm()
+      case MissingRegisteredWithHmrc() => routes.ApplicationController.showRegisteredWithHmrcForm()
+      case IsRegisteredWithHmrc(Yes)   => routesFromAgentCodesOnwards(agentSession)
+      case IsRegisteredWithHmrc(No)    => routesFromUkTaxRegistrationOnwards(agentSession)
+      case _                           => routes.ApplicationController.showAntiMoneyLaunderingForm()
     }
 
   def routesIfExistingApplication(
