@@ -18,9 +18,8 @@ class StartControllerISpec extends BaseISpec with AgentOverseasApplicationStubs 
       val result = await(controller.showNotAgent(basicRequest(FakeRequest())))
 
       status(result) shouldBe 200
-      result should containLink("button.register", routes.SignOutController.signOutWithContinueUrl().url)
-      result should containMessages("nonAgent.title", "nonAgent.p2", "nonAgent.l1", "nonAgent.l2")
-      result should containSubstrings(htmlMessage("nonAgent.p1", routes.SignOutController.signOut().url))
+      result should containMessages("nonAgent.title")
+      result should containSubstrings(htmlMessage("nonAgent.p1", routes.SignOutController.signOut().url),htmlMessage("nonAgent.p2", routes.SignOutController.signOutWithContinueUrl()))
     }
   }
 

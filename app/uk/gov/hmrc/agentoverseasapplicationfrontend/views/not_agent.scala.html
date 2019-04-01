@@ -25,12 +25,6 @@
     <h1 class="heading-xlarge">@Messages("nonAgent.title")</h1>
 
     <p>@Html(Messages("nonAgent.p1",routes.SignOutController.signOut()))</p>
-    <p>@Messages("nonAgent.p2")</p>
+    <p>@Html(Messages("nonAgent.p2",routes.SignOutController.signOutWithContinueUrl()))</p>
 
-    <ul class="list list-bullet">
-        <li>@Messages("nonAgent.l1")</li>
-        <li>@Messages("nonAgent.l2")</li>
-    </ul>
-
-    <p><a class="button" href="@routes.SignOutController.signOutWithContinueUrl()" role="button" id="buttonRegisterNow">@Messages("button.register")</a></p>
 }
