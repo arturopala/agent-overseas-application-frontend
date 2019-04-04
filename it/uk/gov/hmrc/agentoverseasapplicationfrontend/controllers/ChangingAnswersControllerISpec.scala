@@ -54,7 +54,7 @@ class ChangingAnswersControllerISpec extends BaseISpec {
 
       val result = await(controller.changeTradingAddress(authenticatedRequest))
 
-      verify(result, routes.ApplicationController.showMainBusinessAddressForm().url)
+      verify(result, routes.TradingAddressController.showMainBusinessAddressForm().url)
     }
   }
 

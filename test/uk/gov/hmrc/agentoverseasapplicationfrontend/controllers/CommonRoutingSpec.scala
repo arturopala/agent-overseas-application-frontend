@@ -94,7 +94,7 @@ class CommonRoutingSpec extends UnitSpec {
       val agentSession = detailsUpToRegisteredWithHmrc.copy(mainBusinessAddress = None)
       await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession))
 
-      await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.ApplicationController
+      await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.TradingAddressController
         .showMainBusinessAddressForm()
     }
 

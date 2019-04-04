@@ -146,6 +146,19 @@ mainBusinessAddress.form.addressLine3=Address line 3 (optional)
 mainBusinessAddress.form.addressLine4=Address line 4 (optional)
 mainBusinessAddress.form.country=Country
 
+# File Upload
+fileUploadTradingAddress.caption=Your business details
+fileUploadTradingAddress.title=Upload proof of your trading address
+fileUploadTradingAddress.p1=You need to upload a document that shows your trading address, like a bank statement or utility bill.
+fileUploadTradingAddress.p2=Your document needs to be:
+fileUploadTradingAddress.li.1=dated in the last 3 months
+fileUploadTradingAddress.li.2=in PDF format
+fileUploadTradingAddress.li.3=no more than 25MB
+fileUploadTradingAddress.upload=Upload a file
+fileUploadTradingAddress.inset=It may take a few moments to upload your file. Do not close this window while your file is uploading.
+fileUploadTradingAddress.button=Upload your file
+
+
 #Non agent
 nonAgent.title=You have not signed in with an agent user ID
 nonAgent.p1=<a href="{0}">Sign in with an agent Government Gateway user ID</a> to continue.

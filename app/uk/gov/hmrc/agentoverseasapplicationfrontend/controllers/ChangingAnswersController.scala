@@ -56,7 +56,7 @@ class ChangingAnswersController @Inject()(
 
   def changeTradingAddress: Action[AnyContent] = validApplicantAction.async { implicit request =>
     updateSessionAndRedirect(request.agentSession.copy(changingAnswers = true))(
-      routes.ApplicationController.showMainBusinessAddressForm().url)
+      routes.TradingAddressController.showMainBusinessAddressForm().url)
   }
 
   def changeRegisteredWithHmrc: Action[AnyContent] = validApplicantAction.async { implicit request =>

@@ -410,3 +410,10 @@ input[type="text"].autocomplete__input {
 .no-details details summary .arrow-closed {
     display: none;
 }
+
+@media (min-width: 641px) {
+    .content__body {
+        float: left;
+        width: 66.666667%;
+    }
+}

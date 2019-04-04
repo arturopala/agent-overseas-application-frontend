@@ -142,38 +142,7 @@ class ApplicationController @Inject()(
         },
         validForm =>
           updateSession(request.agentSession.copy(tradingName = Some(validForm)))(
-            routes.ApplicationController.showMainBusinessAddressForm().url)
-      )
-  }
-
-  def showMainBusinessAddressForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    val form = MainBusinessAddressForm.mainBusinessAddressForm(validCountryCodes)
-    if (request.agentSession.changingAnswers) {
-      Ok(
-        main_business_address(
-          request.agentSession.mainBusinessAddress.fold(form)(form.fill),
-          countries,
-          Some(showCheckYourAnswersUrl)))
-    } else {
-      Ok(main_business_address(request.agentSession.mainBusinessAddress.fold(form)(form.fill), countries))
-    }
-  }
-
-  def submitMainBusinessAddress: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    MainBusinessAddressForm
-      .mainBusinessAddressForm(validCountryCodes)
-      .bindFromRequest()
-      .fold(
-        formWithErrors => {
-          if (request.agentSession.changingAnswers) {
-            Ok(main_business_address(formWithErrors, countries, Some(showCheckYourAnswersUrl)))
-          } else {
-            Ok(main_business_address(formWithErrors, countries))
-          }
-        },
-        validForm =>
-          updateSession(request.agentSession.copy(mainBusinessAddress = Some(validForm)))(
-            routes.ApplicationController.showRegisteredWithHmrcForm().url)
+            routes.TradingAddressController.showMainBusinessAddressForm().url)
       )
   }
 

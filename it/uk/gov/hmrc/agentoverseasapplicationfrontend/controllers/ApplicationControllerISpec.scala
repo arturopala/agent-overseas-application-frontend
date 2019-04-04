@@ -271,7 +271,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       redirectLocation(result) shouldBe Some(routes.ApplicationController.showAntiMoneyLaunderingForm().url)
     }
 
-    "prefill trading name if previously has used the endpoint POST /trading-name" in {
+    "pre-fill trading name if previously has used the endpoint POST /trading-name" in {
       sessionStoreService.currentSession.agentSession =
         Some(agentSession.copy(tradingName = Some("tradingName")))
 
@@ -300,7 +300,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       val result = await(controller.submitTradingName(authenticatedRequest))
 
       status(result) shouldBe 303
-      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showMainBusinessAddressForm().url
+      result.header.headers(LOCATION) shouldBe routes.TradingAddressController.showMainBusinessAddressForm().url
 
       val tradingName = await(sessionStoreService.fetchAgentSession).get.tradingName
 
@@ -340,102 +340,6 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       status(result) shouldBe 200
 
       result should containMessages("error.tradingName.blank")
-    }
-  }
-
-  "GET /main-business-address" should {
-    "display the trading address form" in {
-      sessionStoreService.currentSession.agentSession =
-        Some(agentSession.copy(mainBusinessAddress = None, changingAnswers = true))
-
-      val result = await(controller.showMainBusinessAddressForm(cleanCredsAgent(FakeRequest())))
-
-      status(result) shouldBe 200
-
-      result should containMessages(
-        "mainBusinessAddress.caption",
-        "mainBusinessAddress.title"
-      )
-      result should containSubstrings(routes.ApplicationController.showCheckYourAnswers().url)
-    }
-
-    "redirect to /money-laundering when session not found" in {
-
-      val authenticatedRequest = cleanCredsAgent(FakeRequest())
-
-      val result = await(controller.showMainBusinessAddressForm(authenticatedRequest))
-
-      status(result) shouldBe 303
-
-      redirectLocation(result) shouldBe Some(routes.ApplicationController.showAntiMoneyLaunderingForm().url)
-    }
-  }
-
-  "POST /main-business-address" should {
-    "submit form and then redirect to registered-with-hmrc page" in {
-      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(mainBusinessAddress = None))
-
-      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
-        .withFormUrlEncodedBody("addressLine1" -> "line1", "addressLine2" -> "line2", "countryCode" -> "IE")
-
-      val result = await(controller.submitMainBusinessAddress(authenticatedRequest))
-
-      status(result) shouldBe 303
-      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showRegisteredWithHmrcForm().url
-
-      val tradingAddress = await(sessionStoreService.fetchAgentSession).get.mainBusinessAddress
-
-      tradingAddress shouldBe Some(MainBusinessAddress("line1", "line2", None, None, "IE"))
-    }
-
-    "submit form and then redirect to check-your-answers page if user is changing answers" in {
-      sessionStoreService.currentSession.agentSession =
-        Some(agentSession.copy(mainBusinessAddress = None, changingAnswers = true))
-
-      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
-        .withFormUrlEncodedBody("addressLine1" -> "line1", "addressLine2" -> "line2", "countryCode" -> "IE")
-
-      val result = await(controller.submitMainBusinessAddress(authenticatedRequest))
-
-      status(result) shouldBe 303
-      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showCheckYourAnswers().url
-
-      val session = await(sessionStoreService.fetchAgentSession).get
-
-      session.mainBusinessAddress shouldBe Some(MainBusinessAddress("line1", "line2", None, None, "IE"))
-
-      //should revert to normal state after amending is successful
-      session.changingAnswers shouldBe false
-    }
-
-    "show validation errors when form data is incorrect" when {
-      "address line 1 is blank" in {
-        sessionStoreService.currentSession.agentSession =
-          Some(agentSession.copy(mainBusinessAddress = None, changingAnswers = true))
-
-        implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
-          .withFormUrlEncodedBody("addressLine1" -> "", "addressLine2" -> "line2", "countryCode" -> "IE")
-
-        val result = await(controller.submitMainBusinessAddress(authenticatedRequest))
-
-        status(result) shouldBe 200
-
-        result should containMessages("error.addressline.1.blank")
-      }
-      "country code is GB" in {
-        sessionStoreService.currentSession.agentSession =
-          Some(agentSession.copy(mainBusinessAddress = None, changingAnswers = true))
-
-        implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
-          .withFormUrlEncodedBody("addressLine1" -> "Some address", "addressLine2" -> "line2", "countryCode" -> "GB")
-
-        val result = await(controller.submitMainBusinessAddress(authenticatedRequest))
-
-        status(result) shouldBe 200
-
-        result should containMessages("error.country.invalid")
-
-      }
     }
   }
 
@@ -493,7 +397,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
     "contain a back link to /main-business-address" in new RegisteredWithHmrcSetup {
       result should containLink(
         expectedMessageKey = "button.back",
-        expectedHref = "/agent-services/apply-from-outside-uk/main-business-address"
+        expectedHref = "/agent-services/apply-from-outside-uk/trading-address-upload"
       )
     }
 
@@ -501,7 +405,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       sessionStoreService.currentSession.agentSession = Some(agentSession.copy(changingAnswers = true))
       result should containLink(
         expectedMessageKey = "button.back",
-        expectedHref = "/agent-services/apply-from-outside-uk/main-business-address"
+        expectedHref = "/agent-services/apply-from-outside-uk/trading-address-upload"
       )
     }
 

@@ -1,0 +1,64 @@
+@*
+ * Copyright 2019 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import play.api.Configuration
+@import uk.gov.hmrc.play.views.html._
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
+@import uk.gov.hmrc.play.views.html.helpers.{form}
+
+@(backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
+
+@main_template(title = "" + Messages("fileUploadTradingAddress.title")) {
+
+
+   <a href="@backLink.getOrElse(routes.TradingAddressController.showMainBusinessAddressForm())" class="link-back">@Messages("button.back")</a>
+
+ @form(action = routes.FileUploadController.submitTradingAddressUploadForm, 'class -> "form js-form" ){
+
+
+  <fieldset>
+
+   <legend class="margin-bottom-10">
+    <h1 class="heading-xlarge margin-bottom-20">
+     <span class="pre-heading">@Messages("fileUploadTradingAddress.caption")</span>
+     @Messages("fileUploadTradingAddress.title")
+    </h1>
+   </legend>
+   <div>
+    <p>@Messages("fileUploadTradingAddress.p1")</p>
+    <p>@Messages("fileUploadTradingAddress.p2")</p>
+    <ul class="list-bullet">
+     <li>@Messages("fileUploadTradingAddress.li.1")</li>
+     <li>@Messages("fileUploadTradingAddress.li.2")</li>
+     <li>@Messages("fileUploadTradingAddress.li.3")</li>
+    </ul>
+    <div class="form-group" style="margin-bottom: 20px !important;">
+     <label class="" for="file-upload">@Messages("fileUploadTradingAddress.upload")</label>
+     <input class="" id="file-upload" name="file-upload" type="file">
+    </div>
+   </div>
+  </fieldset>
+  <div class="panel panel-border-wide margin-bottom-30">
+   @Messages("fileUploadTradingAddress.inset")
+  </div>
+  <div class="form-group">
+   <input type="submit" class="button" value="@Messages("fileUploadTradingAddress.button")">
+  </div>
+
+ }
+
+
+}
