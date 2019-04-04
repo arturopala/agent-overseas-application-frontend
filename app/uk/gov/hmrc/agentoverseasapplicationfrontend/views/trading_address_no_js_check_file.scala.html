@@ -21,7 +21,7 @@
 
 @()(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
-@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("taxRegNo.title")) {
+@main_template(title = Messages("fileUploadTradingAddress.no_js_page.title")) {
 
     <a href="@routes.FileUploadController.showTradingAddressUploadForm()" class="link-back">@Messages("button.back")</a>
 

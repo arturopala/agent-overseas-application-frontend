@@ -22,6 +22,9 @@ POST        /trading-address-upload                      @uk.gov.hmrc.agentovers
 
 GET         /trading-address-no-js-check-file            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showTradingAddressNoJsCheckPage
 
+GET         /file-uploaded-successfully                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showSuccessfulFileUploadedForm
+POST        /file-uploaded-successfully                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.submitSuccessfulFileUploadedForm
+
 GET         /registered-with-hmrc                        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showRegisteredWithHmrcForm
 POST        /registered-with-hmrc                        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitRegisteredWithHmrc
 

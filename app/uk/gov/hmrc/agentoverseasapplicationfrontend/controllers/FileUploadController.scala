@@ -21,12 +21,14 @@ import play.api.Configuration
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
+import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.SuccessfulFileUploadForm
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{Yes, YesNo}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
+import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
+import uk.gov.hmrc.auth.core.AuthConnector
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class FileUploadController @Inject()(
@@ -49,5 +51,24 @@ class FileUploadController @Inject()(
 
   def showTradingAddressNoJsCheckPage: Action[AnyContent] = validApplicantAction.async { implicit request =>
     Ok(trading_address_no_js_check_file())
+  }
+
+  def showSuccessfulFileUploadedForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    Ok(successful_file_upload(SuccessfulFileUploadForm.form, "dummyFileName"))
+  }
+
+  def submitSuccessfulFileUploadedForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    SuccessfulFileUploadForm.form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Ok(successful_file_upload(formWithErrors, "dummyFileName")),
+        validFormValue => {
+          val newValue = YesNo(validFormValue)
+          val redirectTo =
+            if (Yes == newValue) routes.ApplicationController.showRegisteredWithHmrcForm().url
+            else routes.FileUploadController.showTradingAddressUploadForm().url
+          Redirect(redirectTo)
+        }
+      )
   }
 }

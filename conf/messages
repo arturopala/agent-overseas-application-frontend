@@ -11,6 +11,7 @@ global.error.500.message=Please try again in a few minutes.
 
 # Validation errors
 error.prefix=Error:
+error.boolean=Please select one of the options
 error.summary.heading=There is a problem
 error.postcode.invalid=You can only enter these characters: A-Z 0-9
 error.string.invalid=You can only enter these characters: a-z A-Z 0-9 ,.() - ! @ space
@@ -163,7 +164,12 @@ fileUploadTradingAddress.no_js_page.title=We are checking your file
 fileUploadTradingAddress.no_js_page.p1=It may take a few moments to check your file.
 fileUploadTradingAddress.no_js_page.p2=Do not close this window.
 
-
+fileUploadTradingAddress.correctFile.no-radio.selected=Select yes if the file you uploaded is correct
+fileUploadTradingAddress.success.caption=Your business details
+fileUploadTradingAddress.success.title=Your file was uploaded successfully
+fileUploadTradingAddress.success.form.correctFile.yes=Yes
+fileUploadTradingAddress.success.form.correctFile.no=No
+fileUploadTradingAddress.success.correctFile.confirmation=Is this the correct file?
 
 #Non agent
 nonAgent.title=You have not signed in with an agent user ID
