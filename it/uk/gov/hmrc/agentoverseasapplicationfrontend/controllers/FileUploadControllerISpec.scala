@@ -53,4 +53,21 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
       redirectLocation(result) shouldBe Some("/agent-services/apply-from-outside-uk/registered-with-hmrc")
     }
   }
+
+  "GET /trading-address-no-js-check-file" should {
+    "display the page with correct content" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession)
+
+      val result = await(controller.showTradingAddressNoJsCheckPage(cleanCredsAgent(FakeRequest())))
+
+      status(result) shouldBe 200
+
+      result should containMessages(
+        "fileUploadTradingAddress.no_js_page.caption",
+        "fileUploadTradingAddress.no_js_page.title",
+        "fileUploadTradingAddress.no_js_page.p1",
+        "fileUploadTradingAddress.no_js_page.p2"
+      )
+    }
+  }
 }

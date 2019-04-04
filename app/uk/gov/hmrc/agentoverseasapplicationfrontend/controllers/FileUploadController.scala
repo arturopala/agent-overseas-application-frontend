@@ -24,8 +24,10 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffini
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
+import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
 
 import scala.concurrent.{ExecutionContext, Future}
+
 @Singleton
 class FileUploadController @Inject()(
   authConnector: AuthConnector,
@@ -38,10 +40,14 @@ class FileUploadController @Inject()(
     extends AgentOverseasBaseController(authConnector, sessionStoreService, applicationService) {
 
   def showTradingAddressUploadForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    Future.successful(Ok(trading_address_upload()))
+    Ok(trading_address_upload())
   }
 
   def submitTradingAddressUploadForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    Future.successful(Redirect(routes.ApplicationController.showRegisteredWithHmrcForm().url))
+    Redirect(routes.ApplicationController.showRegisteredWithHmrcForm().url)
+  }
+
+  def showTradingAddressNoJsCheckPage: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    Ok(trading_address_no_js_check_file())
   }
 }

@@ -158,6 +158,12 @@ fileUploadTradingAddress.upload=Upload a file
 fileUploadTradingAddress.inset=It may take a few moments to upload your file. Do not close this window while your file is uploading.
 fileUploadTradingAddress.button=Upload your file
 
+fileUploadTradingAddress.no_js_page.caption=Your business details
+fileUploadTradingAddress.no_js_page.title=We are checking your file
+fileUploadTradingAddress.no_js_page.p1=It may take a few moments to check your file.
+fileUploadTradingAddress.no_js_page.p2=Do not close this window.
+
+
 
 #Non agent
 nonAgent.title=You have not signed in with an agent user ID
