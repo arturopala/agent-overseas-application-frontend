@@ -52,8 +52,7 @@
                 "true" -> Messages("fileUploadTradingAddress.success.form.correctFile.yes"),
                 "false" -> Messages("fileUploadTradingAddress.success.form.correctFile.no")
                 ),
-                '_legend -> Html(Messages("fileUploadTradingAddress.success.correctFile.confirmation")),
-                '_groupDivClass -> "soft--ends",
+                '_legend -> Html("""<h2 class="margin-top-10">""" + Messages("fileUploadTradingAddress.success.correctFile.confirmation") + """</h2>"""),                '_groupDivClass -> "soft--ends",
                 '_fieldsetAttributes -> Html("""id='fileUploadTradingAddressSuccess'""")
                 )
             </div>
