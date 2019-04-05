@@ -58,6 +58,16 @@ class ChangingAnswersControllerISpec extends BaseISpec {
     }
   }
 
+  "GET /change-trading-address-file" should {
+
+    "update session with changingAnswers=true and redirect to trading-address-file-upload form" in new SetUp {
+
+      val result = await(controller.changeTradingAddressFile(authenticatedRequest))
+
+      verify(result, routes.FileUploadController.showTradingAddressUploadForm().url)
+    }
+  }
+
   "GET /change-registered-with-hmrc" should {
 
     "update session with changingAnswers=true and redirect to registered-with-hmrc form" in new SetUp {

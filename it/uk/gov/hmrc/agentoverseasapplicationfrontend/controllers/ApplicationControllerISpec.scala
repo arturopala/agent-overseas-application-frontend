@@ -1572,6 +1572,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
         "checkAnswers.BusinessDetails.title",
         "checkAnswers.tradingName.title",
         "checkAnswers.mainBusinessAddress.title",
+        "checkAnswers.tradingAddressFile.title",
         "checkAnswers.registeredWithHmrc.title",
         "checkAnswers.confirm.p1",
         "checkAnswers.confirm.button")
@@ -1621,6 +1622,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
             Some(contactDetails),
             Some("tradingName"),
             Some(mainBusinessAddress),
+            Some("trading-address-file-name"),
             registeredWithHmrc = Some(Yes),
             agentCodes = Some(AgentCodes(None,None)),
             registeredForUkTax = Some(No),
@@ -1647,6 +1649,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
             Some(contactDetails),
             Some("tradingName"),
             Some(mainBusinessAddress),
+            Some("trading-address-file-name"),
             registeredWithHmrc,
             Some(agentCodes)))
 
@@ -1662,12 +1665,14 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
         )
 
         result shouldNot containMessages(
+          "checkAnswers.tradingAddressFile.title",
           "checkAnswers.companyRegistrationNumber.title",
           "checkAnswers.taxRegistrationNumbers.title",
           "checkAnswers.registeredForUKTax.title",
           "checkAnswers.personalDetails.nino.title")
 
         testAgentCodes(bodyOf(result), true)
+        bodyOf(result).contains("trading-address-file-name") shouldBe true
       }
 
       "agents codes are not available" when {
@@ -1683,6 +1688,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
                 Some(contactDetails),
                 Some("tradingName"),
                 Some(mainBusinessAddress),
+                Some("trading-address-file-name"),
                 registeredWithHmrc,
                 Some(agentCodes),
                 registeredForUkTax = Some(Yes),
@@ -1696,6 +1702,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
             testMandatoryContent(result)
             result should containMessages(
+              "checkAnswers.tradingAddressFile.title",
               "checkAnswers.agentCode.title",
               "checkAnswers.agentCode.empty",
               "checkAnswers.companyRegistrationNumber.title",
@@ -1716,6 +1723,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
                 Some(contactDetails),
                 Some("tradingName"),
                 Some(mainBusinessAddress),
+                Some("trading-address-file-name"),
                 registeredWithHmrc,
                 Some(agentCodes),
                 registeredForUkTax = Some(Yes),
@@ -1748,6 +1756,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
                 Some(contactDetails),
                 Some("tradingName"),
                 Some(mainBusinessAddress),
+                Some("trading-address-file-name"),
                 registeredWithHmrc,
                 Some(agentCodes),
                 registeredForUkTax = Some(Yes),
@@ -1784,6 +1793,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
                 Some(contactDetails),
                 Some("tradingName"),
                 Some(mainBusinessAddress),
+                Some("trading-address-file-name"),
                 registeredWithHmrc,
                 Some(agentCodes),
                 registeredForUkTax = Some(Yes),
@@ -1807,6 +1817,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
             testAgentCodes(bodyOf(result), false)
             bodyOf(result).contains("TX12345") shouldBe true
+            bodyOf(result).contains("trading-address-file-name") shouldBe true
           }
         }
         "UkTaxRegistration is No" in {
@@ -1820,6 +1831,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
               Some(contactDetails),
               Some("tradingName"),
               Some(mainBusinessAddress),
+              Some("trading-address-file-name"),
               registeredWithHmrc,
               Some(agentCodes),
               registeredForUkTax = Some(No),
@@ -1847,6 +1859,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
           result shouldNot containMessages("checkAnswers.personalDetails.nino.title")
 
           testAgentCodes(bodyOf(result), false)
+          bodyOf(result).contains("trading-address-file-name") shouldBe true
         }
       }
     }
@@ -1860,6 +1873,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
           Some(contactDetails),
           Some("tradingName"),
           Some(mainBusinessAddress),
+          Some("trading-address-file-name"),
           registeredWithHmrc,
           registeredForUkTax = Some(Yes),
           personalDetails = Some(personalDetails),
@@ -1892,6 +1906,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       body.contains("crnCode") shouldBe true
       body.contains("trn1") shouldBe true
       body.contains("trn2") shouldBe true
+      bodyOf(result).contains("trading-address-file-name") shouldBe true
     }
   }
 

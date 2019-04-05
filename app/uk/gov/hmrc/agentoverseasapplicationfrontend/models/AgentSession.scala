@@ -25,6 +25,7 @@ case class AgentSession(
   contactDetails: Option[ContactDetails] = None,
   tradingName: Option[String] = None,
   mainBusinessAddress: Option[MainBusinessAddress] = None,
+  tradingAddressFileName: Option[String] = None,
   registeredWithHmrc: Option[YesNo] = None,
   agentCodes: Option[AgentCodes] = None,
   registeredForUkTax: Option[YesNo] = None,
@@ -51,6 +52,7 @@ case class AgentSession(
       this.contactDetails,
       this.tradingName,
       this.mainBusinessAddress,
+      this.tradingAddressFileName,
       this.registeredWithHmrc,
       agentCodes,
       registeredForUkTax,
@@ -83,6 +85,10 @@ object AgentSession {
 
   object MissingTradingAddress {
     def unapply(session: Option[AgentSession]): Boolean = session.exists(_.mainBusinessAddress.isEmpty)
+  }
+
+  object MissingTradingAddressFileName {
+    def unapply(session: Option[AgentSession]): Boolean = session.exists(_.tradingAddressFileName.isEmpty)
   }
 
   object MissingRegisteredWithHmrc {

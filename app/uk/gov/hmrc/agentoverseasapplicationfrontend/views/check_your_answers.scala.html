@@ -232,6 +232,18 @@
             </script>
         }
     </div>
+    <div class="app-check-your-answers--group margin-bottom-10">
+        @agentSession.tradingAddressFileName.map { fileName =>
+            <dl class="app-check-your-answers app-check-your-answers--long">
+                @check_answers_div(Messages("checkAnswers.tradingAddressFile.title"), fileName, "tradingAddressFileName", routes.ChangingAnswersController.changeTradingAddressFile())
+            </dl>
+            <script>
+                @if(fileName.nonEmpty) {
+                    gaSendEvent('check-answers-trading-address-file-name');
+                }
+            </script>
+        }
+    </div>
 
     <h2 class="heading-medium margin-bottom-10">@Messages("checkAnswers.OtherBusinessDetails.title")</h2>
 

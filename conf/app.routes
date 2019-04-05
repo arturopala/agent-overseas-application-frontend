@@ -64,6 +64,7 @@ GET         /change-amls-details                         @uk.gov.hmrc.agentovers
 GET         /change-contact-details                      @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeContactDetails
 GET         /change-trading-name                         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeTradingName
 GET         /change-trading-address                      @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeTradingAddress
+GET         /change-trading-address-file                 @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeTradingAddressFile
 GET         /change-registered-with-hmrc                 @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeRegisteredWithHmrc
 GET         /change-agent-codes                          @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeAgentCodes
 GET         /change-registered-for-uk-tax                @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeRegisteredForUKTax

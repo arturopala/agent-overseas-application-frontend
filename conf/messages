@@ -277,6 +277,7 @@ checkAnswers.contactDetails.businessEmail=Business email address
 checkAnswers.BusinessDetails.title=Your business details
 checkAnswers.tradingName.title=Main trading name
 checkAnswers.mainBusinessAddress.title=Main trading address
+checkAnswers.tradingAddressFile.title=Proof of trading address
 
 checkAnswers.registeredWithHmrc.title=Registered as agent with HMRC?
 checkAnswers.agentCode.title=Agent Codes
