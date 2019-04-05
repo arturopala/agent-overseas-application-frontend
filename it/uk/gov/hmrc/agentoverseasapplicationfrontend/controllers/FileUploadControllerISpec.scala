@@ -1,5 +1,6 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
+import org.jsoup.Jsoup
 import play.api.test.FakeRequest
 import play.api.test.Helpers.redirectLocation
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession
@@ -143,6 +144,34 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
         "fileUploadTradingAddress.success.form.correctFile.no",
         "fileUploadTradingAddress.correctFile.no-radio.selected"
       )
+    }
+  }
+
+  "GET /file-upload-failed" should {
+    "display page as expected" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession)
+
+      val request = cleanCredsAgent(FakeRequest())
+
+      val result = await(controller.showUploadFailedPage(request))
+
+      status(result) shouldBe 200
+
+      result should containMessages(
+        "fileUploadTradingAddress.failed.caption",
+        "fileUploadTradingAddress.failed.title",
+        "fileUploadTradingAddress.failed.p1",
+        "fileUploadTradingAddress.failed.try-again.label"
+      )
+
+      val tradingAddressUploadFormUrl = routes.FileUploadController.showTradingAddressUploadForm().url
+
+      val doc = Jsoup.parse(bodyOf(result))
+      val tryAgainLink = doc.getElementById("file-upload-failed")
+      tryAgainLink.text() shouldBe "Try again"
+      tryAgainLink.attr("href") shouldBe tradingAddressUploadFormUrl
+
+      result should containLink("button.back", tradingAddressUploadFormUrl)
     }
   }
 }

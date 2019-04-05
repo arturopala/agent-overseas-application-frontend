@@ -71,4 +71,8 @@ class FileUploadController @Inject()(
         }
       )
   }
+
+  def showUploadFailedPage: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    Ok(file_upload_failed())
+  }
 }

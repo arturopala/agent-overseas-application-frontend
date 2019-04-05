@@ -171,6 +171,11 @@ fileUploadTradingAddress.success.form.correctFile.yes=Yes
 fileUploadTradingAddress.success.form.correctFile.no=No
 fileUploadTradingAddress.success.correctFile.confirmation=Is this the correct file?
 
+fileUploadTradingAddress.failed.caption=Your business details
+fileUploadTradingAddress.failed.title=There is a problem
+fileUploadTradingAddress.failed.p1=The file you uploaded did not pass our security checks.
+fileUploadTradingAddress.failed.try-again.label=Try again
+
 #Non agent
 nonAgent.title=You have not signed in with an agent user ID
 nonAgent.p1=<a href="{0}">Sign in with an agent Government Gateway user ID</a> to continue.
