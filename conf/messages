@@ -48,7 +48,7 @@ error.email=Enter an email address in the correct format, like name@example.com
 error.email.maxlength=Business email address must be 132 characters or less
 
 error.tradingName.blank=Enter the trading name of your business
-error.tradingName.invalid=Trading name must not include ampersands or apostophes
+error.tradingName.invalid=Trading name must not include ampersands, apostophes, commas, or full stops
 error.tradingName.maxlength=Trading name must be 40 characters or less
 
 error.addressline.1.blank=Enter Address line 1

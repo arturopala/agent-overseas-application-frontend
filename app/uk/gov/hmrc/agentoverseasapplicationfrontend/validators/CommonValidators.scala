@@ -32,7 +32,7 @@ object CommonValidators {
   private val AgentCodeRegex = """^[a-zA-Z0-9]*$"""
   private val CrnRegex = "^[A-Za-z0-9 \\-.\\/]*$"
   private val TrnRegex = """^[a-zA-Z0-9 ]*$"""
-  private val OverseasAgencyNameRegex = "^[A-Za-z0-9 \\-,.\\/]*"
+  private val OverseasTradingNameRegex = "^[A-Za-z0-9 \\-\\/]*"
   private val OverseasAddressRegex = "^[A-Za-z0-9 \\-,.&']*"
   private val AmlsBodyRegex = "^[A-Za-z0-9 \\-,.'&()\\/]*$"
 
@@ -83,7 +83,7 @@ object CommonValidators {
   def businessEmail: Mapping[String] = text verifying nonEmptyEmailAddress
 
   def tradingName: Mapping[String] =
-    text verifying commonFormConstraint("tradingName", OverseasAgencyNameRegex, TradingNameMaxLength)
+    text verifying commonFormConstraint("tradingName", OverseasTradingNameRegex, TradingNameMaxLength)
 
   def addressLine12(lineNumber: Int): Mapping[String] =
     text verifying commonFormConstraint(s"addressline.$lineNumber", OverseasAddressRegex, AddresslineMaxLength)
