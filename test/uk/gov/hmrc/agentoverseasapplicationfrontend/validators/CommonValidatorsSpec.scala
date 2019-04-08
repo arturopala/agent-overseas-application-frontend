@@ -372,6 +372,14 @@ class CommonValidatorsSpec extends UnitSpec with EitherValues {
         shouldRejectFieldValueAsInvalid("My Agency's Co")
       }
 
+      "there is a comma character" in {
+        shouldRejectFieldValueAsInvalid("My Agency, Co")
+      }
+
+      "there is a full stop character" in {
+        shouldRejectFieldValueAsInvalid("My Agency Co.")
+      }
+
       "there is an invalid character" in {
         shouldRejectFieldValueAsInvalid("My Agency; His Agency #1")
       }
@@ -397,7 +405,7 @@ class CommonValidatorsSpec extends UnitSpec with EitherValues {
       "there are valid characters" in {
         shouldAcceptFieldValue("My Agency")
         shouldAcceptFieldValue("My/Agency")
-        shouldAcceptFieldValue("My,.-Agency")
+        shouldAcceptFieldValue("My-Agency")
       }
 
       "there are numbers and letters" in {
