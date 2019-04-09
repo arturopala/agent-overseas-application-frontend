@@ -1,3 +1,28 @@
+$(document).ready(function () {
+
+  if (document.getElementById('file-upload-loading')) {
+    var loader2 = new GOVUK.Loader()
+    loader2.init({
+      container: 'govuk-box',
+      label: true,
+      labelText: 'This file is being checked and uploaded',
+    })
+  }
+
+  $('.upload-form').on('submit', function(e){
+    e.preventDefault();
+
+    var
+      goTo = $(this).attr('action'),
+      loadingSection = $('.loader'),
+      uploadFormElements = $('.hide-when-uploading');
+
+    uploadFormElements.hide();
+    loadingSection.show();
+  });
+
+})
+
 $(function () {
     //Accessibility
     var errorSummary = $('#error-summary-display'),

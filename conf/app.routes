@@ -20,7 +20,7 @@ POST        /main-business-address                       @uk.gov.hmrc.agentovers
 GET         /trading-address-upload                      @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showTradingAddressUploadForm
 POST        /trading-address-upload                      @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.submitTradingAddressUploadForm
 
-GET         /trading-address-no-js-check-file            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showTradingAddressNoJsCheckPage
+GET         /trading-address-no-js-check-file            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showTradingAddressUploadCheckingPage
 
 GET         /file-uploaded-successfully                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showSuccessfulFileUploadedForm
 POST        /file-uploaded-successfully                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.submitSuccessfulFileUploadedForm

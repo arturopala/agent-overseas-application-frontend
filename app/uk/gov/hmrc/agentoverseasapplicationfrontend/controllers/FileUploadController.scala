@@ -49,8 +49,8 @@ class FileUploadController @Inject()(
     Redirect(routes.ApplicationController.showRegisteredWithHmrcForm().url)
   }
 
-  def showTradingAddressNoJsCheckPage: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    Ok(trading_address_no_js_check_file())
+  def showTradingAddressUploadCheckingPage: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    Ok(trading_address_upload_in_progress())
   }
 
   def showSuccessfulFileUploadedForm: Action[AnyContent] = validApplicantAction.async { implicit request =>

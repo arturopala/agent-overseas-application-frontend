@@ -25,10 +25,21 @@
 
     <a href="@routes.FileUploadController.showTradingAddressUploadForm()" class="link-back">@Messages("button.back")</a>
 
-    <h1 class="heading-xlarge margin-bottom-20">
-        <span class="pre-heading">@Messages("fileUploadTradingAddress.no_js_page.caption")</span>
-        @Messages("fileUploadTradingAddress.no_js_page.title")
-    </h1>
-    <p>@Messages("fileUploadTradingAddress.no_js_page.p1")</p>
-    <p>@Messages("fileUploadTradingAddress.no_js_page.p2")</p>
+    <div class="loading-container js-version">
+        <legend class="margin-bottom-10">
+            <h1 class="heading-xlarge margin-bottom-20">
+                <span class="pre-heading">@Messages("fileUploadTradingAddress.caption")</span>
+                @Messages("fileUploadTradingAddress.title")
+            </h1>
+        </legend>
+    </div>
+
+    <div class="loading-container no-js-version">
+        <h1 class="heading-xlarge margin-bottom-20">
+            <span class="pre-heading">@Messages("fileUploadTradingAddress.no_js_page.caption")</span>
+            @Messages("fileUploadTradingAddress.no_js_page.title")
+        </h1>
+        <p>@Messages("fileUploadTradingAddress.no_js_page.p1")</p>
+        <p>@Messages("fileUploadTradingAddress.no_js_page.p2")</p>
+    </div>
 }

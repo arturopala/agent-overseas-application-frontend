@@ -26,39 +26,36 @@
 
    <a href="@backLink.getOrElse(routes.TradingAddressController.showMainBusinessAddressForm())" class="link-back">@Messages("button.back")</a>
 
- @form(action = routes.FileUploadController.submitTradingAddressUploadForm, 'class -> "form js-form" ){
+   <h1 class="heading-xlarge margin-bottom-20">
+    <span class="pre-heading">@Messages("fileUploadTradingAddress.caption")</span>
+    @Messages("fileUploadTradingAddress.title")
+   </h1>
 
-
-  <fieldset>
-
-   <legend class="margin-bottom-10">
-    <h1 class="heading-xlarge margin-bottom-20">
-     <span class="pre-heading">@Messages("fileUploadTradingAddress.caption")</span>
-     @Messages("fileUploadTradingAddress.title")
-    </h1>
-   </legend>
-   <div>
-    <p>@Messages("fileUploadTradingAddress.p1")</p>
-    <p>@Messages("fileUploadTradingAddress.p2")</p>
-    <ul class="list-bullet">
-     <li>@Messages("fileUploadTradingAddress.li.1")</li>
-     <li>@Messages("fileUploadTradingAddress.li.2")</li>
-     <li>@Messages("fileUploadTradingAddress.li.3")</li>
-    </ul>
-    <div class="form-group" style="margin-bottom: 20px !important;">
-     <label class="" for="file-upload">@Messages("fileUploadTradingAddress.upload")</label>
-     <input class="" id="file-upload" name="file-upload" type="file">
-    </div>
-   </div>
-  </fieldset>
-  <div class="panel panel-border-wide margin-bottom-30">
-   @Messages("fileUploadTradingAddress.inset")
+  <div class="govuk-box loader" id="file-upload-loading" aria-busy="true"></div>
+  <div class="hide-when-uploading">
+      <form action="/agent-services/apply-from-outside-uk/trading-address-upload" class="form js-form upload-form">
+       <fieldset>
+        <div>
+         <p>@Messages("fileUploadTradingAddress.p1")</p>
+         <p>@Messages("fileUploadTradingAddress.p2")</p>
+         <ul class="list-bullet">
+          <li>@Messages("fileUploadTradingAddress.li.1")</li>
+          <li>@Messages("fileUploadTradingAddress.li.2")</li>
+          <li>@Messages("fileUploadTradingAddress.li.3")</li>
+         </ul>
+         <div class="form-group" style="margin-bottom: 20px !important;">
+          <label class="" for="file-upload">@Messages("fileUploadTradingAddress.upload")</label>
+          <input class="" id="file-upload" name="file-upload" type="file">
+         </div>
+        </div>
+       </fieldset>
+       <div class="panel panel-border-wide margin-bottom-30">
+        @Messages("fileUploadTradingAddress.inset")
+       </div>
+       <div class="form-group">
+        <input type="submit" class="button" value="@Messages("fileUploadTradingAddress.button")">
+       </div>
+      </form>
   </div>
-  <div class="form-group">
-   <input type="submit" class="button" value="@Messages("fileUploadTradingAddress.button")">
-  </div>
-
- }
-
 
 }
