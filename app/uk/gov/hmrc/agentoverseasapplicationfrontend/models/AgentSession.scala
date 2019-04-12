@@ -25,7 +25,6 @@ case class AgentSession(
   contactDetails: Option[ContactDetails] = None,
   tradingName: Option[String] = None,
   mainBusinessAddress: Option[MainBusinessAddress] = None,
-  tradingAddressFileName: Option[String] = None,
   registeredWithHmrc: Option[YesNo] = None,
   agentCodes: Option[AgentCodes] = None,
   registeredForUkTax: Option[YesNo] = None,
@@ -33,6 +32,7 @@ case class AgentSession(
   companyRegistrationNumber: Option[CompanyRegistrationNumber] = None,
   hasTaxRegNumbers: Option[Boolean] = None,
   taxRegistrationNumbers: Option[SortedSet[Trn]] = None,
+  tradingAddressUploadStatus: Option[TradingAddressUploadStatus] = None,
   changingAnswers: Boolean = false) {
 
   def sanitize: AgentSession = {
@@ -52,7 +52,6 @@ case class AgentSession(
       this.contactDetails,
       this.tradingName,
       this.mainBusinessAddress,
-      this.tradingAddressFileName,
       this.registeredWithHmrc,
       agentCodes,
       registeredForUkTax,
@@ -60,6 +59,7 @@ case class AgentSession(
       companyRegistrationNumber,
       this.hasTaxRegNumbers,
       taxRegistrationNumbers,
+      this.tradingAddressUploadStatus,
       this.changingAnswers
     )
   }
@@ -87,8 +87,8 @@ object AgentSession {
     def unapply(session: Option[AgentSession]): Boolean = session.exists(_.mainBusinessAddress.isEmpty)
   }
 
-  object MissingTradingAddressFileName {
-    def unapply(session: Option[AgentSession]): Boolean = session.exists(_.tradingAddressFileName.isEmpty)
+  object MissingTradingAddressUploadStatus {
+    def unapply(session: Option[AgentSession]): Boolean = session.exists(_.tradingAddressUploadStatus.isEmpty)
   }
 
   object MissingRegisteredWithHmrc {

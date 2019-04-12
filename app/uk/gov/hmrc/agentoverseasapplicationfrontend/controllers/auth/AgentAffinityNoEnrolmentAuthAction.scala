@@ -48,7 +48,6 @@ class AgentAffinityNoEnrolmentAuthActionImpl @Inject()(
   def invokeBlock[A](request: Request[A], block: CredentialRequest[A] => Future[Result]): Future[Result] = {
     implicit val hc: HeaderCarrier =
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
-
     authorised(AuthProviders(GovernmentGateway) and AffinityGroup.Agent)
       .retrieve(credentials and allEnrolments) {
         case creds ~ enrolments =>
@@ -56,8 +55,10 @@ class AgentAffinityNoEnrolmentAuthActionImpl @Inject()(
             Future.successful(Redirect(agentServicesAccountRootPath))
           else
             sessionStoreService.fetchAgentSession.flatMap {
-              case Some(agentSession) => block(CredentialRequest(creds.providerId, request, agentSession))
-              case None               => routesIfExistingApplication(subscriptionRootPath).map(Redirect)
+              case Some(agentSession) =>
+                block(CredentialRequest(creds.providerId, request, agentSession))
+              case None =>
+                routesIfExistingApplication(subscriptionRootPath).map(Redirect)
             }
       }
       .recover {

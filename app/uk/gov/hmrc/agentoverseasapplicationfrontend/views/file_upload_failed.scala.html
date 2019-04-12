@@ -19,7 +19,9 @@
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
 @import uk.gov.hmrc.play.views.html.helpers.{form}
 
-@()(implicit messages: Messages, request: Request[_], configuration: Configuration)
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.models.FileUploadStatus
+
+@(fileUploadStatus: FileUploadStatus)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
 @main_template(title = Messages("fileUploadTradingAddress.failed.title")) {
 

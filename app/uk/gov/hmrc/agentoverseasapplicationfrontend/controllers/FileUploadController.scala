@@ -19,10 +19,12 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.i18n.MessagesApi
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.connectors.UpscanConnector
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.SuccessfulFileUploadForm
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{Yes, YesNo}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{TradingAddressUploadStatus, Yes, YesNo}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
@@ -35,22 +37,56 @@ class FileUploadController @Inject()(
   authConnector: AuthConnector,
   sessionStoreService: SessionStoreService,
   validApplicantAction: AgentAffinityNoHmrcAsAgentAuthAction,
-  applicationService: ApplicationService)(
+  applicationService: ApplicationService,
+  upscanConnector: UpscanConnector)(
   implicit messagesApi: MessagesApi,
   ex: ExecutionContext,
   configuration: Configuration)
-    extends AgentOverseasBaseController(authConnector, sessionStoreService, applicationService) {
+    extends AgentOverseasBaseController(authConnector, sessionStoreService, applicationService) with SessionBehaviour {
 
   def showTradingAddressUploadForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    Ok(trading_address_upload())
-  }
+    sessionStoreService.fetchAgentSession.flatMap {
+      case Some(agentSession) =>
+        upscanConnector.initiate().flatMap { upscan =>
+          sessionStoreService
+            .cacheAgentSession(agentSession.copy(
+              tradingAddressUploadStatus = Some(TradingAddressUploadStatus(reference = Some(upscan.reference)))))
+            .map { _ =>
+              Ok(trading_address_upload(upscan))
+            }
+        }
+      case None => Redirect(routes.ApplicationController.showAntiMoneyLaunderingForm())
+    }
 
-  def submitTradingAddressUploadForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    Redirect(routes.ApplicationController.showRegisteredWithHmrcForm().url)
   }
 
   def showTradingAddressNoJsCheckPage: Action[AnyContent] = validApplicantAction.async { implicit request =>
     Ok(trading_address_no_js_check_file())
+  }
+
+  def upscanPollStatus(reference: String) = validApplicantAction.async { implicit request =>
+    sessionStoreService.fetchAgentSession.flatMap {
+      case Some(agentSession) =>
+        applicationService
+          .upscanPollStatus(reference)
+          .flatMap { response =>
+            val tar = agentSession.tradingAddressUploadStatus.flatMap(_.reference)
+            Some(response.reference) match {
+              case tar => {
+                sessionStoreService
+                  .cacheAgentSession(agentSession.copy(tradingAddressUploadStatus =
+                    agentSession.tradingAddressUploadStatus.map(_.copy(uploadStatus = Some(response)))))
+                  .map { _ =>
+                    Ok(Json.toJson(response))
+                  }
+              }
+
+              case _ => throw new RuntimeException("expecting reference in the session but not found")
+            }
+          }
+      case None => throw new RuntimeException("TODO")
+
+    }
   }
 
   def showSuccessfulFileUploadedForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
@@ -73,6 +109,13 @@ class FileUploadController @Inject()(
   }
 
   def showUploadFailedPage: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    Ok(file_upload_failed())
+    sessionStoreService.fetchAgentSession.map {
+      case Some(agentSession) =>
+        agentSession.tradingAddressUploadStatus.flatMap(_.uploadStatus) match {
+          case Some(uploadStatus) => Ok(file_upload_failed(uploadStatus))
+          case None               => throw new RuntimeException("expecting uploadStatus in the session but not found")
+        }
+    }
+
   }
 }

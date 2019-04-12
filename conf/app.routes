@@ -18,7 +18,8 @@ GET         /main-business-address                       @uk.gov.hmrc.agentovers
 POST        /main-business-address                       @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.TradingAddressController.submitMainBusinessAddress
 
 GET         /trading-address-upload                      @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showTradingAddressUploadForm
-POST        /trading-address-upload                      @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.submitTradingAddressUploadForm
+
+GET         /upscan-poll-status/:ref                     @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.upscanPollStatus(ref: String)
 
 GET         /trading-address-no-js-check-file            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showTradingAddressNoJsCheckPage
 

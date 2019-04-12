@@ -3,7 +3,7 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 import org.jsoup.Jsoup
 import play.api.test.FakeRequest
 import play.api.test.Helpers.redirectLocation
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, FailureDetails, FileUploadStatus, TradingAddressUploadStatus}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.stubs.AgentOverseasApplicationStubs
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
 import uk.gov.hmrc.http.HeaderCarrier
@@ -37,18 +37,6 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
         "fileUploadTradingAddress.button"
       )
 
-    }
-  }
-
-  "POST /trading-address-upload" should {
-    "redirect to / GET registered-with-hmrc" in {
-      sessionStoreService.currentSession.agentSession = Some(agentSession)
-
-      val result = await(controller.submitTradingAddressUploadForm(cleanCredsAgent(FakeRequest())))
-
-      status(result) shouldBe 303
-
-      redirectLocation(result) shouldBe Some("/agent-services/apply-from-outside-uk/registered-with-hmrc")
     }
   }
 
@@ -148,8 +136,13 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
   }
 
   "GET /file-upload-failed" should {
+
+    val failureDetails = FailureDetails("QUARANTINED","a virus was found!")
+    val fileUploadStatus = FileUploadStatus("reference","READY",Some("filename"),Some(failureDetails))
+    val tradingAddressAddressUploadStatus = TradingAddressUploadStatus(Some("reference"),Some(fileUploadStatus))
+
     "display page as expected" in {
-      sessionStoreService.currentSession.agentSession = Some(agentSession)
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(tradingAddressUploadStatus = Some(tradingAddressAddressUploadStatus)))
 
       val request = cleanCredsAgent(FakeRequest())
 

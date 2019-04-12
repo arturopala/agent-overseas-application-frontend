@@ -22,6 +22,10 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
   private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
   private val mainBusinessAddress = MainBusinessAddress("line 1", "line 2", None, None, countryCode = "IE")
   private val personalDetails = PersonalDetails(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
+  val failureDetails = FailureDetails("QUARANTINED","a virus was found!")
+  val fileUploadStatus = FileUploadStatus("reference","READY",Some("filename"),Some(failureDetails))
+  val tradingAddressAddressUploadStatus = TradingAddressUploadStatus(Some("reference"),Some(fileUploadStatus))
+
 
   private val agentSession = AgentSession(
     amlsDetails = Some(amlsDetails),
@@ -1622,7 +1626,6 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
             Some(contactDetails),
             Some("tradingName"),
             Some(mainBusinessAddress),
-            Some("trading-address-file-name"),
             registeredWithHmrc = Some(Yes),
             agentCodes = Some(AgentCodes(None,None)),
             registeredForUkTax = Some(No),
@@ -1649,9 +1652,10 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
             Some(contactDetails),
             Some("tradingName"),
             Some(mainBusinessAddress),
-            Some("trading-address-file-name"),
             registeredWithHmrc,
-            Some(agentCodes)))
+            Some(agentCodes),
+            tradingAddressUploadStatus = Some(tradingAddressAddressUploadStatus)
+            ))
 
         val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
 
@@ -1688,13 +1692,13 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
                 Some(contactDetails),
                 Some("tradingName"),
                 Some(mainBusinessAddress),
-                Some("trading-address-file-name"),
                 registeredWithHmrc,
                 Some(agentCodes),
                 registeredForUkTax = Some(Yes),
                 personalDetails = Some(PersonalDetails(Some(SaUtrChoice), None, Some(SaUtr("SA12345")))),
                 companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(false), None)),
-                hasTaxRegNumbers = Some(false)))
+                hasTaxRegNumbers = Some(false),
+                tradingAddressUploadStatus = Some(tradingAddressAddressUploadStatus)))
 
             val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
 
@@ -1723,13 +1727,12 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
                 Some(contactDetails),
                 Some("tradingName"),
                 Some(mainBusinessAddress),
-                Some("trading-address-file-name"),
                 registeredWithHmrc,
                 Some(agentCodes),
                 registeredForUkTax = Some(Yes),
                 personalDetails = Some(PersonalDetails(Some(SaUtrChoice), None, Some(SaUtr("SA12345")))),
                 companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some(Crn("999999")))),
-                hasTaxRegNumbers = Some(false)))
+                hasTaxRegNumbers = Some(false),tradingAddressUploadStatus = Some(tradingAddressAddressUploadStatus)))
 
             val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
 
@@ -1756,14 +1759,14 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
                 Some(contactDetails),
                 Some("tradingName"),
                 Some(mainBusinessAddress),
-                Some("trading-address-file-name"),
                 registeredWithHmrc,
                 Some(agentCodes),
                 registeredForUkTax = Some(Yes),
                 personalDetails = Some(PersonalDetails(Some(SaUtrChoice), None, Some(SaUtr("SA12345")))),
                 companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(false), None)),
                 hasTaxRegNumbers = Some(false),
-                taxRegistrationNumbers = None))
+                taxRegistrationNumbers = None,
+                tradingAddressUploadStatus = Some(tradingAddressAddressUploadStatus)))
 
             val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
 
@@ -1793,14 +1796,14 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
                 Some(contactDetails),
                 Some("tradingName"),
                 Some(mainBusinessAddress),
-                Some("trading-address-file-name"),
                 registeredWithHmrc,
                 Some(agentCodes),
                 registeredForUkTax = Some(Yes),
                 personalDetails = Some(PersonalDetails(Some(SaUtrChoice), None, Some(SaUtr("SA12345")))),
                 companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some(Crn("123456")))),
                 hasTaxRegNumbers = Some(true),
-                taxRegistrationNumbers = Some(SortedSet(Trn("TX12345")))))
+                taxRegistrationNumbers = Some(SortedSet(Trn("TX12345"))),
+                tradingAddressUploadStatus = Some(tradingAddressAddressUploadStatus)))
 
             val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
 
@@ -1831,12 +1834,12 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
               Some(contactDetails),
               Some("tradingName"),
               Some(mainBusinessAddress),
-              Some("trading-address-file-name"),
               registeredWithHmrc,
               Some(agentCodes),
               registeredForUkTax = Some(No),
               companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(false), None)),
-              hasTaxRegNumbers = Some(false)))
+              hasTaxRegNumbers = Some(false),
+              tradingAddressUploadStatus = Some(tradingAddressAddressUploadStatus)))
 
           val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
 
@@ -1873,13 +1876,13 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
           Some(contactDetails),
           Some("tradingName"),
           Some(mainBusinessAddress),
-          Some("trading-address-file-name"),
           registeredWithHmrc,
           registeredForUkTax = Some(Yes),
           personalDetails = Some(personalDetails),
           companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some(Crn("crnCode")))),
           hasTaxRegNumbers = Some(true),
-          taxRegistrationNumbers = Some(SortedSet(Trn("trn1"), Trn("trn2")))
+          taxRegistrationNumbers = Some(SortedSet(Trn("trn1"), Trn("trn2"))),
+          tradingAddressUploadStatus = Some(tradingAddressAddressUploadStatus)
         ))
 
       val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))

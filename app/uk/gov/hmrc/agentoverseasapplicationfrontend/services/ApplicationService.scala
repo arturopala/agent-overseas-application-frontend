@@ -21,7 +21,7 @@ import java.time.{LocalDateTime, ZoneOffset}
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.connectors.AgentOverseasApplicationConnector
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.Rejected
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, ApplicationEntityDetails, CreateApplicationRequest}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, ApplicationEntityDetails, CreateApplicationRequest, FileUploadStatus}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -48,4 +48,8 @@ class ApplicationService @Inject()(agentOverseasApplicationConnector: AgentOvers
 
   def createApplication(application: AgentSession)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
     agentOverseasApplicationConnector.createOverseasApplication(CreateApplicationRequest(application.sanitize))
+
+  def upscanPollStatus(reference: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[FileUploadStatus] =
+    agentOverseasApplicationConnector.upscanPollStatus(reference)
+
 }

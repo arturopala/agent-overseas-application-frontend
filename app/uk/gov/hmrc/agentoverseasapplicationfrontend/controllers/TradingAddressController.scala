@@ -19,8 +19,10 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 import javax.inject.{Inject, Named, Singleton}
 import play.api.{Configuration, Environment}
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.JsValue
 import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.config.CountryNamesLoader
+import uk.gov.hmrc.agentoverseasapplicationfrontend.connectors.UpscanConnector
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.MainBusinessAddressForm
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession
@@ -38,6 +40,7 @@ class TradingAddressController @Inject()(
   val env: Environment,
   val sessionStoreService: SessionStoreService,
   val applicationService: ApplicationService,
+  val upscanConnector: UpscanConnector,
   countryNamesLoader: CountryNamesLoader,
   validApplicantAction: AgentAffinityNoHmrcAsAgentAuthAction)(
   implicit val configuration: Configuration,
@@ -62,23 +65,24 @@ class TradingAddressController @Inject()(
     }
   }
 
-  def submitMainBusinessAddress: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    MainBusinessAddressForm
-      .mainBusinessAddressForm(validCountryCodes)
-      .bindFromRequest()
-      .fold(
-        formWithErrors => {
-          if (request.agentSession.changingAnswers) {
-            Ok(main_business_address(formWithErrors, countries, Some(showCheckYourAnswersUrl)))
-          } else {
-            Ok(main_business_address(formWithErrors, countries))
-          }
-        },
-        validForm =>
-          updateSession(request.agentSession.copy(mainBusinessAddress = Some(validForm)))(
-            routes.FileUploadController.showTradingAddressUploadForm().url)
-      )
-  }
+  def submitMainBusinessAddress: Action[AnyContent] =
+    validApplicantAction.async { implicit request =>
+      MainBusinessAddressForm
+        .mainBusinessAddressForm(validCountryCodes)
+        .bindFromRequest()
+        .fold(
+          formWithErrors => {
+            if (request.agentSession.changingAnswers) {
+              Ok(main_business_address(formWithErrors, countries, Some(showCheckYourAnswersUrl)))
+            } else {
+              Ok(main_business_address(formWithErrors, countries))
+            }
+          },
+          validForm =>
+            updateSession(request.agentSession.copy(mainBusinessAddress = Some(validForm)))(
+              routes.FileUploadController.showTradingAddressUploadForm().url)
+        )
+    }
 
   private def updateSession(agentSession: AgentSession)(redirectTo: String)(implicit hc: HeaderCarrier) =
     if (agentSession.changingAnswers) {

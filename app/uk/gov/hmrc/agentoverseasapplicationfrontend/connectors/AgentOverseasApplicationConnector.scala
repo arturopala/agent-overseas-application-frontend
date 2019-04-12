@@ -23,7 +23,7 @@ import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
 import javax.inject.{Inject, Named, Singleton}
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{ApplicationEntityDetails, ApplicationStatus, CreateApplicationRequest}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{ApplicationEntityDetails, ApplicationStatus, CreateApplicationRequest, FileUploadStatus}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpPost, HttpResponse, _}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -63,6 +63,15 @@ class AgentOverseasApplicationConnector @Inject()(
       http
         .POST[CreateApplicationRequest, HttpResponse](url.toString, request)
         .map(_ => ())
+    }
+  }
+
+  def upscanPollStatus(
+    reference: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[FileUploadStatus] = {
+    val url = new URL(baseUrl, s"/agent-overseas-application/upscan-poll-status/$reference")
+    monitor(s"Agent-overseas-Application-upscan-poll-status-GET") {
+      http
+        .GET[FileUploadStatus](url.toString)
     }
   }
 }

@@ -126,4 +126,82 @@ $(function () {
 
     GOVUK.details.init();
 
+
+});
+
+$(document).ready(function () {
+
+    // File upload
+
+    if (document.getElementById('govuk-box')) {
+        var loader = new GOVUK.Loader();
+        loader.init({
+            container: 'govuk-box'
+        })
+    }
+
+    if (document.getElementById('file-upload-loading')) {
+        var loader2 = new GOVUK.Loader();
+        loader2.init({
+            container: 'file-upload-loading',
+            label: true,
+            labelText: 'This file is being checked and uploaded',
+        })
+    }
+
+    $('.trading-upload').on('click', function (e) {
+        var loadingSection = $('.loader'),
+            uploadFormElements = $('.hide-when-uploading');
+
+        uploadFormElements.hide();
+        loadingSection.show();
+        $("html, body").animate({ scrollTop: 0 });
+        pollUploadStatus();
+    });
+
+    var statusPollCount= {};
+    statusPollCount.timer = 0;
+
+    var pollUploadStatus = function () {
+        var fileReference = $('.trading-upload').data('reference'),
+            baseUrl = "/agent-services/apply-from-outside-uk",
+            pollUrl = "/upscan-poll-status/";
+
+        setTimeout(function () {
+            $.ajax({
+                url: baseUrl + pollUrl + fileReference,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                type: "GET",
+                success: function (data) {
+                    if (data) {
+                        if (data.fileStatus === 'READY') {
+                            window.location.href = baseUrl + "/file-uploaded-successfully";
+                        } else if (data.fileStatus === 'FAILURE') {
+                            window.location.href = baseUrl + "/file-upload-failed";
+                        } else if (data.fileStatus === 'NOT_READY') {
+                            statusPollCount.timer++;
+                            if(statusPollCount.timer === 30){
+                                window.location.href = baseUrl + "/file-upload-failed";
+                            }
+                        } else {
+                            window.location.href = baseUrl + "/file-upload-failed";
+                        }
+                    }
+                },
+                dataType: "json",
+                complete: pollUploadStatus
+            })
+        }, 500);
+    }
+
+    $('#file-upload').change(function (e) {
+        var fileName = e.target.files[0].name;
+
+        if ((fileName.indexOf('pdf') === -1) && (fileName.indexOf('jpeg') === -1) && (fileName.indexOf('jpg') === -1)) {
+            window.location.href = baseUrl + "/file-upload-failed"
+        }
+    });
+
 });
