@@ -83,4 +83,12 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with BeforeAndAf
     }
   }
 
+  "poll upscan status" in {
+    when(
+      connector.upscanPollStatus(any[String])(eqs(hc), any[ExecutionContext])
+    ).thenReturn(Future.successful(FileUploadStatus("some", "some", Some("some"))))
+
+    await(service.upscanPollStatus("some")) shouldBe FileUploadStatus("some", "some", Some("some"))
+  }
+
 }

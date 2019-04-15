@@ -4,11 +4,11 @@ import org.jsoup.Jsoup
 import play.api.test.FakeRequest
 import play.api.test.Helpers.redirectLocation
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, FailureDetails, FileUploadStatus, TradingAddressUploadStatus}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.stubs.AgentOverseasApplicationStubs
+import uk.gov.hmrc.agentoverseasapplicationfrontend.stubs.{AgentOverseasApplicationStubs, UpscanStubs}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
 import uk.gov.hmrc.http.HeaderCarrier
 
-class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationStubs {
+class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationStubs with UpscanStubs {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
@@ -19,6 +19,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
   "GET /trading-address-upload" should {
     "display the upload trading address form" in {
       sessionStoreService.currentSession.agentSession = Some(agentSession)
+      given200UpscanInitiate()
 
       val result = await(controller.showTradingAddressUploadForm(cleanCredsAgent(FakeRequest())))
 

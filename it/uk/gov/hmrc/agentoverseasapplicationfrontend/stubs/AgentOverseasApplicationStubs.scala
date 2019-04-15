@@ -98,4 +98,19 @@ trait AgentOverseasApplicationStubs {
       .willReturn(aResponse()
         .withStatus(500)))
   }
+
+  def given200UpscanPollStatusReady():  Unit = {
+    stubFor(get(urlEqualTo("/agent-overseas-application/upscan-poll-status/reference"))
+    .willReturn(aResponse().withBody("""{"reference":"reference","fileStatus":"READY","fileName":"some"}""").withStatus(200)))
+  }
+
+  def given200UpscanPollStatusNotReady():  Unit = {
+    stubFor(get(urlEqualTo("/agent-overseas-application/upscan-poll-status/reference"))
+      .willReturn(aResponse().withBody("""{"reference":"reference","fileStatus":"NOT_READY"}""").withStatus(200)))
+  }
+
+  def given500UpscanPollStatus():  Unit = {
+    stubFor(get(urlEqualTo("/agent-overseas-application/upscan-poll-status/reference"))
+      .willReturn(aResponse().withStatus(500)))
+  }
 }
