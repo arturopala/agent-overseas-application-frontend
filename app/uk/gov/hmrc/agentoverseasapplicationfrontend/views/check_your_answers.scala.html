@@ -233,7 +233,7 @@
         }
     </div>
     <div class="app-check-your-answers--group margin-bottom-10">
-        @agentSession.tradingAddressUploadStatus.flatMap(_.uploadStatus.flatMap(_.fileName)).map { fileName =>
+        @agentSession.tradingAddressUploadStatus.flatMap(_.fileName).map { fileName =>
             <dl class="app-check-your-answers app-check-your-answers--long">
                 @check_answers_div(Messages("checkAnswers.tradingAddressFile.title"), fileName, "tradingAddressFileName", routes.ChangingAnswersController.changeTradingAddressFile())
             </dl>

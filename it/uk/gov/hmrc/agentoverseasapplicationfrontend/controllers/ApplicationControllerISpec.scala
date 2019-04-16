@@ -24,7 +24,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
   private val personalDetails = PersonalDetails(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
   val failureDetails = FailureDetails("QUARANTINED","a virus was found!")
   val fileUploadStatus = FileUploadStatus("reference","READY",Some("filename"),Some(failureDetails))
-  val tradingAddressAddressUploadStatus = TradingAddressUploadStatus(Some("reference"),Some(fileUploadStatus))
+  val tradingAddressAddressUploadStatus = FileUploadStatus("reference","READY",Some("filename"))
 
 
   private val agentSession = AgentSession(
