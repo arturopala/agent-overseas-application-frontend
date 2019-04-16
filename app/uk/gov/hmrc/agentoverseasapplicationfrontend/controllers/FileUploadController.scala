@@ -24,13 +24,14 @@ import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.connectors.UpscanConnector
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.SuccessfulFileUploadForm
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{TradingAddressUploadStatus, Yes, YesNo}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{Yes, YesNo}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class FileUploadController @Inject()(
@@ -45,59 +46,40 @@ class FileUploadController @Inject()(
     extends AgentOverseasBaseController(authConnector, sessionStoreService, applicationService) with SessionBehaviour {
 
   def showTradingAddressUploadForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    sessionStoreService.fetchAgentSession.flatMap {
-      case Some(agentSession) =>
-        upscanConnector.initiate().flatMap { upscan =>
-          sessionStoreService
-            .cacheAgentSession(agentSession.copy(
-              tradingAddressUploadStatus = Some(TradingAddressUploadStatus(reference = Some(upscan.reference)))))
-            .map { _ =>
-              Ok(trading_address_upload(upscan))
-            }
-        }
-      case None => Redirect(routes.ApplicationController.showAntiMoneyLaunderingForm())
-    }
-
+    upscanConnector.initiate().map(upscan => Ok(trading_address_upload(upscan)))
   }
 
   def showTradingAddressNoJsCheckPage: Action[AnyContent] = validApplicantAction.async { implicit request =>
     Ok(trading_address_no_js_check_file())
   }
 
+  //this function is called via ajax in the assets/javascripts/script.js (beg ln 152)
   def upscanPollStatus(reference: String) = validApplicantAction.async { implicit request =>
     sessionStoreService.fetchAgentSession.flatMap {
       case Some(agentSession) =>
         applicationService
           .upscanPollStatus(reference)
           .flatMap { response =>
-            val tar = agentSession.tradingAddressUploadStatus.flatMap(_.reference)
-            Some(response.reference) match {
-              case tar => {
-                sessionStoreService
-                  .cacheAgentSession(agentSession.copy(tradingAddressUploadStatus =
-                    agentSession.tradingAddressUploadStatus.map(_.copy(uploadStatus = Some(response)))))
-                  .map { _ =>
-                    Ok(Json.toJson(response))
-                  }
+            sessionStoreService
+              .cacheAgentSession(agentSession.copy(tradingAddressUploadStatus = Some(response)))
+              .map { _ =>
+                Ok(Json.toJson(response))
               }
-
-              case _ => throw new RuntimeException("expecting reference in the session but not found")
-            }
           }
       case None => throw new RuntimeException("TODO")
-
     }
   }
 
   def showSuccessfulFileUploadedForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    Ok(successful_file_upload(SuccessfulFileUploadForm.form, "dummyFileName"))
+    getFileNameFromSession().map(filename => Ok(successful_file_upload(SuccessfulFileUploadForm.form, filename)))
   }
 
   def submitSuccessfulFileUploadedForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     SuccessfulFileUploadForm.form
       .bindFromRequest()
       .fold(
-        formWithErrors => Ok(successful_file_upload(formWithErrors, "dummyFileName")),
+        formWithErrors =>
+          getFileNameFromSession().map(filename => Ok(successful_file_upload(formWithErrors, filename))),
         validFormValue => {
           val newValue = YesNo(validFormValue)
           val redirectTo =
@@ -111,11 +93,18 @@ class FileUploadController @Inject()(
   def showUploadFailedPage: Action[AnyContent] = validApplicantAction.async { implicit request =>
     sessionStoreService.fetchAgentSession.map {
       case Some(agentSession) =>
-        agentSession.tradingAddressUploadStatus.flatMap(_.uploadStatus) match {
+        agentSession.tradingAddressUploadStatus match {
           case Some(uploadStatus) => Ok(file_upload_failed(uploadStatus))
           case None               => throw new RuntimeException("expecting uploadStatus in the session but not found")
         }
     }
-
   }
+
+  private def getFileNameFromSession()(implicit hc: HeaderCarrier): Future[String] =
+    sessionStoreService.fetchAgentSession.flatMap {
+      case Some(agentSession) =>
+        agentSession.tradingAddressUploadStatus
+          .flatMap(_.fileName)
+          .getOrElse(throw new RuntimeException("no filename found in session"))
+    }
 }

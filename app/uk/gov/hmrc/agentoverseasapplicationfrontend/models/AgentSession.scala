@@ -32,7 +32,7 @@ case class AgentSession(
   companyRegistrationNumber: Option[CompanyRegistrationNumber] = None,
   hasTaxRegNumbers: Option[Boolean] = None,
   taxRegistrationNumbers: Option[SortedSet[Trn]] = None,
-  tradingAddressUploadStatus: Option[TradingAddressUploadStatus] = None,
+  tradingAddressUploadStatus: Option[FileUploadStatus] = None,
   changingAnswers: Boolean = false) {
 
   def sanitize: AgentSession = {

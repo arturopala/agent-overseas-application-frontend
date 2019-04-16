@@ -3,7 +3,7 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 import org.jsoup.Jsoup
 import play.api.test.FakeRequest
 import play.api.test.Helpers.redirectLocation
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, FailureDetails, FileUploadStatus, TradingAddressUploadStatus}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, FailureDetails, FileUploadStatus}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.stubs.{AgentOverseasApplicationStubs, UpscanStubs}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
 import uk.gov.hmrc.http.HeaderCarrier
@@ -60,7 +60,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
 
   "GET /file-uploaded-successfully" should {
     "display the page with correct content" in {
-      sessionStoreService.currentSession.agentSession = Some(agentSession)
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(tradingAddressUploadStatus = Some(FileUploadStatus("reference","READY",Some("filename")))))
 
       val result = await(controller.showSuccessfulFileUploadedForm(cleanCredsAgent(FakeRequest())))
 
@@ -100,7 +100,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
     }
 
     "show the form with errors when invalid value for 'correctFile' is passed in the form" in {
-      sessionStoreService.currentSession.agentSession = Some(agentSession)
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(tradingAddressUploadStatus = Some(FileUploadStatus("reference","READY",Some("filename")))))
 
       val request = cleanCredsAgent(FakeRequest().withFormUrlEncodedBody("correctFile" -> "abcd"))
 
@@ -118,7 +118,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
     }
 
     "show the form with errors when 'correctFile' field is missing the form" in {
-      sessionStoreService.currentSession.agentSession = Some(agentSession)
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(tradingAddressUploadStatus = Some(FileUploadStatus("reference","READY",Some("filename")))))
 
       val request = cleanCredsAgent(FakeRequest().withFormUrlEncodedBody("correctabxgd" -> "true"))
 
@@ -140,7 +140,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
 
     val failureDetails = FailureDetails("QUARANTINED","a virus was found!")
     val fileUploadStatus = FileUploadStatus("reference","READY",Some("filename"),Some(failureDetails))
-    val tradingAddressAddressUploadStatus = TradingAddressUploadStatus(Some("reference"),Some(fileUploadStatus))
+    val tradingAddressAddressUploadStatus = FileUploadStatus("reference","READY",Some("filename"))
 
     "display page as expected" in {
       sessionStoreService.currentSession.agentSession = Some(agentSession.copy(tradingAddressUploadStatus = Some(tradingAddressAddressUploadStatus)))
