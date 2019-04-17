@@ -1,12 +1,15 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import org.jsoup.Jsoup
+import play.api.Application
 import play.api.test.FakeRequest
 import play.api.test.Helpers.redirectLocation
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, FailureDetails, FileUploadStatus}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.stubs.{AgentOverseasApplicationStubs, UpscanStubs}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
 import uk.gov.hmrc.http.HeaderCarrier
+import play.filters.csrf.CSRF.Token
+import play.filters.csrf.{CSRFConfigProvider, CSRFFilter}
 
 class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationStubs with UpscanStubs {
 
@@ -21,7 +24,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
       sessionStoreService.currentSession.agentSession = Some(agentSession)
       given200UpscanInitiate()
 
-      val result = await(controller.showTradingAddressUploadForm(cleanCredsAgent(FakeRequest())))
+      val result = await(controller.showTradingAddressUploadForm(cleanCredsAgent(addToken(FakeRequest()))))
 
       status(result) shouldBe 200
 
@@ -167,5 +170,16 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
 
       result should containLink("button.back", tradingAddressUploadFormUrl)
     }
+  }
+
+  private  def addToken[T](fakeRequest: FakeRequest[T])(implicit app: Application) = {
+    val csrfConfig     = app.injector.instanceOf[CSRFConfigProvider].get
+    val csrfFilter     = app.injector.instanceOf[CSRFFilter]
+    val token          = csrfFilter.tokenProvider.generateToken
+
+    fakeRequest.copyFakeRequest(tags = fakeRequest.tags ++ Map(
+      Token.NameRequestTag  -> csrfConfig.tokenName,
+      Token.RequestTag      -> token
+    )).withHeaders((csrfConfig.headerName, token))
   }
 }
