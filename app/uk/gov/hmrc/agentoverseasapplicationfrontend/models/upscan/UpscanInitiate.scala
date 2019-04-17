@@ -21,44 +21,7 @@ import play.api.libs.json.{Json, Reads, Writes, _}
 
 case class UpscanInitiate(reference: String, uploadRequest: UploadRequest)
 
-case class UploadRequest(href: String, fields: Fields)
-
-case class Fields(
-  xAmzMetaCallbackUrl: String,
-  xAmzDate: String,
-  xAmzCredential: String,
-  xAmzAlgorithm: String,
-  key: String,
-  acl: String,
-  xAmzSignature: String,
-  xAmzMetaConsumingService: String,
-  policy: String
-)
-
-object Fields {
-  implicit val writes = new Writes[Fields] {
-    def writes(fields: Fields) = Json.obj(
-      "x-amz-meta-callback-url"      -> fields.xAmzMetaCallbackUrl,
-      "x-amz-date"                   -> fields.xAmzDate,
-      "x-amz-credential"             -> fields.xAmzCredential,
-      "x-amz-algorithm"              -> fields.xAmzAlgorithm,
-      "key"                          -> fields.key,
-      "acl"                          -> fields.acl,
-      "x-amz-signature"              -> fields.xAmzSignature,
-      "x-amz-meta-consuming-service" -> fields.xAmzMetaConsumingService,
-      "policy"                       -> fields.policy
-    )
-  }
-  implicit val reads: Reads[Fields] = ((__ \ "x-amz-meta-callback-url").read[String] and
-    (__ \ "x-amz-date").read[String] and
-    (__ \ "x-amz-credential").read[String] and
-    (__ \ "x-amz-algorithm").read[String] and
-    (__ \ "key").read[String] and
-    (__ \ "acl").read[String] and
-    (__ \ "x-amz-signature").read[String] and
-    (__ \ "x-amz-meta-consuming-service").read[String] and
-    (__ \ "policy").read[String])(Fields.apply _)
-}
+case class UploadRequest(href: String, fields: Map[String, String])
 
 object UploadRequest {
   implicit val writes = new Writes[UploadRequest] {
@@ -68,7 +31,7 @@ object UploadRequest {
     )
   }
   implicit val reads: Reads[UploadRequest] = ((__ \ "href").read[String] and
-    (__ \ "fields").read[Fields])(UploadRequest.apply _)
+    (__ \ "fields").read[Map[String, String]])(UploadRequest.apply _)
 }
 
 object UpscanInitiate {

@@ -24,7 +24,7 @@ import javax.inject.{Inject, Named, Singleton}
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.upscan.UpscanInitiate
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,7 +45,7 @@ class UpscanConnector @Inject()(
 
   val maxFileSize = 25000000 //25MB
 
-  val request: JsValue = Json.parse(s"""{
+  val payload: JsValue = Json.parse(s"""{
                                        |"callbackUrl": "$callBackUrl",
                                        |"minimumFileSize": 1000,
                                        |"maximumFileSize": $maxFileSize
@@ -54,7 +54,7 @@ class UpscanConnector @Inject()(
 
   def initiate()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[UpscanInitiate] =
     monitor("upscan-initiate POST") {
-      httpClient.POST[JsValue, JsValue](upscanUrl.toString, request, Seq("content-Type" -> "application/json")).map {
+      httpClient.POST[JsValue, JsValue](upscanUrl.toString, payload, Seq("content-Type" -> "application/json")).map {
         response =>
           response.as[UpscanInitiate]
       }

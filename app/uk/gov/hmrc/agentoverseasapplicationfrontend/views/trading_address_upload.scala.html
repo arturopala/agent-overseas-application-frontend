@@ -48,15 +48,9 @@
                 </ul>
                 <div class="form-group" style="margin-bottom: 20px !important;">
                     <label class="" for="file-upload">@Messages("fileUploadTradingAddress.upload")</label>
-                    <input type="hidden" name="x-amz-meta-callback-url" value="@upscan.uploadRequest.fields.xAmzMetaCallbackUrl">
-                    <input type="hidden" name="x-amz-date" value="@upscan.uploadRequest.fields.xAmzDate">
-                    <input type="hidden" name="x-amz-credential" value="@upscan.uploadRequest.fields.xAmzCredential">
-                    <input type="hidden" name="x-amz-algorithm" value="@upscan.uploadRequest.fields.xAmzAlgorithm">
-                    <input type="hidden" name="key" value="@upscan.uploadRequest.fields.key">
-                    <input type="hidden" name="acl" value="@upscan.uploadRequest.fields.acl">
-                    <input type="hidden" name="x-amz-signature" value="@upscan.uploadRequest.fields.xAmzSignature">
-                    <input type="hidden" name="x-amz-meta-consuming-service" value="@upscan.uploadRequest.fields.xAmzMetaConsumingService">
-                    <input type="hidden" name="policy" value="@upscan.uploadRequest.fields.policy">
+                    @for(field <- upscan.uploadRequest.fields){
+                        <input type="hidden" name="@field._1" value="@field._2">
+                    }
                     <input class="" id="file-upload" name="file" type="file">
                 </div>
                 <div class="panel panel-border-wide margin-bottom-30">
