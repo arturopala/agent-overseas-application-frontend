@@ -48,6 +48,7 @@
                 </ul>
                 <div class="form-group" style="margin-bottom: 20px !important;">
                     <label class="" for="file-upload">@Messages("fileUploadTradingAddress.upload")</label>
+                    @CSRF.formField
                     @for(field <- upscan.uploadRequest.fields){
                         <input type="hidden" name="@field._1" value="@field._2">
                     }
