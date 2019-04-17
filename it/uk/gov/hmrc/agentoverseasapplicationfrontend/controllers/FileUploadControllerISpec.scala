@@ -24,7 +24,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
       sessionStoreService.currentSession.agentSession = Some(agentSession)
       given200UpscanInitiate()
 
-      val result = await(controller.showTradingAddressUploadForm(cleanCredsAgent(addToken(FakeRequest()))))
+      val result = await(controller.showTradingAddressUploadForm(cleanCredsAgent(FakeRequest())))
 
       status(result) shouldBe 200
 
@@ -170,16 +170,5 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
 
       result should containLink("button.back", tradingAddressUploadFormUrl)
     }
-  }
-
-  private  def addToken[T](fakeRequest: FakeRequest[T])(implicit app: Application) = {
-    val csrfConfig     = app.injector.instanceOf[CSRFConfigProvider].get
-    val csrfFilter     = app.injector.instanceOf[CSRFFilter]
-    val token          = csrfFilter.tokenProvider.generateToken
-
-    fakeRequest.copyFakeRequest(tags = fakeRequest.tags ++ Map(
-      Token.NameRequestTag  -> csrfConfig.tokenName,
-      Token.RequestTag      -> token
-    )).withHeaders((csrfConfig.headerName, token))
   }
 }

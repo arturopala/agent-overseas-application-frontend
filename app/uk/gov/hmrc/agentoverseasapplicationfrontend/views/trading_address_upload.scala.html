@@ -28,8 +28,7 @@
 
     <a href="@backLink.getOrElse(routes.TradingAddressController.showMainBusinessAddressForm())" class="link-back">@Messages("button.back")</a>
 
-
-    @form(action = Call("POST", upscan.uploadRequest.href), 'enctype -> "multipart/form-data") {
+    <form method="POST" action="@upscan.uploadRequest.href" enctype="multipart/form-data">
         <fieldset>
             <legend class="margin-bottom-10">
                 <h1 class="heading-xlarge margin-bottom-20">
@@ -48,9 +47,9 @@
                 </ul>
                 <div class="form-group" style="margin-bottom: 20px !important;">
                     <label class="" for="file-upload">@Messages("fileUploadTradingAddress.upload")</label>
-                    @CSRF.formField
-                    @for(field <- upscan.uploadRequest.fields){
-                        <input type="hidden" name="@field._1" value="@field._2">
+
+                    @for((key,value) <- upscan.uploadRequest.fields){
+                        <input type="hidden" name="@key" value="@value">
                     }
                     <input class="" id="file-upload" name="file" type="file">
                 </div>
@@ -63,7 +62,7 @@
             </div>
         </fieldset>
 
-    }
+    </form>
 
 }
 
