@@ -306,18 +306,20 @@ if(fileName.length > 20){
         }
     </div>
 
-    <div class="app-check-your-answers--group margin-bottom-10">
-    @agentSession.trnUploadStatus.flatMap(_.fileName).map { fileName =>
-        <dl class="app-check-your-answers app-check-your-answers--long">
-            @check_answers_div(Messages("checkAnswers.taxRegistrationNumbersFile.title"), formatFileName(fileName), "trnFileName", routes.ChangingAnswersController.changeYourTaxRegistrationNumbersFile())
-        </dl>
-        <script>
-            @if(fileName.nonEmpty) {
+    @if(agentSession.trnUploadStatus.isDefined) {
+        <div class="app-check-your-answers--group margin-bottom-10">
+        @agentSession.trnUploadStatus.flatMap(_.fileName).map { fileName =>
+            <dl class="app-check-your-answers app-check-your-answers--long">
+                @check_answers_div(Messages("checkAnswers.taxRegistrationNumbersFile.title"), formatFileName(fileName), "trnFileName", routes.ChangingAnswersController.changeYourTaxRegistrationNumbersFile())
+            </dl>
+            <script>
+                @if(fileName.nonEmpty) {
                     gaSendEvent('check-answers-trn-file-name');
                 }
-        </script>
+            </script>
+        }
+        </div>
     }
-    </div>
 
     <p class="margin-top-30">@Messages("checkAnswers.confirm.p1")</p>
 
