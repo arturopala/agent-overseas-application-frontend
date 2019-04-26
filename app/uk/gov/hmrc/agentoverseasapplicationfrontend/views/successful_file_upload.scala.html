@@ -21,14 +21,14 @@
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
 @import uk.gov.hmrc.play.views.html.helpers.{form, input_radio_group, errorSummary}
 
-@(tradingAddressUploadSuccessForm: Form[RadioConfirm], fileName: String)(implicit messages: Messages, request: Request[_], configuration: Configuration)
+@(uploadSuccessForm: Form[SuccessfulFileUploadConfirmation], fileName: Option[String], fileType: String, backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
-@main_template(title = "" + Messages("fileUploadTradingAddress.success.title")) {
+@main_template(title = "" + Messages("fileUpload.success.title")) {
 
-    <a href="@routes.FileUploadController.showTradingAddressUploadForm()" class="link-back">@Messages("button.back")</a>
+    <a href="@backLink.getOrElse(routes.FileUploadController.showUploadForm(fileType))" class="link-back">@Messages("button.back")</a>
 
-    @if(tradingAddressUploadSuccessForm.hasErrors) {
-         @errorSummary(Messages("error.summary.heading"),tradingAddressUploadSuccessForm, Seq.empty, Some("successful-file-upload"))
+    @if(uploadSuccessForm.hasErrors) {
+         @errorSummary(Messages("error.summary.heading"),uploadSuccessForm, Seq.empty, Some("successful-file-upload"))
     }
 
 
@@ -38,24 +38,26 @@
 
             <legend class="margin-bottom-10">
                 <h1 class="heading-xlarge margin-bottom-20">
-                    <span class="pre-heading">@Messages("fileUploadTradingAddress.success.caption")</span>
-                    @Messages("fileUploadTradingAddress.success.title")
+                    <span class="pre-heading">@Messages("fileUpload.success.caption")</span>
+                    @Messages("fileUpload.success.title")
                 </h1>
             </legend>
 
             <p>@fileName</p>
 
             <div class="form-group">
+                <input type="hidden" name="fileType" value="@fileType">
                 @input_radio_group(
-                tradingAddressUploadSuccessForm("correctFile"),
+                uploadSuccessForm("choice.correctFile"),
                 Seq(
-                "true" -> Messages("fileUploadTradingAddress.success.form.correctFile.yes"),
-                "false" -> Messages("fileUploadTradingAddress.success.form.correctFile.no")
+                "true" -> Messages("fileUpload.success.form.correctFile.yes"),
+                "false" -> Messages("fileUpload.success.form.correctFile.no")
                 ),
-                '_legend -> Html("""<h2 class="margin-top-10">""" + Messages("fileUploadTradingAddress.success.correctFile.confirmation") + """</h2>"""),                '_groupDivClass -> "soft--ends",
-                '_fieldsetAttributes -> Html("""id='fileUploadTradingAddressSuccess'""")
+                '_legend -> Html("""<h2 class="margin-top-10">""" + Messages("fileUpload.success.correctFile.confirmation") + """</h2>"""),                '_groupDivClass -> "soft--ends",
+                '_fieldsetAttributes -> Html("""id='fileUploadSuccess'""")
                 )
             </div>
+
 
             <button class="button margin-bottom-30" type="submit" id="continue">@Messages("button.continue")</button>
 

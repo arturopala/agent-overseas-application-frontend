@@ -33,6 +33,8 @@ case class AgentSession(
   hasTaxRegNumbers: Option[Boolean] = None,
   taxRegistrationNumbers: Option[SortedSet[Trn]] = None,
   tradingAddressUploadStatus: Option[FileUploadStatus] = None,
+  amlsUploadStatus: Option[FileUploadStatus] = None,
+  trnUploadStatus: Option[FileUploadStatus] = None,
   changingAnswers: Boolean = false) {
 
   def sanitize: AgentSession = {
@@ -60,6 +62,8 @@ case class AgentSession(
       this.hasTaxRegNumbers,
       taxRegistrationNumbers,
       this.tradingAddressUploadStatus,
+      this.amlsUploadStatus,
+      this.trnUploadStatus,
       this.changingAnswers
     )
   }
@@ -143,5 +147,14 @@ object AgentSession {
   object NoTaxRegistrationNumber {
     def unapply(session: Option[AgentSession]): Boolean =
       session.exists(_.hasTaxRegNumbers.getOrElse(true) == false) //interested in false so getOrElse(true) is the bad case
+  }
+  object MissingAmlsUploadStatus {
+    def unapply(session: Option[AgentSession]): Boolean =
+      session.exists(_.amlsUploadStatus.isEmpty)
+  }
+
+  object MissingTaxRegFile {
+    def unapply(session: Option[AgentSession]): Boolean =
+      session.exists(_.trnUploadStatus.isEmpty)
   }
 }

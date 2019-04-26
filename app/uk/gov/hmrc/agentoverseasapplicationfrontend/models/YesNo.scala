@@ -21,6 +21,10 @@ import uk.gov.hmrc.http.BadRequestException
 
 case class RadioConfirm(value: Option[Boolean])
 
+object RadioConfirm {
+  implicit val format = Json.format[RadioConfirm]
+}
+
 sealed trait YesNo {
   val value: String
 }

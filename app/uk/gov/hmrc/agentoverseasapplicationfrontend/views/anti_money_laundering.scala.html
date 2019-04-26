@@ -30,7 +30,7 @@
         @errorSummary(Messages("error.summary.heading"), amlsForm, Seq.empty, Some("amls-form"))
     }
 
-    @form(action = routes.ApplicationController.submitAntiMoneyLaundering, 'class -> "form js-form", 'id -> "amlsForm") {
+    @form(action = routes.AntiMoneyLaunderingController.submitAntiMoneyLaundering, 'class -> "form js-form", 'id -> "amlsForm") {
 
       <fieldset>
 

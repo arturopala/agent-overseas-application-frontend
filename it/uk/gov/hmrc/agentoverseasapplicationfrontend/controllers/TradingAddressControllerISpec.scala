@@ -18,6 +18,8 @@ class TradingAddressControllerISpec extends BaseISpec with AgentOverseasApplicat
   private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
   private val personalDetails = PersonalDetails(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
 
+  private val fileUploadStatus: Option[FileUploadStatus] = Some(FileUploadStatus(reference = "ref", fileStatus = "status", fileName = Some("fileName")))
+
   private val agentSession = AgentSession(
     amlsDetails = Some(amlsDetails),
     contactDetails = Some(contactDetails),
@@ -52,7 +54,7 @@ class TradingAddressControllerISpec extends BaseISpec with AgentOverseasApplicat
 
       status(result) shouldBe 303
 
-      redirectLocation(result) shouldBe Some(routes.ApplicationController.showAntiMoneyLaunderingForm().url)
+      redirectLocation(result) shouldBe Some(routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url)
     }
   }
 
@@ -66,7 +68,7 @@ class TradingAddressControllerISpec extends BaseISpec with AgentOverseasApplicat
       val result = await(controller.submitMainBusinessAddress(authenticatedRequest))
 
       status(result) shouldBe 303
-      result.header.headers(LOCATION) shouldBe routes.FileUploadController.showTradingAddressUploadForm().url
+      result.header.headers(LOCATION) shouldBe routes.FileUploadController.showUploadForm("trading-address").url
 
       val tradingAddress = await(sessionStoreService.fetchAgentSession).get.mainBusinessAddress
 

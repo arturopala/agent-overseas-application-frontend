@@ -24,17 +24,16 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.config.CountryNamesLoader
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.{AgentAffinityNoHmrcAsAgentAuthAction, BasicAgentAuthAction}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession.{IsRegisteredForUkTax, IsRegisteredWithHmrc}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.Rejected
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, No, Yes, _}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.collection.immutable.SortedSet
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class ApplicationController @Inject()(
@@ -55,43 +54,6 @@ class ApplicationController @Inject()(
   private val validCountryCodes = countries.keys.toSet
 
   private val showCheckYourAnswersUrl = routes.ApplicationController.showCheckYourAnswers().url
-
-  def showAntiMoneyLaunderingForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    val form = AmlsDetailsForm.form
-
-    val backUrl: Future[Option[String]] = {
-      if (request.agentSession.changingAnswers) Some(showCheckYourAnswersUrl)
-      else
-        applicationService.getCurrentApplication.map {
-          case Some(application) if application.status == Rejected =>
-            Some(routes.StartController.applicationStatus().url)
-          case _ => None
-        }
-    }
-
-    backUrl.map(url => Ok(anti_money_laundering(request.agentSession.amlsDetails.fold(form)(form.fill), url)))
-  }
-
-  def submitAntiMoneyLaundering: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    AmlsDetailsForm.form
-      .bindFromRequest()
-      .fold(
-        formWithErrors => {
-          sessionStoreService.fetchAgentSession.map {
-            case Some(session) if session.changingAnswers =>
-              Ok(anti_money_laundering(formWithErrors, Some(showCheckYourAnswersUrl)))
-            case _ =>
-              Ok(anti_money_laundering(formWithErrors))
-          }
-        },
-        validForm => {
-          sessionStoreService.fetchAgentSession
-            .map(_.getOrElse(AgentSession()))
-            .map(_.copy(amlsDetails = Some(validForm)))
-            .flatMap(updateSession(_)(routes.ApplicationController.showContactDetailsForm().url))
-        }
-      )
-  }
 
   def showContactDetailsForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     val form = ContactDetailsForm.form
@@ -215,7 +177,7 @@ class ApplicationController @Inject()(
         validFormValue => {
           if (validFormValue.hasOneOrMoreCodes) {
             updateSession(request.agentSession.copy(agentCodes = Some(validFormValue), changingAnswers = false))(
-              showCheckYourAnswersUrl)
+              routes.ApplicationController.showCheckYourAnswers().url)
           } else {
             updateSession(request.agentSession.copy(agentCodes = Some(validFormValue), changingAnswers = false))(
               routes.ApplicationController.showUkTaxRegistrationForm().url)
@@ -416,7 +378,7 @@ class ApplicationController @Inject()(
         validForm => {
           validForm.value match {
             case Some(true) => Redirect(routes.ApplicationController.showAddTaxRegNoForm().url)
-            case _          => Redirect(routes.ApplicationController.showCheckYourAnswers().url)
+            case _          => Redirect(routes.FileUploadController.showUploadForm("trn").url)
           }
         }
       )
@@ -498,7 +460,7 @@ class ApplicationController @Inject()(
             if (request.agentSession.agentCodes.exists(_.hasOneOrMoreCodes))
               routes.ApplicationController.showAgentCodesForm().url
             else if (request.agentSession.taxRegistrationNumbers.exists(_.nonEmpty))
-              routes.ApplicationController.showYourTaxRegNumbersForm().url
+              routes.FileUploadController.showSuccessfulUploadedForm("trn").url
             else routes.ApplicationController.showTaxRegistrationNumberForm().url
 
           Ok(check_your_answers(request.agentSession, countryName, backLink))
@@ -523,7 +485,7 @@ class ApplicationController @Inject()(
 
     if (tradingName.isDefined && contactDetail.isDefined)
       Ok(application_complete(tradingName.get, contactDetail.get, guidanceApplicationPageUrl))
-    else Redirect(routes.ApplicationController.showAntiMoneyLaunderingForm())
+    else Redirect(routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm())
   }
 
   private def updateSession(agentSession: AgentSession)(redirectTo: String)(implicit hc: HeaderCarrier) =

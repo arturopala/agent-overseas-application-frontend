@@ -22,9 +22,9 @@
 @import play.api.libs.json.JsValue
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.models.upscan.UpscanInitiate
 
-@(upscan: UpscanInitiate, backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
+@(upscan: UpscanInitiate, fileType: String, backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
-@main_template(title = "" + Messages("fileUploadTradingAddress.title")) {
+@main_template(title = "" + Messages(s"fileUpload.title.$fileType")) {
 
     <a href="@backLink.getOrElse(routes.TradingAddressController.showMainBusinessAddressForm())" class="link-back">@Messages("button.back")</a>
 
@@ -32,32 +32,31 @@
         <fieldset>
             <legend class="margin-bottom-10">
                 <h1 class="heading-xlarge margin-bottom-20">
-                    <span class="pre-heading">@Messages("fileUploadTradingAddress.caption")</span>
-                    @Messages("fileUploadTradingAddress.title")
+                    <span class="pre-heading">@Messages("fileUpload.caption")</span>
+                    @Messages(s"fileUpload.title.$fileType")
                 </h1>
             </legend>
             <div class="govuk-box loader" id="file-upload-loading" aria-busy="true"></div>
             <div class="hide-when-uploading">
-                <p>@Messages("fileUploadTradingAddress.p1")</p>
-                <p>@Messages("fileUploadTradingAddress.p2")</p>
+                <p>@Messages(s"fileUpload.p1.$fileType")</p>
+                <p>@Messages("fileUpload.p2")</p>
                 <ul class="list-bullet">
-                    <li>@Messages("fileUploadTradingAddress.li.1")</li>
-                    <li>@Messages("fileUploadTradingAddress.li.2")</li>
-                    <li>@Messages("fileUploadTradingAddress.li.3")</li>
+                    <li>@Messages(s"fileUpload.li.1.$fileType")</li>
+                    <li>@Messages("fileUpload.li.2")</li>
+                    <li>@Messages("fileUpload.li.3")</li>
                 </ul>
                 <div class="form-group" style="margin-bottom: 20px !important;">
-                    <label class="" for="file-upload">@Messages("fileUploadTradingAddress.upload")</label>
-
-                    @for((key,value) <- upscan.uploadRequest.fields){
+                    <label class="" for="file-upload">@Messages("fileUpload.upload")</label>
+                    @for((key, value) <- upscan.uploadRequest.fields){
                         <input type="hidden" name="@key" value="@value">
                     }
-                    <input class="" id="file-upload" name="file" type="file">
+                    <input class="" id="file-upload" name="file" type="file" accept="application/pdf, image/jpeg">
                 </div>
                 <div class="panel panel-border-wide margin-bottom-30">
-                @Messages("fileUploadTradingAddress.inset")
+                @Messages("fileUpload.inset")
                 </div>
                 <div class="form-group">
-                    <input type="submit" class="button trading-upload" data-reference="@upscan.reference" value="@Messages("fileUploadTradingAddress.button")">
+                    <input type="submit" class="button file-upload" data-reference="@upscan.reference" data-filetype="@fileType" value="@Messages("fileUpload.button")">
                 </div>
             </div>
         </fieldset>

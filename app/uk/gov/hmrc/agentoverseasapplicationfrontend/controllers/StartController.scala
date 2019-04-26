@@ -47,7 +47,7 @@ class StartController @Inject()(
     extends FrontendController with I18nSupport {
 
   def root: Action[AnyContent] = basicAuthAction { implicit request =>
-    Redirect(routes.ApplicationController.showAntiMoneyLaunderingForm())
+    Redirect(routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm())
   }
 
   def showNotAgent: Action[AnyContent] = basicAuthAction { implicit request =>

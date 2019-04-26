@@ -21,18 +21,18 @@
 
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.models.FileUploadStatus
 
-@(fileUploadStatus: FileUploadStatus)(implicit messages: Messages, request: Request[_], configuration: Configuration)
+@(fileUploadStatus: FileUploadStatus, fileType: String, backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
-@main_template(title = Messages("fileUploadTradingAddress.failed.title")) {
+@main_template(title = Messages(s"fileUpload.failed.title.$fileType")) {
 
-    <a href="@routes.FileUploadController.showTradingAddressUploadForm()" class="link-back">@Messages("button.back")</a>
+    <a href="@backLink.getOrElse(routes.FileUploadController.showUploadForm(fileType))" class="link-back">@Messages("button.back")</a>
 
     <h1 class="heading-xlarge margin-bottom-20">
-        <span class="pre-heading">@Messages("fileUploadTradingAddress.failed.caption")</span>
-        @Messages("fileUploadTradingAddress.failed.title")
+        <span class="pre-heading">@Messages("fileUpload.failed.caption")</span>
+        @Messages("fileUpload.failed.title")
     </h1>
 
-    <p>@Messages("fileUploadTradingAddress.failed.p1")</p>
+    <p>@Messages("fileUpload.failed.p1")</p>
 
-    <a href="@routes.FileUploadController.showTradingAddressUploadForm()" class="button margin-bottom-20" type="submit" id="file-upload-failed">@Messages("fileUploadTradingAddress.failed.try-again.label")</a>
+    <a href="@backLink.getOrElse(routes.FileUploadController.showUploadForm(fileType))" class="button margin-bottom-20" type="submit" id="file-upload-failed">@Messages("fileUpload.failed.try-again.label")</a>
 }

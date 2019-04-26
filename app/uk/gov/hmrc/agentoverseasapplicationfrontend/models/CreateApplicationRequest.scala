@@ -32,7 +32,10 @@ case class CreateApplicationRequest(
   regNo: Option[Crn],
   utr: Option[SaUtr],
   nino: Option[Nino],
-  taxRegNo: Option[Seq[Trn]])
+  taxRegNo: Option[Seq[Trn]],
+  amlsFileRef: String,
+  tradingAddressFileRef: String,
+  taxRegFileRef: Option[String])
 
 object CreateApplicationRequest {
 
@@ -43,6 +46,8 @@ object CreateApplicationRequest {
       tradingName             <- agentSession.tradingName
       businessAddress         <- agentSession.mainBusinessAddress
       isHmrcAgentRegistered   <- agentSession.registeredWithHmrc
+      amlsFileRef             <- agentSession.amlsUploadStatus.map(_.reference)
+      tradingAddressFileRef   <- agentSession.tradingAddressUploadStatus.map(_.reference)
     } yield
       CreateApplicationRequest(
         amls,
@@ -56,7 +61,10 @@ object CreateApplicationRequest {
         agentSession.companyRegistrationNumber.flatMap(_.registrationNumber),
         agentSession.personalDetails.flatMap(_.saUtr),
         agentSession.personalDetails.flatMap(_.nino),
-        agentSession.taxRegistrationNumbers.map(_.toSeq)
+        agentSession.taxRegistrationNumbers.map(_.toSeq),
+        amlsFileRef,
+        tradingAddressFileRef,
+        agentSession.trnUploadStatus.map(_.reference)
       )).getOrElse(throw new Exception("Could not create application request from agent session"))
 
   implicit val writes: Writes[CreateApplicationRequest] = (
@@ -72,7 +80,10 @@ object CreateApplicationRequest {
       (__ \ "tradingDetails" \ "companyRegistrationNumber").write[Option[Crn]] and
       (__ \ "personalDetails" \ "saUtr").write[Option[SaUtr]] and
       (__ \ "personalDetails" \ "nino").write[Option[Nino]] and
-      (__ \ "tradingDetails" \ "taxRegistrationNumbers").write[Option[Seq[Trn]]]
+      (__ \ "tradingDetails" \ "taxRegistrationNumbers").write[Option[Seq[Trn]]] and
+      (__ \ "amlsFileRef").write[String] and
+      (__ \ "tradingAddressFileRef").write[String] and
+      (__ \ "taxRegFileRef").write[Option[String]]
   ) { request: CreateApplicationRequest =>
     (
       request.amls.supervisoryBody,
@@ -87,7 +98,10 @@ object CreateApplicationRequest {
       request.regNo,
       request.utr,
       request.nino,
-      request.taxRegNo)
+      request.taxRegNo,
+      request.amlsFileRef,
+      request.tradingAddressFileRef,
+    request.taxRegFileRef)
   }
 
   implicit val reads: Reads[CreateApplicationRequest] = (
@@ -103,7 +117,10 @@ object CreateApplicationRequest {
       (__ \ "tradingDetails" \ "companyRegistrationNumber").readNullable[Crn] and
       (__ \ "personalDetails" \ "saUtr").readNullable[SaUtr] and
       (__ \ "personalDetails" \ "nino").readNullable[Nino] and
-      (__ \ "tradingDetails" \ "taxRegistrationNumbers").readNullable[Seq[Trn]]
+      (__ \ "tradingDetails" \ "taxRegistrationNumbers").readNullable[Seq[Trn]] and
+      (__ \ "amlsFileRef").read[String] and
+      (__ \ "tradingAddressFileRef").read[String] and
+      (__ \ "taxRegFileRef").readNullable[String]
     ) ((
       supervisoryBody,
       membershipNumber,
@@ -117,9 +134,12 @@ object CreateApplicationRequest {
       regNo,
       utr,
       nino,
-      taxRegNo) => CreateApplicationRequest(AmlsDetails(supervisoryBody, membershipNumber),
+      taxRegNo,
+      amlsFileRef,
+      tradingAddressFileRef,
+      taxRegFileRef) => CreateApplicationRequest(AmlsDetails(supervisoryBody, membershipNumber),
     contactDetails, tradingName, businessAddress,
     isUkRegisteredTaxOrNino, isHmrcAgentRegistered,
-    saAgentCode, ctAgentCode, regNo, utr, nino, taxRegNo))
+    saAgentCode, ctAgentCode, regNo, utr, nino, taxRegNo, amlsFileRef,tradingAddressFileRef,taxRegFileRef))
 
 }

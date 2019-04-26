@@ -29,7 +29,7 @@ class StartControllerISpec extends BaseISpec with AgentOverseasApplicationStubs 
       val result = await(controller.root(basicRequest(FakeRequest())))
 
       status(result) shouldBe 303
-      redirectLocation(result).get shouldBe routes.ApplicationController.showAntiMoneyLaunderingForm().url
+      redirectLocation(result).get shouldBe routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url
     }
   }
 
@@ -80,7 +80,7 @@ class StartControllerISpec extends BaseISpec with AgentOverseasApplicationStubs 
       result should containSubstrings(htmlEscapedMessage("statusRejected.para1", stubMatchingTradingName),
         htmlMessage("statusRejected.para2", s"<strong class=bold-small>$stubMatchingEmail</strong>"))
 
-      result should containLink("statusRejected.link.text", routes.ApplicationController.showAntiMoneyLaunderingForm().url)
+      result should containLink("statusRejected.link.text", routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url)
     }
   }
 

@@ -149,7 +149,7 @@ $(document).ready(function () {
         })
     }
 
-    $('.trading-upload').on('click', function (e) {
+    $('.file-upload').on('click', function (e) {
         var loadingSection = $('.loader'),
             uploadFormElements = $('.hide-when-uploading');
 
@@ -163,9 +163,10 @@ $(document).ready(function () {
     statusPollCount.timer = 0;
 
     var pollUploadStatus = function () {
-        var fileReference = $('.trading-upload').data('reference'),
+        var fileReference = $('.file-upload').data('reference'),
+            fileType = $('.file-upload').data('filetype'),
             baseUrl = "/agent-services/apply-from-outside-uk",
-            pollUrl = "/upscan-poll-status/";
+            pollUrl = "/poll-status/" + fileType + "/";
 
         setTimeout(function () {
             $.ajax({
@@ -177,7 +178,7 @@ $(document).ready(function () {
                 success: function (data) {
                     if (data) {
                         if (data.fileStatus === 'READY') {
-                            window.location.href = baseUrl + "/file-uploaded-successfully";
+                            window.location.href = baseUrl + "/file-uploaded-successfully/" + fileType;
                         } else if (data.fileStatus === 'FAILURE') {
                             window.location.href = baseUrl + "/file-upload-failed";
                         } else if (data.fileStatus === 'NOT_READY') {

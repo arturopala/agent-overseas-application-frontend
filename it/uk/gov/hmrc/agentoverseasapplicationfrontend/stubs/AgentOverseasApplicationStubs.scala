@@ -16,38 +16,41 @@ trait AgentOverseasApplicationStubs {
 
   val defaultRequestBody =
     s"""|{
-       |  "amls": {
-       |    "supervisoryBody": "Association of AccountingTechnicians (AAT)",
-       |    "membershipNumber": "12121"
-       |  },
-       |  "contactDetails": {
-       |    "firstName": "Bob",
-       |    "lastName": "Anderson",
-       |    "jobTitle": "Accountant",
-       |    "businessTelephone": "123456789",
-       |    "businessEmail": "test@example.com"
-       |  },
-       |  "tradingDetails": {
-       |    "tradingName": "Some business trading Name",
-       |    "tradingAddress": {
-       |      "addressLine1": "50 SomeStreet",
-       |      "addressLine2": "Some town",
-       |      "countryCode": "IE"
-       |    },
-       |    "isUkRegisteredTaxOrNino": "yes",
-       |    "isHmrcAgentRegistered": "no",
-       |    "saAgentCode": "SA123456",
-       |    "ctAgentCode": "CT123456",
-       |    "companyRegistrationNumber": "1234",
-       |    "taxRegistrationNumbers": [
-       |      "1234567"
-       |    ]
-       |  },
-       |  "personalDetails": {
-       |    "saUtr": "4000000009",
-       |    "nino": "AB123456A"
-       |  }
-       |}
+        |  "amls": {
+        |    "supervisoryBody": "Association of AccountingTechnicians (AAT)",
+        |    "membershipNumber": "12121"
+        |  },
+        |  "contactDetails": {
+        |    "firstName": "Bob",
+        |    "lastName": "Anderson",
+        |    "jobTitle": "Accountant",
+        |    "businessTelephone": "123456789",
+        |    "businessEmail": "test@example.com"
+        |  },
+        |  "tradingDetails": {
+        |    "tradingName": "Some business trading Name",
+        |    "tradingAddress": {
+        |      "addressLine1": "50 SomeStreet",
+        |      "addressLine2": "Some town",
+        |      "countryCode": "IE"
+        |    },
+        |    "isUkRegisteredTaxOrNino": "yes",
+        |    "isHmrcAgentRegistered": "no",
+        |    "saAgentCode": "SA123456",
+        |    "ctAgentCode": "CT123456",
+        |    "companyRegistrationNumber": "1234",
+        |    "taxRegistrationNumbers": [
+        |      "1234567"
+        |    ]
+        |  },
+        |  "personalDetails": {
+        |    "saUtr": "4000000009",
+        |    "nino": "AB123456A"
+        |  },
+        |  "amlsFileRef": "amlsfile",
+        |  "tradingAddressFileRef": "tradingaddressfile",
+        |  "taxRegFileRef": "taxregfile"
+        |}
      """.stripMargin
 
   val defaultCreateApplicationRequest: CreateApplicationRequest = Json.parse(defaultRequestBody).as[CreateApplicationRequest]

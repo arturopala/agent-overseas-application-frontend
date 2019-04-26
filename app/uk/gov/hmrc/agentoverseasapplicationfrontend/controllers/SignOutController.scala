@@ -47,7 +47,7 @@ class SignOutController @Inject()(
   }
 
   def signOutWithContinueUrl = Action { implicit request =>
-    val continueUrl = routes.ApplicationController.showAntiMoneyLaunderingForm().url
+    val continueUrl = routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url
     SeeOther(CallOps.addParamsToUrl(sosRedirectPath, "continue" -> Some(continueUrl))).withNewSession
   }
 

@@ -24,6 +24,9 @@
 @import uk.gov.hmrc.play.views.html.helpers.form
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.helpers.check_answers_div
 
+
+
+
 @(agentSession: AgentSession, countryName: String, backLink: String)(implicit request: Request[_], messages: Messages, configuration: Configuration)
 
 
@@ -82,6 +85,15 @@
     }
 }
 
+@formatFileName(fileName: String) = @{
+if(fileName.length > 20){
+    s"${fileName.take(10)}...${fileName.takeRight(10)}"
+} else {
+    fileName
+}
+}
+
+
 @uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("checkAnswers.title"), bodyClasses = None) {
 
     <a href="@backLink" class="link-back">@Messages("button.back")</a>
@@ -98,7 +110,7 @@
                     <dt class="app-check-your-answers__question">
                         @Messages("checkAnswers.amlsDetails.supervisoryBody")
                     </dt>
-                    <dd class="app-check-your-answers__answer" id="amls-details-supervisory-body">
+                    <dd class="app-check-your-answers__answers" id="amls-details-supervisory-body">
                         @details.supervisoryBody
                     </dd>
                     <dd class="app-check-your-answers__change">
@@ -126,6 +138,19 @@
             </dl>
         </div>
     }
+
+    <div class="app-check-your-answers--group margin-bottom-10">
+    @agentSession.amlsUploadStatus.flatMap(_.fileName).map { fileName =>
+        <dl class="app-check-your-answers app-check-your-answers--long">
+            @check_answers_div(Messages("checkAnswers.amlsFile.title"), formatFileName(fileName), "amlsFileName", routes.ChangingAnswersController.changeAmlsFile())
+        </dl>
+        <script>
+            @if(fileName.nonEmpty) {
+                    gaSendEvent('check-answers-amls-file-name');
+                }
+        </script>
+    }
+    </div>
 
     @agentSession.contactDetails.map { details =>
 
@@ -235,7 +260,7 @@
     <div class="app-check-your-answers--group margin-bottom-10">
         @agentSession.tradingAddressUploadStatus.flatMap(_.fileName).map { fileName =>
             <dl class="app-check-your-answers app-check-your-answers--long">
-                @check_answers_div(Messages("checkAnswers.tradingAddressFile.title"), fileName, "tradingAddressFileName", routes.ChangingAnswersController.changeTradingAddressFile())
+                @check_answers_div(Messages("checkAnswers.tradingAddressFile.title"), formatFileName(fileName), "tradingAddressFileName", routes.ChangingAnswersController.changeTradingAddressFile())
             </dl>
             <script>
                 @if(fileName.nonEmpty) {
@@ -279,6 +304,19 @@
                 }
             </dl>
         }
+    </div>
+
+    <div class="app-check-your-answers--group margin-bottom-10">
+    @agentSession.trnUploadStatus.flatMap(_.fileName).map { fileName =>
+        <dl class="app-check-your-answers app-check-your-answers--long">
+            @check_answers_div(Messages("checkAnswers.taxRegistrationNumbersFile.title"), formatFileName(fileName), "trnFileName", routes.ChangingAnswersController.changeYourTaxRegistrationNumbersFile())
+        </dl>
+        <script>
+            @if(fileName.nonEmpty) {
+                    gaSendEvent('check-answers-trn-file-name');
+                }
+        </script>
+    }
     </div>
 
     <p class="margin-top-30">@Messages("checkAnswers.confirm.p1")</p>

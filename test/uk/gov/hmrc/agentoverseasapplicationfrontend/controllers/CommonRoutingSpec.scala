@@ -40,7 +40,9 @@ class CommonRoutingSpec extends UnitSpec {
 
   private val contactDetails = ContactDetails("test", "last", "senior agent", "12345", "test@email.com")
   private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
+  private val amlsUploadStatus = FileUploadStatus("ref", "READY", None)
   private val mainBusinessAddress = MainBusinessAddress("line1", "line2", None, None, "IE")
+  private val tradingAddressUploadStatus = FileUploadStatus("ref", "READY", None)
   private val personalDetails = PersonalDetails(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
   private val companyRegistrationNumber = CompanyRegistrationNumber(Some(true), Some(Crn("123")))
 
@@ -49,9 +51,11 @@ class CommonRoutingSpec extends UnitSpec {
   private val detailsUpToRegisteredWithHmrc =
     AgentSession(
       amlsDetails = Some(amlsDetails),
+      amlsUploadStatus = Some(amlsUploadStatus),
       contactDetails = Some(contactDetails),
       tradingName = Some("some name"),
-      mainBusinessAddress = Some(mainBusinessAddress)
+      mainBusinessAddress = Some(mainBusinessAddress),
+      tradingAddressUploadStatus = Some(tradingAddressUploadStatus)
     )
 
   private val applicationEntityDetails = ApplicationEntityDetails(
@@ -67,12 +71,21 @@ class CommonRoutingSpec extends UnitSpec {
       val agentSession = detailsUpToRegisteredWithHmrc.copy(amlsDetails = None)
       await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession))
 
-      await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.ApplicationController
+      await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.AntiMoneyLaunderingController
         .showAntiMoneyLaunderingForm()
     }
 
     "return showAntiMoneyLaunderingForm when session not found" in {
-      await(FakeRouting.lookupNextPage(None)) shouldBe routes.ApplicationController.showAntiMoneyLaunderingForm()
+      await(FakeRouting.lookupNextPage(None)) shouldBe routes.AntiMoneyLaunderingController
+        .showAntiMoneyLaunderingForm()
+    }
+
+    "return showFileUpload(amls) when amlsFileUploadStatus not found in session" in {
+      val agentSession = detailsUpToRegisteredWithHmrc.copy(amlsUploadStatus = None)
+      await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession))
+
+      await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.FileUploadController
+        .showUploadForm("amls")
     }
 
     "return showContactDetailsForm when ContactDetails are not found in session" in {
@@ -96,6 +109,14 @@ class CommonRoutingSpec extends UnitSpec {
 
       await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.TradingAddressController
         .showMainBusinessAddressForm()
+    }
+
+    "return showUploadForm(trading-address) when tradingAddressUploadStatus not found in session" in {
+      val agentSession = detailsUpToRegisteredWithHmrc.copy(tradingAddressUploadStatus = None)
+      await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession))
+
+      await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.FileUploadController
+        .showUploadForm("trading-address")
     }
 
     "return showRegisteredWithHmrc when RegisteredWithHmrc choice is not found in session" in {
@@ -199,8 +220,8 @@ class CommonRoutingSpec extends UnitSpec {
     )
     await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession))
 
-    await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.ApplicationController
-      .showYourTaxRegNumbersForm()
+    await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.FileUploadController
+      .showUploadForm("trn")
   }
 
   "return showCheckYourAnswers when hasTaxRegNumbers equals Some(false)" in {

@@ -32,4 +32,5 @@ trait SessionBehaviour extends CommonRouting with Results {
     sessionStoreService
       .cacheAgentSession(agentSession)
       .flatMap(_ => Redirect(redirectTo))
+
 }

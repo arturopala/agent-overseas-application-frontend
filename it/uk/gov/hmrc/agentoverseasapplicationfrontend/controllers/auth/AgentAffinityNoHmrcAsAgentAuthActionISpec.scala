@@ -71,7 +71,7 @@ class AgentAffinityNoHmrcAsAgentAuthActionISpec extends BaseISpec with AgentOver
         given404OverseasApplications()
         val result = await(testController.withValidApplicant(cleanCredsAgent(FakeRequest())))
 
-        redirectLocation(result).get shouldBe routes.ApplicationController.showAntiMoneyLaunderingForm().url
+        redirectLocation(result).get shouldBe routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url
         isAgentSessionInitialised shouldBe true
       }
 

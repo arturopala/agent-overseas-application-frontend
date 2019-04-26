@@ -5,8 +5,8 @@ GET         /                                            @uk.gov.hmrc.agentovers
 GET         /not-agent                                   @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.StartController.showNotAgent
 GET         /application-status                          @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.StartController.applicationStatus
 
-GET         /money-laundering                            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showAntiMoneyLaunderingForm
-POST        /money-laundering                            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitAntiMoneyLaundering
+GET         /money-laundering                            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm
+POST        /money-laundering                            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.AntiMoneyLaunderingController.submitAntiMoneyLaundering
 
 GET         /contact-details                             @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showContactDetailsForm
 POST        /contact-details                             @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitContactDetails
@@ -17,16 +17,16 @@ POST        /trading-name                                @uk.gov.hmrc.agentovers
 GET         /main-business-address                       @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.TradingAddressController.showMainBusinessAddressForm
 POST        /main-business-address                       @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.TradingAddressController.submitMainBusinessAddress
 
-GET         /trading-address-upload                      @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showTradingAddressUploadForm
+GET         /upload/:fileType                            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showUploadForm(fileType: String)
+GET         /poll-status/:fileType/:ref                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.pollStatus(fileType: String, ref: String)
 
-GET         /upscan-poll-status/:ref                     @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.upscanPollStatus(ref: String)
 
 GET         /trading-address-no-js-check-file            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showTradingAddressNoJsCheckPage
 
-GET         /file-uploaded-successfully                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showSuccessfulFileUploadedForm
+GET         /file-uploaded-successfully/:fileType        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showSuccessfulUploadedForm(fileType: String)
 POST        /file-uploaded-successfully                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.submitSuccessfulFileUploadedForm
 
-GET         /file-upload-failed                          @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showUploadFailedPage
+GET         /file-upload-failed/:fileType                @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showUploadFailedPage(fileType:String)
 
 GET         /registered-with-hmrc                        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showRegisteredWithHmrcForm
 POST        /registered-with-hmrc                        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitRegisteredWithHmrc
@@ -62,6 +62,7 @@ POST        /check-your-answers                          @uk.gov.hmrc.agentovers
 GET         /application-complete                        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showApplicationComplete
 
 GET         /change-amls-details                         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeAmlsDetails
+GET         /change-amls-details-file                    @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeAmlsFile
 GET         /change-contact-details                      @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeContactDetails
 GET         /change-trading-name                         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeTradingName
 GET         /change-trading-address                      @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeTradingAddress
@@ -72,6 +73,7 @@ GET         /change-registered-for-uk-tax                @uk.gov.hmrc.agentovers
 GET         /change-personal-details                     @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changePersonalDetails
 GET         /change-company-registration-number          @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeCompanyRegistrationNumber
 GET         /change-your-tax-registration-numbers        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeYourTaxRegistrationNumbers
+GET         /change-your-tax-registration-numbers-file   @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeYourTaxRegistrationNumbersFile
 
 GET         /sign-out/create-account                     @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.SignOutController.signOutWithContinueUrl
 GET         /sign-out                                    @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.SignOutController.signOut

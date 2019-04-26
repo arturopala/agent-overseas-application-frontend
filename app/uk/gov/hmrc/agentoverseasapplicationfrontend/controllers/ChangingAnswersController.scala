@@ -41,7 +41,12 @@ class ChangingAnswersController @Inject()(
 
   def changeAmlsDetails: Action[AnyContent] = validApplicantAction.async { implicit request =>
     updateSessionAndRedirect(request.agentSession.copy(changingAnswers = true))(
-      routes.ApplicationController.showAntiMoneyLaunderingForm().url)
+      routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url)
+  }
+
+  def changeAmlsFile: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    updateSessionAndRedirect(request.agentSession.copy(changingAnswers = true))(
+      routes.FileUploadController.showUploadForm("amls").url)
   }
 
   def changeContactDetails: Action[AnyContent] = validApplicantAction.async { implicit request =>
@@ -61,7 +66,7 @@ class ChangingAnswersController @Inject()(
 
   def changeTradingAddressFile: Action[AnyContent] = validApplicantAction.async { implicit request =>
     updateSessionAndRedirect(request.agentSession.copy(changingAnswers = true))(
-      routes.FileUploadController.showTradingAddressUploadForm().url)
+      routes.FileUploadController.showUploadForm("trading-address").url)
   }
 
   def changeRegisteredWithHmrc: Action[AnyContent] = validApplicantAction.async { implicit request =>
@@ -92,5 +97,10 @@ class ChangingAnswersController @Inject()(
   def changeYourTaxRegistrationNumbers: Action[AnyContent] = validApplicantAction.async { implicit request =>
     updateSessionAndRedirect(request.agentSession.copy(changingAnswers = true))(
       routes.ApplicationController.showYourTaxRegNumbersForm().url)
+  }
+
+  def changeYourTaxRegistrationNumbersFile: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    updateSessionAndRedirect(request.agentSession.copy(changingAnswers = true))(
+      routes.FileUploadController.showUploadForm("trn").url)
   }
 }

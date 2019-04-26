@@ -148,33 +148,40 @@ mainBusinessAddress.form.addressLine4=Address line 4 (optional)
 mainBusinessAddress.form.country=Country
 
 # File Upload
-fileUploadTradingAddress.caption=Your business details
-fileUploadTradingAddress.title=Upload proof of your trading address
-fileUploadTradingAddress.p1=You need to upload a document that shows your trading address, like a bank statement or utility bill.
-fileUploadTradingAddress.p2=Your document needs to be:
-fileUploadTradingAddress.li.1=dated in the last 3 months
-fileUploadTradingAddress.li.2=in PDF or JPG format
-fileUploadTradingAddress.li.3=no more than 25MB
-fileUploadTradingAddress.upload=Upload a file
-fileUploadTradingAddress.inset=It may take a few moments to upload your file. Do not close this window while your file is uploading.
-fileUploadTradingAddress.button=Upload your file
+fileUpload.title.trading-address=Upload proof of your trading address
+fileUpload.p1.trading-address=You need to upload a document that shows your trading address, like a bank statement or utility bill.
+fileUpload.li.1.trading-address=dated in the last 3 months
+fileUpload.title.amls=Upload proof of anti-money laundering registration
+fileUpload.p1.amls=You need to upload a document that shows your business is registered with a money laundering supervisory body, such as a letter from your supervisory body.
+fileUpload.li.1.amls=dated in the last 12 months
+fileUpload.title.trn=Upload proof of tax registration
+fileUpload.p1.trn=You need to upload a document that shows your business is registered for tax, such as a letter from a tax authority.
+fileUpload.li.1.trn=dated in the last 12 months
+
+fileUpload.caption=Your business details
+fileUpload.p2=Your document needs to be:
+fileUpload.li.2=in PDF or JPG format
+fileUpload.li.3=no more than 25MB
+fileUpload.upload=Upload a file
+fileUpload.inset=It may take a few moments to upload your file. Do not close this window while your file is uploading.
+fileUpload.button=Upload your file
 
 fileUploadTradingAddress.no_js_page.caption=Your business details
 fileUploadTradingAddress.no_js_page.title=We are checking your file
 fileUploadTradingAddress.no_js_page.p1=It may take a few moments to check your file.
 fileUploadTradingAddress.no_js_page.p2=Do not close this window.
 
-fileUploadTradingAddress.correctFile.no-radio.selected=Select yes if the file you uploaded is correct
-fileUploadTradingAddress.success.caption=Your business details
-fileUploadTradingAddress.success.title=Your file was uploaded successfully
-fileUploadTradingAddress.success.form.correctFile.yes=Yes
-fileUploadTradingAddress.success.form.correctFile.no=No
-fileUploadTradingAddress.success.correctFile.confirmation=Is this the correct file?
+fileUpload.correctFile.no-radio.selected=Select yes if the file you uploaded is correct
+fileUpload.success.caption=Your business details
+fileUpload.success.title=Your file was uploaded successfully
+fileUpload.success.form.correctFile.yes=Yes
+fileUpload.success.form.correctFile.no=No
+fileUpload.success.correctFile.confirmation=Is this the correct file?
 
-fileUploadTradingAddress.failed.caption=Your business details
-fileUploadTradingAddress.failed.title=There is a problem
-fileUploadTradingAddress.failed.p1=The file you uploaded did not pass our security checks.
-fileUploadTradingAddress.failed.try-again.label=Try again
+fileUpload.failed.caption=Your business details
+fileUpload.failed.title=There is a problem
+fileUpload.failed.p1=The file you uploaded did not pass our security checks.
+fileUpload.failed.try-again.label=Try again
 
 #Non agent
 nonAgent.title=You have not signed in with an agent user ID
@@ -267,6 +274,7 @@ checkAnswers.change.button=Change
 checkAnswers.amlsDetails.title=Money laundering compliance details
 checkAnswers.amlsDetails.supervisoryBody=Name of supervisory body
 checkAnswers.amlsDetails.membershipNumber=Membership number
+checkAnswers.amlsFile.title=Proof of amls membership
 
 checkAnswers.contactDetails.title=Your contact details
 checkAnswers.contactDetails.name=Name
@@ -294,6 +302,7 @@ checkAnswers.companyRegistrationNumber.title=Company registration number
 checkAnswers.companyRegistrationNumber.empty=None
 checkAnswers.taxRegistrationNumbers.title=Tax registration numbers
 checkAnswers.taxRegistrationNumbers.empty=None
+checkAnswers.taxRegistrationNumbersFile.title=Proof of your tax registration numbers
 
 checkAnswers.OtherBusinessDetails.title=Other business or personal details
 

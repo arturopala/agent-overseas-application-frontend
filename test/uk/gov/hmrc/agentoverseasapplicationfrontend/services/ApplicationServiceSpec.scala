@@ -47,6 +47,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with BeforeAndAf
 
   private val crn = CompanyRegistrationNumber(Some(true), Some(Crn("123456")))
 
+  private val uploadStatus: Option[FileUploadStatus] =
+    Some(FileUploadStatus(reference = "fileRef", fileStatus = "READY", fileName = Some("fileName")))
+
   private val agentSession = AgentSession(
     amlsDetails = Some(amlsDetails),
     contactDetails = Some(contactDetails),
@@ -59,6 +62,9 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with BeforeAndAf
     companyRegistrationNumber = Some(crn),
     hasTaxRegNumbers = Some(true),
     taxRegistrationNumbers = Some(SortedSet(Trn("123"), Trn("456"))),
+    amlsUploadStatus = uploadStatus,
+    trnUploadStatus = uploadStatus,
+    tradingAddressUploadStatus = uploadStatus,
     changingAnswers = false
   )
 

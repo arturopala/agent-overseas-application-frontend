@@ -24,7 +24,7 @@ class ChangingAnswersControllerISpec extends BaseISpec {
 
       val result = await(controller.changeAmlsDetails(authenticatedRequest))
 
-      verify(result, routes.ApplicationController.showAntiMoneyLaunderingForm().url)
+      verify(result, routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url)
     }
   }
 
@@ -64,7 +64,7 @@ class ChangingAnswersControllerISpec extends BaseISpec {
 
       val result = await(controller.changeTradingAddressFile(authenticatedRequest))
 
-      verify(result, routes.FileUploadController.showTradingAddressUploadForm().url)
+      verify(result, routes.FileUploadController.showUploadForm("trading-address").url)
     }
   }
 

@@ -35,14 +35,17 @@ trait CommonRouting {
 
   def lookupNextPage(agentSession: Option[AgentSession]): Call =
     agentSession match {
-      case MissingAmlsDetails()        => routes.ApplicationController.showAntiMoneyLaunderingForm()
-      case MissingContactDetails()     => routes.ApplicationController.showContactDetailsForm()
-      case MissingTradingName()        => routes.ApplicationController.showTradingNameForm()
-      case MissingTradingAddress()     => routes.TradingAddressController.showMainBusinessAddressForm()
-      case MissingRegisteredWithHmrc() => routes.ApplicationController.showRegisteredWithHmrcForm()
-      case IsRegisteredWithHmrc(Yes)   => routesFromAgentCodesOnwards(agentSession)
-      case IsRegisteredWithHmrc(No)    => routesFromUkTaxRegistrationOnwards(agentSession)
-      case _                           => routes.ApplicationController.showAntiMoneyLaunderingForm()
+      case MissingAmlsDetails()                => routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm()
+      case MissingAmlsUploadStatus()           => routes.FileUploadController.showUploadForm("amls")
+      case MissingContactDetails()             => routes.ApplicationController.showContactDetailsForm()
+      case MissingTradingName()                => routes.ApplicationController.showTradingNameForm()
+      case MissingTradingAddress()             => routes.TradingAddressController.showMainBusinessAddressForm()
+      case MissingTradingAddressUploadStatus() => routes.FileUploadController.showUploadForm("trading-address")
+      case MissingRegisteredWithHmrc()         => routes.ApplicationController.showRegisteredWithHmrcForm()
+      case IsRegisteredWithHmrc(Yes)           => routesFromAgentCodesOnwards(agentSession)
+      case IsRegisteredWithHmrc(No)            => routesFromUkTaxRegistrationOnwards(agentSession)
+
+      case _ => routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm()
     }
 
   def routesIfExistingApplication(
@@ -55,7 +58,7 @@ trait CommonRouting {
       case Some(application)
           if Set(Accepted, AttemptingRegistration, Registered, Complete).contains(application.status) =>
         StatusRouting(Call(GET, subscriptionRootPath), false)
-      case None => StatusRouting(routes.ApplicationController.showAntiMoneyLaunderingForm(), true)
+      case None => StatusRouting(routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm(), true)
     }
 
     for {
@@ -90,7 +93,13 @@ trait CommonRouting {
 
   private def collectTaxRegNoOrContinue(agentSession: Option[AgentSession]): Call = agentSession match {
     case MissingHasTaxRegistrationNumber() => routes.ApplicationController.showTaxRegistrationNumberForm()
-    case HasTaxRegistrationNumber()        => routes.ApplicationController.showYourTaxRegNumbersForm()
+    case HasTaxRegistrationNumber()        => collectTaxRegFileUploadOrContinue(agentSession)
     case NoTaxRegistrationNumber()         => routes.ApplicationController.showCheckYourAnswers()
+  }
+
+  private def collectTaxRegFileUploadOrContinue(agentSession: Option[AgentSession]): Call = agentSession match {
+    case MissingHasTaxRegistrationNumber() => collectTaxRegNoOrContinue(agentSession)
+    case MissingTaxRegFile()               => routes.FileUploadController.showUploadForm("trn")
+    case _                                 => routes.ApplicationController.showCheckYourAnswers()
   }
 }
