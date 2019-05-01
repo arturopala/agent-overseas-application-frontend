@@ -298,7 +298,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
     "contain a back link to /file-uploaded-successfully/trading-address" in new RegisteredWithHmrcSetup {
       result should containLink(
         expectedMessageKey = "button.back",
-        expectedHref = "/agent-services/apply-from-outside-uk/file-uploaded-successfully/trading-address"
+        expectedHref = "/agent-services/apply-from-outside-uk/file-uploaded-successfully"
       )
     }
 
@@ -1525,7 +1525,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
         val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
 
         status(result) shouldBe 200
-        result should containLink("button.back", routes.FileUploadController.showSuccessfulUploadedForm("trn").url)
+        result should containLink("button.back", routes.FileUploadController.showSuccessfulUploadedForm().url)
       }
 
       "no agent codes no taxRegNumbers provided, back link to ask if has tax-registration-number" in {

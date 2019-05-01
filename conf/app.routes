@@ -26,10 +26,10 @@ GET         /poll-status/:fileType/:ref                  @uk.gov.hmrc.agentovers
 
 GET         /trading-address-no-js-check-file            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showTradingAddressNoJsCheckPage
 
-GET         /file-uploaded-successfully/:fileType        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showSuccessfulUploadedForm(fileType: String)
+GET         /file-uploaded-successfully                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showSuccessfulUploadedForm
 POST        /file-uploaded-successfully                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.submitSuccessfulFileUploadedForm
 
-GET         /file-upload-failed/:fileType                @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showUploadFailedPage(fileType:String)
+GET         /file-upload-failed                          @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showUploadFailedPage
 
 GET         /registered-with-hmrc                        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showRegisteredWithHmrcForm
 POST        /registered-with-hmrc                        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitRegisteredWithHmrc

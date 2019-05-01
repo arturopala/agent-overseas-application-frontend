@@ -460,7 +460,7 @@ class ApplicationController @Inject()(
             if (request.agentSession.agentCodes.exists(_.hasOneOrMoreCodes))
               routes.ApplicationController.showAgentCodesForm().url
             else if (request.agentSession.taxRegistrationNumbers.exists(_.nonEmpty))
-              routes.FileUploadController.showSuccessfulUploadedForm("trn").url
+              routes.FileUploadController.showSuccessfulUploadedForm().url
             else routes.ApplicationController.showTaxRegistrationNumberForm().url
 
           Ok(check_your_answers(request.agentSession, countryName, backLink))

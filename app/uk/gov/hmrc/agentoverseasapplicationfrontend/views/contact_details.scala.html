@@ -23,7 +23,7 @@
 
 @uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = error_prefix(contactDetailsFrom) + Messages("contactDetails.title")) {
 
-    <a href="@backLink.getOrElse(routes.FileUploadController.showSuccessfulUploadedForm("amls"))" class="link-back">@Messages("button.back")</a>
+    <a href="@backLink.getOrElse(routes.FileUploadController.showSuccessfulUploadedForm())" class="link-back">@Messages("button.back")</a>
 
     @if(contactDetailsFrom.hasErrors) {
         @errorSummary(Messages("error.summary.heading"), contactDetailsFrom, Seq.empty, Some("contact-details"))

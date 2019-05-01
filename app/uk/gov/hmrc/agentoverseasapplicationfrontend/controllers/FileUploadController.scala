@@ -63,7 +63,13 @@ class FileUploadController @Inject()(
   }
 
   private def showUploadForm(fileType: String)(implicit request: CredentialRequest[AnyContent]) =
-    upscanConnector.initiate().map(upscan => Ok(file_upload(upscan, fileType, getBackLink(fileType))))
+    upscanConnector
+      .initiate()
+      .flatMap(
+        upscan =>
+          sessionStoreService
+            .cacheAgentSession(request.agentSession.copy(fileType = Some(fileType)))
+            .map(_ => Ok(file_upload(upscan, fileType, getBackLink(fileType)))))
 
   def showTradingAddressNoJsCheckPage: Action[AnyContent] = validApplicantAction.async { implicit request =>
     Ok(trading_address_no_js_check_file())
@@ -74,28 +80,27 @@ class FileUploadController @Inject()(
     upscanPollStatus(fileType, reference)
   }
 
-  /*def showAmlsSuccessfulUploadedForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    showSuccessfulUploadedForm("amls")
-  }
-
-  def showTradingAddressSuccessfulUploadedForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    showSuccessfulUploadedForm("trading-address")
-  }
-
-  def showTrnSuccessfulUploadedForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    showSuccessfulUploadedForm("trn")
-  }*/
-
-  def showSuccessfulUploadedForm(fileType: String) = validApplicantAction.async { implicit request =>
-    getFileNameFromSession(fileType).map(
-      filename =>
-        Ok(
-          successful_file_upload(
-            SuccessfulFileUploadConfirmationForm.form,
-            filename,
-            fileType,
-            backToFileUploadPage(fileType)))
-    )
+  def showSuccessfulUploadedForm() = validApplicantAction.async { implicit request =>
+    sessionStoreService.fetchAgentSession.flatMap {
+      case Some(agentSession) => {
+        agentSession.fileType match {
+          case Some(fileType) => {
+            getFileNameFromSession(fileType).map { filename =>
+              Ok(
+                successful_file_upload(
+                  SuccessfulFileUploadConfirmationForm.form,
+                  filename,
+                  fileType,
+                  backToFileUploadPage(fileType)))
+            }
+          }
+          case None => {
+            Logger.info(s"could not find fileType in session")
+            Redirect(routes.FileUploadController.showAmlsUploadForm())
+          }
+        }
+      }
+    }
   }
 
   private def backToFileUploadPage(fileType: String) = fileType match {
@@ -129,13 +134,16 @@ class FileUploadController @Inject()(
       )
   }
 
-  def showUploadFailedPage(fileType: String): Action[AnyContent] = validApplicantAction.async { implicit request =>
+  def showUploadFailedPage(): Action[AnyContent] = validApplicantAction.async { implicit request =>
     sessionStoreService.fetchAgentSession.map {
       case Some(agentSession) =>
-        agentSession.tradingAddressUploadStatus match {
-          case Some(uploadStatus) =>
-            Ok(file_upload_failed(uploadStatus, fileType, backToFileUploadPage(fileType)))
-          case None => throw new RuntimeException("expecting uploadStatus in the session but not found")
+        agentSession.fileType match {
+          case Some(fileType) =>
+            Ok(file_upload_failed(fileType, backToFileUploadPage(fileType)))
+          case None => {
+            Logger.info("expecting a fileType in session for failed upload but none found")
+            Redirect(routes.FileUploadController.showAmlsUploadForm())
+          }
         }
     }
   }

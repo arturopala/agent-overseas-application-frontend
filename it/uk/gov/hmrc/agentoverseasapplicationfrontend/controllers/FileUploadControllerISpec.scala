@@ -16,7 +16,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
 
   private val agentSession = AgentSession()
 
-  "GET /upload/trading-address" should {
+  "GET /upload-proof-trading-address" should {
     "display the upload trading address form" in {
       sessionStoreService.currentSession.agentSession = Some(agentSession)
       given200UpscanInitiate()
@@ -57,11 +57,11 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
     }
   }
 
-  "GET /file-uploaded-successfully/trading-address" should {
+  "GET /file-uploaded-successfully" should {
     "display the page with correct content" in {
-      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(tradingAddressUploadStatus = Some(FileUploadStatus("reference","READY",Some("filename")))))
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(tradingAddressUploadStatus = Some(FileUploadStatus("reference","READY",Some("filename"))), fileType = Some("trading-address")))
 
-      val result = await(controller.showSuccessfulUploadedForm("trading-address")(cleanCredsAgent(FakeRequest())))
+      val result = await(controller.showSuccessfulUploadedForm()(cleanCredsAgent(FakeRequest())))
 
       status(result) shouldBe 200
 
@@ -75,7 +75,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
     }
   }
 
-  "POST /file-uploaded-successfully/trading-address" should {
+  "POST /file-uploaded-successfully" should {
     "read the form and redirect to /registered-with-hmrc page if the user selects Yes" in {
       sessionStoreService.currentSession.agentSession = Some(agentSession)
 
@@ -87,7 +87,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
       redirectLocation(result) shouldBe Some(routes.ApplicationController.showRegisteredWithHmrcForm().url)
     }
 
-    "read the form and redirect to /upload/trading-address page if the user selects No" in {
+    "read the form and redirect to /upload-proof-trading-address page if the user selects No" in {
       sessionStoreService.currentSession.agentSession = Some(agentSession)
 
       val request = cleanCredsAgent(FakeRequest().withFormUrlEncodedBody("fileType" -> "trading-address", "choice.correctFile" -> "false"))
@@ -145,16 +145,16 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
 
   "GET /file-upload-failed" should {
 
-    val failureDetails = FailureDetails("QUARANTINED","a virus was found!")
+    val failureDetails = FailureDetails("QUARANTINE","a virus was found!")
     val fileUploadStatus = FileUploadStatus("reference","READY",Some("filename"),Some(failureDetails))
     val tradingAddressAddressUploadStatus = FileUploadStatus("reference","READY",Some("filename"))
 
     "display page as expected" in {
-      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(tradingAddressUploadStatus = Some(tradingAddressAddressUploadStatus)))
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(tradingAddressUploadStatus = Some(tradingAddressAddressUploadStatus), fileType = Some("trading-address")))
 
       val request = cleanCredsAgent(FakeRequest())
 
-      val result = await(controller.showUploadFailedPage("trading-address")(request))
+      val result = await(controller.showUploadFailedPage()(request))
 
       status(result) shouldBe 200
 
@@ -176,7 +176,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
     }
   }
 
-  "GET /upload/amls" should {
+  "GET /upload-proof-anti-money-laundering-registration" should {
     "display the upload amls form" in {
       sessionStoreService.currentSession.agentSession = Some(agentSession)
       given200UpscanInitiate()
@@ -200,7 +200,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
     }
   }
 
-  "POST /file-uploaded-successfully/amls" should {
+  "POST /file-uploaded-successfully" should {
     "read the form and redirect to /contact-details page if the user selects Yes" in {
       sessionStoreService.currentSession.agentSession = Some(agentSession)
 
@@ -212,7 +212,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
       redirectLocation(result) shouldBe Some(routes.ApplicationController.showContactDetailsForm().url)
     }
 
-    "read the form and redirect to /upload/amls page if the user selects No" in {
+    "read the form and redirect to /upload-proof-anti-money-laundering-registration page if the user selects No" in {
       sessionStoreService.currentSession.agentSession = Some(agentSession)
 
       val request = cleanCredsAgent(FakeRequest().withFormUrlEncodedBody("fileType" -> "amls", "choice.correctFile" -> "false"))
@@ -224,7 +224,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
     }
   }
 
-  "GET /upload/trn" should {
+  "GET /upload-proof-tax-registration" should {
     "display the upload trn form" in {
       sessionStoreService.currentSession.agentSession = Some(agentSession)
       given200UpscanInitiate()
@@ -248,7 +248,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
     }
   }
 
-  "POST /file-uploaded-successfully/trn" should {
+  "POST /file-uploaded-successfully" should {
     "read the form and redirect to /check-your-answers page if the user selects Yes" in {
       sessionStoreService.currentSession.agentSession = Some(agentSession)
 
@@ -260,7 +260,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
       redirectLocation(result) shouldBe Some(routes.ApplicationController.showCheckYourAnswers().url)
     }
 
-    "read the form and redirect to /upload/trn page if the user selects No" in {
+    "read the form and redirect to /upload-proof-tax-registration-number page if the user selects No" in {
       sessionStoreService.currentSession.agentSession = Some(agentSession)
 
       val request = cleanCredsAgent(FakeRequest().withFormUrlEncodedBody("fileType" -> "trn", "choice.correctFile" -> "false"))

@@ -302,7 +302,7 @@ checkAnswers.companyRegistrationNumber.title=Company registration number
 checkAnswers.companyRegistrationNumber.empty=None
 checkAnswers.taxRegistrationNumbers.title=Tax registration numbers
 checkAnswers.taxRegistrationNumbers.empty=None
-checkAnswers.taxRegistrationNumbersFile.title=Proof of your tax registration numbers
+checkAnswers.taxRegistrationNumbersFile.title=Proof of your tax registration number
 
 checkAnswers.OtherBusinessDetails.title=Other business or personal details
 

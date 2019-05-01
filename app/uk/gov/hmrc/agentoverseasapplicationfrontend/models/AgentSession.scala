@@ -35,6 +35,7 @@ case class AgentSession(
   tradingAddressUploadStatus: Option[FileUploadStatus] = None,
   amlsUploadStatus: Option[FileUploadStatus] = None,
   trnUploadStatus: Option[FileUploadStatus] = None,
+  fileType: Option[String] = None,
   changingAnswers: Boolean = false) {
 
   def sanitize: AgentSession = {
@@ -64,6 +65,7 @@ case class AgentSession(
       this.tradingAddressUploadStatus,
       this.amlsUploadStatus,
       this.trnUploadStatus,
+      this.fileType,
       this.changingAnswers
     )
   }

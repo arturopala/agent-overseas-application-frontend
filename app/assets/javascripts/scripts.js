@@ -178,7 +178,7 @@ $(document).ready(function () {
                 success: function (data) {
                     if (data) {
                         if (data.fileStatus === 'READY') {
-                            window.location.href = baseUrl + "/file-uploaded-successfully/" + fileType;
+                            window.location.href = baseUrl + "/file-uploaded-successfully";
                         } else if (data.fileStatus === 'FAILURE') {
                             window.location.href = baseUrl + "/file-upload-failed";
                         } else if (data.fileStatus === 'NOT_READY') {
