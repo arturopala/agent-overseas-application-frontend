@@ -25,7 +25,7 @@
 
 @main_template(title = "" + Messages("fileUpload.success.title")) {
 
-    <a href="@backLink.getOrElse(routes.FileUploadController.showUploadForm(fileType))" class="link-back">@Messages("button.back")</a>
+    <a href="@backLink" class="link-back">@Messages("button.back")</a>
 
     @if(uploadSuccessForm.hasErrors) {
          @errorSummary(Messages("error.summary.heading"),uploadSuccessForm, Seq.empty, Some("successful-file-upload"))

@@ -1304,7 +1304,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       val result = await(controller.submitYourTaxRegNumbers(authenticatedRequest))
 
       status(result) shouldBe 303
-      result.header.headers(LOCATION) shouldBe routes.FileUploadController.showUploadForm("trn").url
+      result.header.headers(LOCATION) shouldBe routes.FileUploadController.showTrnUploadForm().url
     }
 
     "display the page with form errors if no radio button is selected" in {

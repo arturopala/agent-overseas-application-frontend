@@ -79,7 +79,7 @@ class AntiMoneyLaunderingController @Inject()(
           sessionStoreService.fetchAgentSession
             .map(_.getOrElse(AgentSession()))
             .map(_.copy(amlsDetails = Some(validForm)))
-            .flatMap(updateSession(_)(routes.FileUploadController.showUploadForm("amls").url))
+            .flatMap(updateSession(_)(routes.FileUploadController.showAmlsUploadForm().url))
         }
       )
   }

@@ -76,7 +76,7 @@ class AntiMoneyLaunderingControllerISpec extends BaseISpec with AgentOverseasApp
       val result = await(controller.submitAntiMoneyLaundering(authenticatedRequest))
 
       status(result) shouldBe 303
-      result.header.headers(LOCATION) shouldBe routes.FileUploadController.showUploadForm("amls").url
+      result.header.headers(LOCATION) shouldBe routes.FileUploadController.showAmlsUploadForm().url
 
       val amlsDetails = await(sessionStoreService.fetchAgentSession).get.amlsDetails
 

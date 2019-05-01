@@ -47,10 +47,23 @@ class FileUploadController @Inject()(
 
   private val showCheckYourAnswersUrl = routes.ApplicationController.showCheckYourAnswers().url
 
-  def showUploadForm(fileType: String): Action[AnyContent] = validApplicantAction.async {
+  def showAmlsUploadForm: Action[AnyContent] = validApplicantAction.async {
     implicit request: CredentialRequest[AnyContent] =>
-      upscanConnector.initiate().map(upscan => Ok(file_upload(upscan, fileType, getBackLink(fileType))))
+      showUploadForm("amls")
   }
+
+  def showTradingAddressUploadForm: Action[AnyContent] = validApplicantAction.async {
+    implicit request: CredentialRequest[AnyContent] =>
+      showUploadForm("trading-address")
+  }
+
+  def showTrnUploadForm: Action[AnyContent] = validApplicantAction.async {
+    implicit request: CredentialRequest[AnyContent] =>
+      showUploadForm("trn")
+  }
+
+  private def showUploadForm(fileType: String)(implicit request: CredentialRequest[AnyContent]) =
+    upscanConnector.initiate().map(upscan => Ok(file_upload(upscan, fileType, getBackLink(fileType))))
 
   def showTradingAddressNoJsCheckPage: Action[AnyContent] = validApplicantAction.async { implicit request =>
     Ok(trading_address_no_js_check_file())
@@ -61,16 +74,36 @@ class FileUploadController @Inject()(
     upscanPollStatus(fileType, reference)
   }
 
-  def showSuccessfulUploadedForm(fileType: String): Action[AnyContent] = validApplicantAction.async {
-    implicit request =>
-      getFileNameFromSession(fileType).map(
-        filename =>
-          Ok(
-            successful_file_upload(
-              SuccessfulFileUploadConfirmationForm.form,
-              filename,
-              fileType,
-              Some(routes.FileUploadController.showUploadForm(fileType).url))))
+  /*def showAmlsSuccessfulUploadedForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    showSuccessfulUploadedForm("amls")
+  }
+
+  def showTradingAddressSuccessfulUploadedForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    showSuccessfulUploadedForm("trading-address")
+  }
+
+  def showTrnSuccessfulUploadedForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    showSuccessfulUploadedForm("trn")
+  }*/
+
+  def showSuccessfulUploadedForm(fileType: String) = validApplicantAction.async { implicit request =>
+    getFileNameFromSession(fileType).map(
+      filename =>
+        Ok(
+          successful_file_upload(
+            SuccessfulFileUploadConfirmationForm.form,
+            filename,
+            fileType,
+            backToFileUploadPage(fileType)))
+    )
+  }
+
+  private def backToFileUploadPage(fileType: String) = fileType match {
+
+    case "amls"            => Some(routes.FileUploadController.showAmlsUploadForm().url)
+    case "trading-address" => Some(routes.FileUploadController.showTradingAddressUploadForm().url)
+    case "trn"             => Some(routes.FileUploadController.showTrnUploadForm().url)
+    case _                 => None
   }
 
   def submitSuccessfulFileUploadedForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
@@ -79,14 +112,8 @@ class FileUploadController @Inject()(
       .fold(
         formWithErrors => {
           val fileType = formWithErrors.data("fileType")
-          getFileNameFromSession(fileType).map(
-            filename =>
-              Ok(
-                successful_file_upload(
-                  formWithErrors,
-                  filename,
-                  fileType,
-                  Some(routes.FileUploadController.showUploadForm(fileType).url))))
+          getFileNameFromSession(fileType).map(filename =>
+            Ok(successful_file_upload(formWithErrors, filename, fileType, backToFileUploadPage(fileType))))
         },
         validForm => {
           val fileType = validForm.fileType
@@ -94,7 +121,9 @@ class FileUploadController @Inject()(
           val redirectTo =
             if (Yes == newValue) {
               nextPage(fileType)
-            } else routes.FileUploadController.showUploadForm(fileType).url
+            } else
+              backToFileUploadPage(fileType).getOrElse(
+                routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url)
           Redirect(redirectTo)
         }
       )
@@ -105,11 +134,7 @@ class FileUploadController @Inject()(
       case Some(agentSession) =>
         agentSession.tradingAddressUploadStatus match {
           case Some(uploadStatus) =>
-            Ok(
-              file_upload_failed(
-                uploadStatus,
-                fileType,
-                Some(routes.FileUploadController.showUploadForm(fileType).url)))
+            Ok(file_upload_failed(uploadStatus, fileType, backToFileUploadPage(fileType)))
           case None => throw new RuntimeException("expecting uploadStatus in the session but not found")
         }
     }
