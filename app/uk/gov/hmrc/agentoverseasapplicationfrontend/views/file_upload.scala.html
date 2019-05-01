@@ -26,7 +26,7 @@
 
 @main_template(title = "" + Messages(s"fileUpload.title.$fileType")) {
 
-    <a href="@backLink.getOrElse(routes.TradingAddressController.showMainBusinessAddressForm())" class="link-back">@Messages("button.back")</a>
+    <a href="@backLink" class="link-back">@Messages("button.back")</a>
 
     <form method="POST" action="@upscan.uploadRequest.href" enctype="multipart/form-data">
         <fieldset>

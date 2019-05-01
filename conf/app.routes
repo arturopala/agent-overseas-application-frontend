@@ -17,7 +17,10 @@ POST        /trading-name                                @uk.gov.hmrc.agentovers
 GET         /main-business-address                       @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.TradingAddressController.showMainBusinessAddressForm
 POST        /main-business-address                       @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.TradingAddressController.submitMainBusinessAddress
 
-GET         /upload/:fileType                            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showUploadForm(fileType: String)
+
+GET         /upload-proof-anti-money-laundering-registration @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showAmlsUploadForm
+GET         /upload-proof-trading-address                @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showTradingAddressUploadForm
+GET         /upload-proof-tax-registration                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showTrnUploadForm
 GET         /poll-status/:fileType/:ref                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.pollStatus(fileType: String, ref: String)
 
 

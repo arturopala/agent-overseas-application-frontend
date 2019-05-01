@@ -21,7 +21,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
       sessionStoreService.currentSession.agentSession = Some(agentSession)
       given200UpscanInitiate()
 
-      val result = await(controller.showUploadForm("trading-address")(cleanCredsAgent(FakeRequest())))
+      val result = await(controller.showTradingAddressUploadForm()(cleanCredsAgent(FakeRequest())))
 
       status(result) shouldBe 200
 
@@ -95,7 +95,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
       val result = await(controller.submitSuccessfulFileUploadedForm(request))
 
       status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some(routes.FileUploadController.showUploadForm("trading-address").url)
+      redirectLocation(result) shouldBe Some(routes.FileUploadController.showTradingAddressUploadForm().url)
     }
 
     "show the form with errors when invalid value for 'correctFile' is passed in the form" in {
@@ -165,7 +165,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
         "fileUpload.failed.try-again.label"
       )
 
-      val tradingAddressUploadFormUrl = routes.FileUploadController.showUploadForm("trading-address").url
+      val tradingAddressUploadFormUrl = routes.FileUploadController.showTradingAddressUploadForm().url
 
       val doc = Jsoup.parse(bodyOf(result))
       val tryAgainLink = doc.getElementById("file-upload-failed")
@@ -181,7 +181,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
       sessionStoreService.currentSession.agentSession = Some(agentSession)
       given200UpscanInitiate()
 
-      val result = await(controller.showUploadForm("amls")(cleanCredsAgent(FakeRequest())))
+      val result = await(controller.showAmlsUploadForm()(cleanCredsAgent(FakeRequest())))
 
       status(result) shouldBe 200
 
@@ -220,7 +220,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
       val result = await(controller.submitSuccessfulFileUploadedForm(request))
 
       status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some(routes.FileUploadController.showUploadForm("amls").url)
+      redirectLocation(result) shouldBe Some(routes.FileUploadController.showAmlsUploadForm().url)
     }
   }
 
@@ -229,7 +229,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
       sessionStoreService.currentSession.agentSession = Some(agentSession)
       given200UpscanInitiate()
 
-      val result = await(controller.showUploadForm("trn")(cleanCredsAgent(FakeRequest())))
+      val result = await(controller.showTrnUploadForm()(cleanCredsAgent(FakeRequest())))
 
       status(result) shouldBe 200
 
@@ -268,7 +268,7 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
       val result = await(controller.submitSuccessfulFileUploadedForm(request))
 
       status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some(routes.FileUploadController.showUploadForm("trn").url)
+      redirectLocation(result) shouldBe Some(routes.FileUploadController.showTrnUploadForm().url)
     }
   }
 }

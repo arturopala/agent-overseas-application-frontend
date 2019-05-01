@@ -25,7 +25,7 @@
 
 @main_template(title = Messages(s"fileUpload.failed.title.$fileType")) {
 
-    <a href="@backLink.getOrElse(routes.FileUploadController.showUploadForm(fileType))" class="link-back">@Messages("button.back")</a>
+    <a href="@backLink" class="link-back">@Messages("button.back")</a>
 
     <h1 class="heading-xlarge margin-bottom-20">
         <span class="pre-heading">@Messages("fileUpload.failed.caption")</span>
@@ -34,5 +34,5 @@
 
     <p>@Messages("fileUpload.failed.p1")</p>
 
-    <a href="@backLink.getOrElse(routes.FileUploadController.showUploadForm(fileType))" class="button margin-bottom-20" type="submit" id="file-upload-failed">@Messages("fileUpload.failed.try-again.label")</a>
+    <a href="@backLink" class="button margin-bottom-20" type="submit" id="file-upload-failed">@Messages("fileUpload.failed.try-again.label")</a>
 }

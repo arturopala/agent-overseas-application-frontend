@@ -68,7 +68,7 @@ class TradingAddressControllerISpec extends BaseISpec with AgentOverseasApplicat
       val result = await(controller.submitMainBusinessAddress(authenticatedRequest))
 
       status(result) shouldBe 303
-      result.header.headers(LOCATION) shouldBe routes.FileUploadController.showUploadForm("trading-address").url
+      result.header.headers(LOCATION) shouldBe routes.FileUploadController.showTradingAddressUploadForm().url
 
       val tradingAddress = await(sessionStoreService.fetchAgentSession).get.mainBusinessAddress
 

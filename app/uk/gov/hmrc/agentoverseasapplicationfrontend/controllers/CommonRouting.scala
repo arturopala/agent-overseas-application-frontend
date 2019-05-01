@@ -36,11 +36,11 @@ trait CommonRouting {
   def lookupNextPage(agentSession: Option[AgentSession]): Call =
     agentSession match {
       case MissingAmlsDetails()                => routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm()
-      case MissingAmlsUploadStatus()           => routes.FileUploadController.showUploadForm("amls")
+      case MissingAmlsUploadStatus()           => routes.FileUploadController.showAmlsUploadForm()
       case MissingContactDetails()             => routes.ApplicationController.showContactDetailsForm()
       case MissingTradingName()                => routes.ApplicationController.showTradingNameForm()
       case MissingTradingAddress()             => routes.TradingAddressController.showMainBusinessAddressForm()
-      case MissingTradingAddressUploadStatus() => routes.FileUploadController.showUploadForm("trading-address")
+      case MissingTradingAddressUploadStatus() => routes.FileUploadController.showTradingAddressUploadForm()
       case MissingRegisteredWithHmrc()         => routes.ApplicationController.showRegisteredWithHmrcForm()
       case IsRegisteredWithHmrc(Yes)           => routesFromAgentCodesOnwards(agentSession)
       case IsRegisteredWithHmrc(No)            => routesFromUkTaxRegistrationOnwards(agentSession)
@@ -99,7 +99,7 @@ trait CommonRouting {
 
   private def collectTaxRegFileUploadOrContinue(agentSession: Option[AgentSession]): Call = agentSession match {
     case MissingHasTaxRegistrationNumber() => collectTaxRegNoOrContinue(agentSession)
-    case MissingTaxRegFile()               => routes.FileUploadController.showUploadForm("trn")
+    case MissingTaxRegFile()               => routes.FileUploadController.showTrnUploadForm()
     case _                                 => routes.ApplicationController.showCheckYourAnswers()
   }
 }

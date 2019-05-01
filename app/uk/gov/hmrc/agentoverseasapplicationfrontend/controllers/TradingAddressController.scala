@@ -80,7 +80,7 @@ class TradingAddressController @Inject()(
           },
           validForm =>
             updateSession(request.agentSession.copy(mainBusinessAddress = Some(validForm)))(
-              routes.FileUploadController.showUploadForm("trading-address").url)
+              routes.FileUploadController.showTradingAddressUploadForm().url)
         )
     }
 

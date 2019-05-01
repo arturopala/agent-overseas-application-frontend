@@ -378,7 +378,7 @@ class ApplicationController @Inject()(
         validForm => {
           validForm.value match {
             case Some(true) => Redirect(routes.ApplicationController.showAddTaxRegNoForm().url)
-            case _          => Redirect(routes.FileUploadController.showUploadForm("trn").url)
+            case _          => Redirect(routes.FileUploadController.showTrnUploadForm().url)
           }
         }
       )

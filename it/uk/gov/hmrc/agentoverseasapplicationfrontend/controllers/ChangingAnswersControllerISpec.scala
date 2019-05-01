@@ -64,7 +64,7 @@ class ChangingAnswersControllerISpec extends BaseISpec {
 
       val result = await(controller.changeTradingAddressFile(authenticatedRequest))
 
-      verify(result, routes.FileUploadController.showUploadForm("trading-address").url)
+      verify(result, routes.FileUploadController.showTradingAddressUploadForm().url)
     }
   }
 

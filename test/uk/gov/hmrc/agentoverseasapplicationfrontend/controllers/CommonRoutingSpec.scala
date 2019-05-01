@@ -85,7 +85,7 @@ class CommonRoutingSpec extends UnitSpec {
       await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession))
 
       await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.FileUploadController
-        .showUploadForm("amls")
+        .showAmlsUploadForm()
     }
 
     "return showContactDetailsForm when ContactDetails are not found in session" in {
@@ -116,7 +116,7 @@ class CommonRoutingSpec extends UnitSpec {
       await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession))
 
       await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.FileUploadController
-        .showUploadForm("trading-address")
+        .showTradingAddressUploadForm()
     }
 
     "return showRegisteredWithHmrc when RegisteredWithHmrc choice is not found in session" in {
@@ -221,7 +221,7 @@ class CommonRoutingSpec extends UnitSpec {
     await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession))
 
     await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.FileUploadController
-      .showUploadForm("trn")
+      .showTrnUploadForm()
   }
 
   "return showCheckYourAnswers when hasTaxRegNumbers equals Some(false)" in {
