@@ -149,22 +149,55 @@ $(document).ready(function () {
         })
     }
 
-    $('.file-upload').on('click', function (e) {
-        var loadingSection = $('.loader'),
-            uploadFormElements = $('.hide-when-uploading');
+    var fileUploadClass = $('.file-upload'),
+        file = $('#file-upload'),
+        errorSummary = $('.error-summary'),
+        errorMessageNoFile = $('.file-upload').data('nofile'),
+        errorMessageEmptyFile= $('.file-upload').data('empty-file'),
+        errorMessagePswdProtected = $('.file-upload').data('pswd-protected'),
+        errorMessageNoUpload = $('.file-upload').data('no-upload'),
+        errorMessageVirus = $('.file-upload').data('virus'),
+        errorMessageFileTooLarge = $('.file-upload').data('too-large'),
+        errorMessageInvalid = $('.file-upload').data('invalid'),
+        loadingSection = $('.loader'),
+        uploadFormElements = $('.hide-when-uploading'),
+        maxUploadSize = 25000000;
 
-        uploadFormElements.hide();
-        loadingSection.show();
-        $("html, body").animate({ scrollTop: 0 });
-        pollUploadStatus();
+    file.on('click', function() {
+        fileUploadClass.removeAttr('disabled');
+    });
+
+    fileUploadClass.on('click', function (e) {
+
+        $( this ).removeAttr('disabled');
+        clearErrors();
+
+        if(noFileSelected()) {
+            error(errorMessageNoFile);
+            return false;
+        } else if(fileTypeIsInvalid()){
+            error(errorMessageInvalid);
+            return false;
+        } else if(fileIsEmpty()){
+            error(errorMessageEmptyFile);
+            return false;
+        } else if(fileTooLarge()){
+            error(errorMessageFileTooLarge);
+            return false;
+        } else {
+            uploadFormElements.hide();
+            loadingSection.show();
+            $("html, body").animate({ scrollTop: 0 });
+            pollUploadStatus();
+        }
     });
 
     var statusPollCount= {};
     statusPollCount.timer = 0;
 
     var pollUploadStatus = function () {
-        var fileReference = $('.file-upload').data('reference'),
-            fileType = $('.file-upload').data('filetype'),
+        var fileReference = fileUploadClass.data('reference'),
+            fileType = fileUploadClass.data('filetype'),
             baseUrl = "/agent-services/apply-from-outside-uk",
             pollUrl = "/poll-status/" + fileType + "/";
 
@@ -179,30 +212,98 @@ $(document).ready(function () {
                     if (data) {
                         if (data.fileStatus === 'READY') {
                             window.location.href = baseUrl + "/file-uploaded-successfully";
-                        } else if (data.fileStatus === 'FAILURE') {
-                            window.location.href = baseUrl + "/file-upload-failed";
+                        } else if (data.fileStatus === 'FAILED') {
+                            if(data.failureDetails.failureReason === 'QUARANTINE'){
+                                fileContainsAVirus();
+                                clearTimeout(pollUploadStatus);
+                            } else {
+                               fileCannotBeUploaded();
+                            }
                         } else if (data.fileStatus === 'NOT_READY') {
                             statusPollCount.timer++;
-                            if(statusPollCount.timer === 30){
+                            if(statusPollCount.timer === 60){
                                 window.location.href = baseUrl + "/file-upload-failed";
                             }
+                            pollUploadStatus();
                         } else {
-                            window.location.href = baseUrl + "/file-upload-failed";
+                            window.location.href = baseUrl + "/server-error";
                         }
                     }
                 },
-                dataType: "json",
-                complete: pollUploadStatus
+                error: function() {
+                    window.location.href = baseUrl + "/server-error";
+                },
+                dataType: "json"
             })
-        }, 500);
+        }, 3000);
+    };
+
+
+    function fileTypeIsInvalid() {
+        var fileName = file.val();
+        if ((fileName.indexOf('.pdf') === -1) && (fileName.indexOf('.jpeg') === -1) && (fileName.indexOf('.jpg') === -1)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    $('#file-upload').change(function (e) {
-        var fileName = e.target.files[0].name;
-
-        if ((fileName.indexOf('pdf') === -1) && (fileName.indexOf('jpeg') === -1) && (fileName.indexOf('jpg') === -1)) {
-            window.location.href = baseUrl + "/file-upload-failed"
+    function fileIsEmpty() {
+        if (file[0].files[0].size === 0) {
+            return true;
+        } else {
+            return false;
         }
-    });
+    }
 
+    function noFileSelected() {
+        if (file.val()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    function fileTooLarge() {
+        var fileSize = file[0].files[0].size;
+        if (fileSize > maxUploadSize) {
+            console.log(fileSize);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    var fileIsPasswordProtected = function() {
+    }
+
+  function error(errorMsg) {
+        errorSummary.addClass('error-summary--show').focus();
+        $('.js-error-summary-messages a').html(errorMsg);
+        $('#file-upload-container').addClass('form-field--error');
+        $('#file-upload-error').html(errorMsg);
+    }
+
+    function clearErrors() {
+        errorSummary.removeClass('error-summary--show')
+        file.focus();
+        $('.js-error-summary-messages a').html();
+        $('#file-upload-container').removeClass('form-field--error');
+        $('#file-upload-error').html();
+
+    }
+
+    function fileContainsAVirus() {
+        uploadFormElements.show();
+        loadingSection.hide();
+        error(errorMessageVirus);
+        fileUploadClass.removeAttr('disabled');
+    }
+
+    function fileCannotBeUploaded() {
+        uploadFormElements.show();
+        loadingSection.hide();
+        error(errorMessageNoUpload);
+        fileUploadClass.removeAttr('disabled');
+    }
 });

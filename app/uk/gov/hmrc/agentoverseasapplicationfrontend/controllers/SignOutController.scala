@@ -32,7 +32,6 @@ import scala.concurrent.ExecutionContext
 @Singleton
 class SignOutController @Inject()(
   override val messagesApi: MessagesApi,
-  val authConnector: AuthConnector,
   val env: Environment,
   @Named("companyAuthSignInUrl") val signInUrl: String,
   basicAuthAction: BasicAuthAction,

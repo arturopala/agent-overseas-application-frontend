@@ -28,7 +28,23 @@
 
     <a href="@backLink" class="link-back">@Messages("button.back")</a>
 
+
     <form method="POST" action="@upscan.uploadRequest.href" enctype="multipart/form-data">
+
+        <div class="flash error-summary"
+        id="error-summary-display"
+        role="alert"
+        aria-labelledby="error-summary-heading"
+        tabindex="-1">
+            <h2 id="error-summary-heading" class="h3-heading">@Messages("error.summary.heading")</h2>
+            <ul class="js-error-summary-messages">
+                <li>
+                    <a href="#file-upload" id="#" data-focuses="#file-upload"></a>
+                </li>
+            </ul>
+        </div>
+
+
         <fieldset>
             <legend class="margin-bottom-10">
                 <h1 class="heading-xlarge margin-bottom-20">
@@ -45,18 +61,30 @@
                     <li>@Messages("fileUpload.li.2")</li>
                     <li>@Messages("fileUpload.li.3")</li>
                 </ul>
-                <div class="form-group" style="margin-bottom: 20px !important;">
+                <div id="file-upload-container" class="form-group" style="margin-bottom: 20px !important;">
                     <label class="" for="file-upload">@Messages("fileUpload.upload")</label>
+                    <span id="file-upload-error" class="error-notification" role="tooltip"></span>
                     @for((key, value) <- upscan.uploadRequest.fields){
                         <input type="hidden" name="@key" value="@value">
                     }
                     <input class="" id="file-upload" name="file" type="file" accept="application/pdf, image/jpeg">
+
                 </div>
                 <div class="panel panel-border-wide margin-bottom-30">
                 @Messages("fileUpload.inset")
                 </div>
                 <div class="form-group">
-                    <input type="submit" class="button file-upload" data-reference="@upscan.reference" data-filetype="@fileType" value="@Messages("fileUpload.button")">
+                    <input type="submit" class="button file-upload"
+                    data-reference="@upscan.reference"
+                    data-filetype="@fileType"
+                    data-nofile="@Messages("error.fileUpload.no-file")"
+                    data-empty-file="@Messages("error.fileUpload.empty-file")"
+                    data-pswd-protected="@Messages("error.fileUpload.password-protected")"
+                    data-no-upload="@Messages("error.fileUpload.no-upload")"
+                    data-virus="@Messages("error.fileUpload.virus")"
+                    data-invalid="@Messages("error.fileUpload.invalid")"
+                    data-too-large="@Messages("error.fileUpload.too-large")"
+                    value="@Messages("fileUpload.button")">
                 </div>
             </div>
         </fieldset>

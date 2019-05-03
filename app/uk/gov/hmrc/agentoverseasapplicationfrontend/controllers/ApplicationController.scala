@@ -28,27 +28,25 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, No, Ye
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
-import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.collection.immutable.SortedSet
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class ApplicationController @Inject()(
-  override val messagesApi: MessagesApi,
-  val authConnector: AuthConnector,
   val env: Environment,
   validApplicantAction: AgentAffinityNoHmrcAsAgentAuthAction,
-  val sessionStoreService: SessionStoreService,
-  val applicationService: ApplicationService,
+  sessionStoreService: SessionStoreService,
+  applicationService: ApplicationService,
   countryNamesLoader: CountryNamesLoader,
   basicAgentAuthAction: BasicAgentAuthAction,
   @Named("guidancePageApplicationUrl") guidanceApplicationPageUrl: String)(
-  implicit val configuration: Configuration,
+  implicit configuration: Configuration,
+  messagesApi: MessagesApi,
   override val ec: ExecutionContext)
-    extends FrontendController with SessionBehaviour with I18nSupport {
+    extends AgentOverseasBaseController(sessionStoreService, applicationService) with SessionBehaviour
+    with I18nSupport {
 
   private val countries = countryNamesLoader.load
   private val validCountryCodes = countries.keys.toSet

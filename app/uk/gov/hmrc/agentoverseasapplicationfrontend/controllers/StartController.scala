@@ -34,8 +34,6 @@ import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import scala.concurrent.ExecutionContext
 
 class StartController @Inject()(
-  override val messagesApi: MessagesApi,
-  val authConnector: AuthConnector,
   val env: Environment,
   basicAuthAction: BasicAuthAction,
   validApplicantAction: AgentAffinityNoHmrcAsAgentAuthAction,
@@ -43,8 +41,11 @@ class StartController @Inject()(
   applicationService: ApplicationService,
   @Named("maintainer-application-review-days") daysToReviewApplication: Int,
   @Named("agent-overseas-subscription-frontend.root-path") subscriptionRootPath: String,
-  basicAgentAuthAction: BasicAgentAuthAction)(implicit val configuration: Configuration, ec: ExecutionContext)
-    extends FrontendController with I18nSupport {
+  basicAgentAuthAction: BasicAgentAuthAction)(
+  implicit configuration: Configuration,
+  messagesApi: MessagesApi,
+  ec: ExecutionContext)
+    extends AgentOverseasBaseController(sessionStoreService, applicationService) with I18nSupport {
 
   def root: Action[AnyContent] = basicAuthAction { implicit request =>
     Redirect(routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm())

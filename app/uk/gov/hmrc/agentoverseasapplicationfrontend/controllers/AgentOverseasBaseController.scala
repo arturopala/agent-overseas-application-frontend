@@ -17,10 +17,12 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import javax.inject.{Inject, Singleton}
+import play.api.Configuration
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.RequestHeader
+import play.api.mvc.{Action, AnyContent, RequestHeader}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
-import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
+import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.error_template
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.bootstrap.controller.BaseController
@@ -29,11 +31,20 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class AgentOverseasBaseController @Inject()(
-  val authConnector: AuthConnector,
   val sessionStoreService: SessionStoreService,
-  val applicationService: ApplicationService)(implicit val messagesApi: MessagesApi, val ec: ExecutionContext)
+  val applicationService: ApplicationService)(
+  implicit val messagesApi: MessagesApi,
+  val configuration: Configuration,
+  val ec: ExecutionContext)
     extends BaseController with SessionBehaviour with I18nSupport {
 
   override implicit def hc(implicit rh: RequestHeader): HeaderCarrier =
     HeaderCarrierConverter.fromHeadersAndSessionAndRequest(rh.headers, Some(rh.session), Some(rh))
+
+
+
+  def serverError: Action[AnyContent] = Action.async { implicit request =>
+    Ok(error_template("global.error.500.title", "global.error.500.heading", "global.error.500.message"))
+  }
+
 }

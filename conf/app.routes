@@ -82,4 +82,10 @@ GET         /sign-out/create-account                     @uk.gov.hmrc.agentovers
 GET         /sign-out                                    @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.SignOutController.signOut
 GET         /start-survey                                @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.SignOutController.startFeedbackSurvey
 
+GET         /server-error                                @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.AgentOverseasBaseController.serverError
+
 GET         /assets/*file                                controllers.Assets.at(path="/public", file)
+
+
+
+

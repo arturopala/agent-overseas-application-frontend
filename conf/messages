@@ -93,6 +93,15 @@ error.registeredForUkTaxForm.no-radio.selected=Select yes if you are registered 
 error.personalDetails.no-radio.selected=Select if you want to enter a National Insurance number, or if you want to enter a Self Assessment Unique Taxpayer Reference (UTR), or if you do not have these details
 error.removeTrn.no-radio.selected=Select yes if you want to remove this tax registration number
 
+error.fileUpload.no-file=Select a file
+error.fileUpload.empty-file=The selected file is empty
+error.fileUpload.too-large=The selected file must be smaller than 25MB
+error.fileUpload.password-protected=The selected file is password protected
+error.fileUpload.no-upload=The selected file could not be uploaded - try again
+error.fileUpload.virus=The selected file contains a virus
+error.fileUpload.invalid=The selected file must be a PDF or JPG
+
+
 # Service specific messages
 app.name=Apply for an agent services account if you are not in the UK
 servicename.titleSuffix=Apply for an agent services account if you are not in the UK - GOV.UK

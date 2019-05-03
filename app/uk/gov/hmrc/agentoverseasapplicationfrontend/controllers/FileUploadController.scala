@@ -28,14 +28,12 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{CredentialRequest, Y
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
-import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class FileUploadController @Inject()(
-  authConnector: AuthConnector,
   sessionStoreService: SessionStoreService,
   validApplicantAction: AgentAffinityNoHmrcAsAgentAuthAction,
   applicationService: ApplicationService,
@@ -43,7 +41,7 @@ class FileUploadController @Inject()(
   implicit messagesApi: MessagesApi,
   ex: ExecutionContext,
   configuration: Configuration)
-    extends AgentOverseasBaseController(authConnector, sessionStoreService, applicationService) with SessionBehaviour {
+    extends AgentOverseasBaseController(sessionStoreService, applicationService) with SessionBehaviour {
 
   private val showCheckYourAnswersUrl = routes.ApplicationController.showCheckYourAnswers().url
 

@@ -23,21 +23,21 @@ import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.config.CountryNamesLoader
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class ChangingAnswersController @Inject()(
-  override val messagesApi: MessagesApi,
-  val authConnector: AuthConnector,
   val env: Environment,
   validApplicantAction: AgentAffinityNoHmrcAsAgentAuthAction,
-  val sessionStoreService: SessionStoreService,
+  override val sessionStoreService: SessionStoreService,
   override val applicationService: ApplicationService,
-  countryNamesLoader: CountryNamesLoader)(implicit val configuration: Configuration, override val ec: ExecutionContext)
-    extends FrontendController with SessionBehaviour with I18nSupport {
+  countryNamesLoader: CountryNamesLoader)(
+  implicit configuration: Configuration,
+  messagesApi: MessagesApi,
+  override val ec: ExecutionContext)
+    extends AgentOverseasBaseController(sessionStoreService, applicationService) with SessionBehaviour
+    with I18nSupport {
 
   def changeAmlsDetails: Action[AnyContent] = validApplicantAction.async { implicit request =>
     updateSessionAndRedirect(request.agentSession.copy(changingAnswers = true))(

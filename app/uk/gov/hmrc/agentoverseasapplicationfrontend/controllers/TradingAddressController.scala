@@ -16,36 +16,35 @@
 
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
-import javax.inject.{Inject, Named, Singleton}
-import play.api.{Configuration, Environment}
+import javax.inject.{Inject, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.JsValue
 import play.api.mvc.{Action, AnyContent}
+import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.config.CountryNamesLoader
 import uk.gov.hmrc.agentoverseasapplicationfrontend.connectors.UpscanConnector
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.MainBusinessAddressForm
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_business_address
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
+import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_business_address
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class TradingAddressController @Inject()(
-  override val messagesApi: MessagesApi,
   val env: Environment,
-  val sessionStoreService: SessionStoreService,
-  val applicationService: ApplicationService,
+  sessionStoreService: SessionStoreService,
+  applicationService: ApplicationService,
   val upscanConnector: UpscanConnector,
   countryNamesLoader: CountryNamesLoader,
   validApplicantAction: AgentAffinityNoHmrcAsAgentAuthAction)(
-  implicit val configuration: Configuration,
+  implicit configuration: Configuration,
+  messagesApi: MessagesApi,
   override val ec: ExecutionContext)
-    extends FrontendController with SessionBehaviour with I18nSupport {
+    extends AgentOverseasBaseController(sessionStoreService, applicationService) with SessionBehaviour
+    with I18nSupport {
 
   private val countries = countryNamesLoader.load
   private val validCountryCodes = countries.keys.toSet

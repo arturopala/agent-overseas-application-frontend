@@ -454,3 +454,28 @@ input[type="text"].autocomplete__input {
         line-height: 1.31579;
     }
 }
+
+.error-summary {
+    display: none;
+}
+
+.error-notification{
+    display: none;
+}
+
+.error-summary.error-summary--show {
+    display: block;
+}
+
+.error-notification.error-notification--show{
+    display: block;
+}
+
+#file-upload-container {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+#file-upload-container.form-field--error input[type=file] {
+    border: 4px solid #b10e1e;
+}

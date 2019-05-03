@@ -29,21 +29,21 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.anti_money_laundering
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class AntiMoneyLaunderingController @Inject()(
-  override val messagesApi: MessagesApi,
   val env: Environment,
-  val sessionStoreService: SessionStoreService,
-  val applicationService: ApplicationService,
+  sessionStoreService: SessionStoreService,
+  applicationService: ApplicationService,
   val upscanConnector: UpscanConnector,
   validApplicantAction: AgentAffinityNoHmrcAsAgentAuthAction)(
-  implicit val configuration: Configuration,
+  implicit configuration: Configuration,
+  override val messagesApi: MessagesApi,
   override val ec: ExecutionContext)
-    extends FrontendController with SessionBehaviour with I18nSupport {
+    extends AgentOverseasBaseController(sessionStoreService, applicationService) with SessionBehaviour
+    with I18nSupport {
 
   private val showCheckYourAnswersUrl = routes.ApplicationController.showCheckYourAnswers().url
 
