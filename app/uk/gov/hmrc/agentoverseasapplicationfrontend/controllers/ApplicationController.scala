@@ -31,7 +31,7 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.collection.immutable.SortedSet
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ApplicationController @Inject()(
@@ -425,10 +425,10 @@ class ApplicationController @Inject()(
             case Some(true) => {
               val updatedSet = request.agentSession.taxRegistrationNumbers
                 .fold[SortedSet[Trn]](SortedSet.empty)(trns => trns - Trn(trn))
-
               val toUpdate: AgentSession =
                 if (updatedSet.isEmpty)
-                  request.agentSession.copy(hasTaxRegNumbers = None, taxRegistrationNumbers = None)
+                  request.agentSession
+                    .copy(hasTaxRegNumbers = None, taxRegistrationNumbers = None, trnUploadStatus = None)
                 else request.agentSession.copy(taxRegistrationNumbers = Some(updatedSet))
 
               val redirectUrl =

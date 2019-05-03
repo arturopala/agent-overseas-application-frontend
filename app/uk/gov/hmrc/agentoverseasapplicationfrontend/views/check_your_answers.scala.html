@@ -31,6 +31,7 @@
 
 
 @showFullBusinessDetails = {
+
     @agentSession.registeredForUkTax.map { isRegisteredForUKTax =>
         @check_answers_div(Messages("checkAnswers.registeredForUKTax.title"),  isRegisteredForUKTax, "isRegisteredForTax", routes.ChangingAnswersController.changeRegisteredForUKTax())
         
@@ -306,7 +307,7 @@ if(fileName.length > 20){
         }
     </div>
 
-    @if(agentSession.trnUploadStatus.isDefined) {
+    @if(agentSession.trnUploadStatus.isDefined && agentSession.taxRegistrationNumbers.fold(false)(_.nonEmpty)) {
         <div class="app-check-your-answers--group margin-bottom-10">
         @agentSession.trnUploadStatus.flatMap(_.fileName).map { fileName =>
             <dl class="app-check-your-answers app-check-your-answers--long">

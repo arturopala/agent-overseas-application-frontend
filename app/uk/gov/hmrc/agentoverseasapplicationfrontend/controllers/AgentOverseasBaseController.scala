@@ -41,8 +41,6 @@ class AgentOverseasBaseController @Inject()(
   override implicit def hc(implicit rh: RequestHeader): HeaderCarrier =
     HeaderCarrierConverter.fromHeadersAndSessionAndRequest(rh.headers, Some(rh.session), Some(rh))
 
-
-
   def serverError: Action[AnyContent] = Action.async { implicit request =>
     Ok(error_template("global.error.500.title", "global.error.500.heading", "global.error.500.message"))
   }
