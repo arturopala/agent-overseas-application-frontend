@@ -31,7 +31,7 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.collection.immutable.SortedSet
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class ApplicationController @Inject()(
