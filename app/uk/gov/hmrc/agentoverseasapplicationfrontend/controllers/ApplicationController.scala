@@ -342,7 +342,7 @@ class ApplicationController @Inject()(
             case Some(numbers) => numbers + Trn(validForm)
             case None          => SortedSet(validForm).map(Trn.apply)
           }
-          updateSession(request.agentSession.copy(taxRegistrationNumbers = Some(trns)))(
+          updateSession(request.agentSession.copy(taxRegistrationNumbers = Some(trns), hasTaxRegNumbers = Some(true)))(
             routes.ApplicationController.showYourTaxRegNumbersForm().url)
         }
       )
@@ -376,7 +376,12 @@ class ApplicationController @Inject()(
         validForm => {
           validForm.value match {
             case Some(true) => Redirect(routes.ApplicationController.showAddTaxRegNoForm().url)
-            case _          => Redirect(routes.FileUploadController.showTrnUploadForm().url)
+            case _ => {
+              request.agentSession.taxRegistrationNumbers
+                .fold(Redirect(routes.ApplicationController.showCheckYourAnswers().url))(_ =>
+                  Redirect(routes.FileUploadController.showTrnUploadForm().url))
+
+            }
           }
         }
       )

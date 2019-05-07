@@ -220,8 +220,7 @@ class CommonRoutingSpec extends UnitSpec {
     )
     await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession))
 
-    await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.FileUploadController
-      .showTrnUploadForm()
+    await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.ApplicationController.showAddTaxRegNoForm()
   }
 
   "return showCheckYourAnswers when hasTaxRegNumbers equals Some(false)" in {

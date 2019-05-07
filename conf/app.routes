@@ -20,7 +20,7 @@ POST        /main-business-address                       @uk.gov.hmrc.agentovers
 
 GET         /upload-proof-anti-money-laundering-registration @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showAmlsUploadForm
 GET         /upload-proof-trading-address                @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showTradingAddressUploadForm
-GET         /upload-proof-tax-registration                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showTrnUploadForm
+GET         /upload-proof-tax-registration               @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.showTrnUploadForm
 GET         /poll-status/:fileType/:ref                  @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.FileUploadController.pollStatus(fileType: String, ref: String)
 
 

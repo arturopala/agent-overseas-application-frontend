@@ -1296,7 +1296,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
     }
 
     "submit form and then redirect to /upload/trn page if user selects false" in {
-      sessionStoreService.currentSession.agentSession = Some(agentSession)
+      sessionStoreService.currentSession.agentSession = Some(agentSession.copy(taxRegistrationNumbers = Some(SortedSet(Trn("12345"))), hasTaxRegNumbers = Some(true)))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody("value" -> "false")
@@ -1504,7 +1504,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
         result should containLink("button.back", routes.ApplicationController.showAgentCodesForm().url)
       }
 
-      "no agent codes provided hence longer journey branch & any taxRegNumber/s provided, back link to your-tax-registration-numbers" in {
+      "no agent codes provided hence longer journey branch & any taxRegNumber/s provided, back link to file-uploaded-successfully" in {
         sessionStoreService.currentSession.agentSession = Some(
           AgentSession(
             Some(amlsDetails),
@@ -1539,7 +1539,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
             agentCodes = Some(AgentCodes(None,None)),
             registeredForUkTax = Some(No),
             companyRegistrationNumber = Some(CompanyRegistrationNumber(None, None)),
-            hasTaxRegNumbers = Some(true),
+            hasTaxRegNumbers = Some(false),
             taxRegistrationNumbers = None,
             amlsUploadStatus = Some(fileUploadStatus),
             tradingAddressUploadStatus = Some(fileUploadStatus), trnUploadStatus = Some(fileUploadStatus)))

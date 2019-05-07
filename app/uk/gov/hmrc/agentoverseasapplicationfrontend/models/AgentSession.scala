@@ -81,6 +81,11 @@ object AgentSession {
     def unapply(session: Option[AgentSession]): Boolean = session.exists(_.amlsDetails.isEmpty)
   }
 
+  object MissingAmlsUploadStatus {
+    def unapply(session: Option[AgentSession]): Boolean =
+      session.exists(_.amlsUploadStatus.isEmpty)
+  }
+
   object MissingContactDetails {
     def unapply(session: Option[AgentSession]): Boolean = session.exists(_.contactDetails.isEmpty)
   }
@@ -150,9 +155,10 @@ object AgentSession {
     def unapply(session: Option[AgentSession]): Boolean =
       session.exists(_.hasTaxRegNumbers.getOrElse(true) == false) //interested in false so getOrElse(true) is the bad case
   }
-  object MissingAmlsUploadStatus {
+
+  object TaxRegistrationNumbersEmpty {
     def unapply(session: Option[AgentSession]): Boolean =
-      session.exists(_.amlsUploadStatus.isEmpty)
+      session.exists(_.taxRegistrationNumbers.isEmpty)
   }
 
   object MissingTaxRegFile {

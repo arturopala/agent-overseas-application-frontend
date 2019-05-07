@@ -101,7 +101,7 @@ class FileUploadController @Inject()(
     }
   }
 
-  private def backToFileUploadPage(fileType: String) = fileType match {
+  private def backToFileUploadPage(fileType: String): Option[String] = fileType match {
 
     case "amls"            => Some(routes.FileUploadController.showAmlsUploadForm().url)
     case "trading-address" => Some(routes.FileUploadController.showTradingAddressUploadForm().url)
@@ -121,13 +121,12 @@ class FileUploadController @Inject()(
         validForm => {
           val fileType = validForm.fileType
           val newValue = YesNo(validForm.choice)
-          val redirectTo =
-            if (Yes == newValue) {
-              nextPage(fileType)
-            } else
+          if (Yes == newValue) {
+            nextPage(fileType).map(url => Redirect(url))
+          } else
+            Redirect(
               backToFileUploadPage(fileType).getOrElse(
-                routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url)
-          Redirect(redirectTo)
+                routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url))
         }
       )
   }
@@ -198,9 +197,11 @@ class FileUploadController @Inject()(
       }
     }
 
-  private def nextPage(fileType: String)(implicit request: CredentialRequest[AnyContent]): String =
+  private def nextPage(fileType: String)(implicit request: CredentialRequest[AnyContent]): Future[String] =
     if (request.agentSession.changingAnswers) {
-      showCheckYourAnswersUrl
+      sessionStoreService
+        .cacheAgentSession(request.agentSession.copy(changingAnswers = false))
+        .map(_ => showCheckYourAnswersUrl)
     } else {
       fileType match {
         case "trading-address" => routes.ApplicationController.showRegisteredWithHmrcForm().url
