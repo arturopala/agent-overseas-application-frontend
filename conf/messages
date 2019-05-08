@@ -169,7 +169,7 @@ fileUpload.li.1.trn=dated in the last 12 months
 
 fileUpload.caption=Your business details
 fileUpload.p2=Your document needs to be:
-fileUpload.li.2=in PDF or JPG format
+fileUpload.li.2=in PDF format
 fileUpload.li.3=no more than 25MB
 fileUpload.upload=Upload a file
 fileUpload.inset=It may take a few moments to upload your file. Do not close this window while your file is uploading.
