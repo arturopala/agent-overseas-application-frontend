@@ -57,7 +57,6 @@ class AgentOverseasApplicationConnector @Inject()(
     implicit hc: HeaderCarrier,
     ec: ExecutionContext
   ): Future[Unit] = {
-
     val url = new URL(baseUrl, s"/agent-overseas-application/application")
     monitor(s"Agent-Overseas-Application-application-POST") {
       http

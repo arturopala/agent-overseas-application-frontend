@@ -102,5 +102,6 @@ trait CommonRouting {
     case TaxRegistrationNumbersEmpty()     => routes.ApplicationController.showAddTaxRegNoForm()
     case MissingTaxRegFile()               => routes.FileUploadController.showTrnUploadForm()
     case _                                 => routes.ApplicationController.showCheckYourAnswers()
+
   }
 }

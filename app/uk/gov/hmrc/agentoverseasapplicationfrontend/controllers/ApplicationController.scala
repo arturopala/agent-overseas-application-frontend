@@ -342,7 +342,9 @@ class ApplicationController @Inject()(
             case Some(numbers) => numbers + Trn(validForm)
             case None          => SortedSet(validForm).map(Trn.apply)
           }
-          updateSession(request.agentSession.copy(taxRegistrationNumbers = Some(trns), hasTaxRegNumbers = Some(true)))(
+          updateSession(
+            request.agentSession
+              .copy(taxRegistrationNumbers = Some(trns), hasTaxRegNumbers = Some(true), changingAnswers = false))(
             routes.ApplicationController.showYourTaxRegNumbersForm().url)
         }
       )
@@ -402,7 +404,8 @@ class ApplicationController @Inject()(
               val updatedSet = request.agentSession.taxRegistrationNumbers
                 .fold[SortedSet[Trn]](SortedSet.empty)(trns => trns - Trn(validForm.original) + Trn(updatedTrn))
 
-              updateSession(request.agentSession.copy(taxRegistrationNumbers = Some(updatedSet)))(
+              updateSession(
+                request.agentSession.copy(taxRegistrationNumbers = Some(updatedSet), changingAnswers = false))(
                 routes.ApplicationController.showYourTaxRegNumbersForm().url)
 
             case None =>
@@ -433,8 +436,12 @@ class ApplicationController @Inject()(
               val toUpdate: AgentSession =
                 if (updatedSet.isEmpty)
                   request.agentSession
-                    .copy(hasTaxRegNumbers = None, taxRegistrationNumbers = None, trnUploadStatus = None)
-                else request.agentSession.copy(taxRegistrationNumbers = Some(updatedSet))
+                    .copy(
+                      hasTaxRegNumbers = None,
+                      taxRegistrationNumbers = None,
+                      trnUploadStatus = None,
+                      changingAnswers = false)
+                else request.agentSession.copy(taxRegistrationNumbers = Some(updatedSet), changingAnswers = false)
 
               val redirectUrl =
                 if (updatedSet.nonEmpty) routes.ApplicationController.showYourTaxRegNumbersForm().url
