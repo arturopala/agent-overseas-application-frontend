@@ -167,6 +167,24 @@ $(document).ready(function () {
         fileUploadClass.removeAttr('disabled');
     });
 
+    var fileIsEncrypted = {};
+
+    $('input#file-upload').change(function () {
+        var reader = new FileReader();
+        reader.readAsText(file[0].files[0]);
+        reader.onload = function() {
+            var contents = reader.result;
+            if(contents.indexOf('/Encrypt') !== -1){
+                fileIsEncrypted = true;
+            } else {
+                fileIsEncrypted = false;
+            }
+        };
+    });
+
+
+
+
     fileUploadClass.on('click', function (e) {
 
         $( this ).removeAttr('disabled');
@@ -181,6 +199,8 @@ $(document).ready(function () {
         } else if(fileIsEmpty()){
             error(errorMessageEmptyFile);
             return false;
+        } else if(fileIsPasswordProtected()){
+            error(errorMessagePswdProtected);
         } else if(fileTooLarge()){
             error(errorMessageFileTooLarge);
             return false;
@@ -238,6 +258,10 @@ $(document).ready(function () {
         }, 3000);
     };
 
+    function fileIsPasswordProtected() {
+        return fileIsEncrypted;
+    }
+
 
     function fileTypeIsInvalid() {
         var fileName = file.val();
@@ -274,8 +298,6 @@ $(document).ready(function () {
         }
     }
 
-    var fileIsPasswordProtected = function() {
-    }
 
   function error(errorMsg) {
         errorSummary.addClass('error-summary--show').focus();
