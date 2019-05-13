@@ -265,7 +265,7 @@ $(document).ready(function () {
 
     function fileTypeIsInvalid() {
         var fileName = file.val();
-        if ((fileName.indexOf('.pdf') === -1)) {
+        if ((fileName.indexOf('.pdf') === -1) && (fileName.indexOf('.jpeg') === -1) && (fileName.indexOf('.jpg') === -1)) {
             return true;
         } else {
             return false;
