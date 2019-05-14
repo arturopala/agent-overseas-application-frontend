@@ -122,7 +122,7 @@ class ChangingAnswersControllerISpec extends BaseISpec {
     "update session with changingAnswers=true and redirect to your-tax-registration-numbers form" in new SetUp {
       val result = await(controller.changeYourTaxRegistrationNumbers(authenticatedRequest))
 
-      verify(result, routes.ApplicationController.showYourTaxRegNumbersForm().url)
+      verify(result, routes.TaxRegController.showYourTaxRegNumbersForm().url)
     }
   }
 

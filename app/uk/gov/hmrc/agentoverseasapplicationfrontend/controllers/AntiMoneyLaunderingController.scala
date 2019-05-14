@@ -28,7 +28,6 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.Rej
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.anti_money_laundering
-import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,8 +43,6 @@ class AntiMoneyLaunderingController @Inject()(
   override val ec: ExecutionContext)
     extends AgentOverseasBaseController(sessionStoreService, applicationService) with SessionBehaviour
     with I18nSupport {
-
-  private val showCheckYourAnswersUrl = routes.ApplicationController.showCheckYourAnswers().url
 
   def showAntiMoneyLaunderingForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     val form = AmlsDetailsForm.form
@@ -83,11 +80,4 @@ class AntiMoneyLaunderingController @Inject()(
         }
       )
   }
-
-  private def updateSession(agentSession: AgentSession)(redirectTo: String)(implicit hc: HeaderCarrier) =
-    if (agentSession.changingAnswers) {
-      updateSessionAndRedirect(agentSession.copy(changingAnswers = false))(showCheckYourAnswersUrl)
-    } else {
-      updateSessionAndRedirect(agentSession)(redirectTo)
-    }
 }

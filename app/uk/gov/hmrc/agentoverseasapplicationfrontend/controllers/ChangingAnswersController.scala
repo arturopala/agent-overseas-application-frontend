@@ -96,7 +96,7 @@ class ChangingAnswersController @Inject()(
 
   def changeYourTaxRegistrationNumbers: Action[AnyContent] = validApplicantAction.async { implicit request =>
     updateSessionAndRedirect(request.agentSession.copy(changingAnswers = true))(
-      routes.ApplicationController.showYourTaxRegNumbersForm().url)
+      routes.TaxRegController.showYourTaxRegNumbersForm().url)
   }
 
   def changeYourTaxRegistrationNumbersFile: Action[AnyContent] = validApplicantAction.async { implicit request =>

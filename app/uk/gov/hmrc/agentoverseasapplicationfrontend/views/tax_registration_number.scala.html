@@ -29,7 +29,7 @@
         @errorSummary(Messages("error.summary.heading"), taxRegistrationNumberForm, Seq.empty, Some("enter-tax-registration-numbers"))
     }
 
-    @form(action = routes.ApplicationController.submitTaxRegistrationNumber(), 'class -> "form js-form") {
+    @form(action = routes.TaxRegController.submitTaxRegistrationNumber(), 'class -> "form js-form") {
         <div class="form-group @if(taxRegistrationNumberForm.error("value").isDefined) {form-group-error}" id="radioResponse">
             <fieldset>
                 <legend>

@@ -193,7 +193,7 @@ class CommonRoutingSpec extends UnitSpec {
       )
       await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession))
 
-      await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.ApplicationController
+      await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.TaxRegController
         .showTaxRegistrationNumberForm()
     }
   }
@@ -206,7 +206,7 @@ class CommonRoutingSpec extends UnitSpec {
       companyRegistrationNumber = Some(companyRegistrationNumber))
     await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession))
 
-    await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.ApplicationController
+    await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.TaxRegController
       .showTaxRegistrationNumberForm()
   }
 
@@ -220,7 +220,7 @@ class CommonRoutingSpec extends UnitSpec {
     )
     await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession))
 
-    await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.ApplicationController.showAddTaxRegNoForm()
+    await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.TaxRegController.showAddTaxRegNoForm()
   }
 
   "return showCheckYourAnswers when hasTaxRegNumbers equals Some(false)" in {

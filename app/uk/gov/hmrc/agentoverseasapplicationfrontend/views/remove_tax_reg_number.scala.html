@@ -24,13 +24,13 @@
 @uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = error_prefix(trnForm) + Messages("removeTrn.title")) {
 
 
-    <a href="@routes.ApplicationController.showYourTaxRegNumbersForm" class="link-back">@Messages("button.back")</a>
+    <a href="@routes.TaxRegController.showYourTaxRegNumbersForm" class="link-back">@Messages("button.back")</a>
 
     @if(trnForm.hasErrors) {
         @errorSummary(Messages("error.summary.heading"),trnForm, Seq.empty, Some("trn"))
     }
 
-    @form(action = routes.ApplicationController.submitRemoveTaxRegNumber(trn), 'class -> "form js-form") {
+    @form(action = routes.TaxRegController.submitRemoveTaxRegNumber(trn), 'class -> "form js-form") {
 
         <fieldset>
 

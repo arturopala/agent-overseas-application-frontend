@@ -36,7 +36,8 @@ case class AgentSession(
   amlsUploadStatus: Option[FileUploadStatus] = None,
   trnUploadStatus: Option[FileUploadStatus] = None,
   fileType: Option[String] = None,
-  changingAnswers: Boolean = false) {
+  changingAnswers: Boolean = false,
+  hasTrnsChanged: Boolean = false) {
 
   def sanitize: AgentSession = {
     val agentCodes = if (this.registeredWithHmrc.contains(Yes)) this.agentCodes else None
@@ -66,7 +67,8 @@ case class AgentSession(
       this.amlsUploadStatus,
       this.trnUploadStatus,
       this.fileType,
-      this.changingAnswers
+      this.changingAnswers,
+      this.hasTrnsChanged
     )
   }
 }

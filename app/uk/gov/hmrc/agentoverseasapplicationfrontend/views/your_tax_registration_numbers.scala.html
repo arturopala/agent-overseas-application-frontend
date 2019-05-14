@@ -26,7 +26,7 @@
 
 @uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = error_prefix(doYouWantToAddAnotherTrnForm) + Messages("yourTaxRegistrationNumbers.title")) {
 
-<a href="@backLink.getOrElse(routes.ApplicationController.showTaxRegistrationNumberForm)" class="link-back">@Messages("button.back")</a>
+<a href="@backLink.getOrElse(routes.TaxRegController.showTaxRegistrationNumberForm)" class="link-back">@Messages("button.back")</a>
 
 <div class="margin-bottom-10">
     <h1 class="heading-xlarge margin-bottom-20  @if(doYouWantToAddAnotherTrnForm.hasErrors){push--top}">
@@ -44,10 +44,10 @@
             @trn
         </dt>
         <dd class="app-check-your-answers__answer">
-            <a href="@routes.ApplicationController.showRemoveTaxRegNumber(trn)" class="button--link-style" type="submit"> @Messages("yourTaxRegistrationNumbers.remove.button")</a>
+            <a href="@routes.TaxRegController.showRemoveTaxRegNumber(trn)" class="button--link-style" type="submit"> @Messages("yourTaxRegistrationNumbers.remove.button")</a>
         </dd>
         <dd class="app-check-your-answers__change">
-            @form(action = routes.ApplicationController.submitUpdateTaxRegNumber, 'class -> "form js-form actionButtons", 'id -> s"""updateTrn$trn""") {
+            @form(action = routes.TaxRegController.submitUpdateTaxRegNumber, 'class -> "form js-form actionButtons", 'id -> s"""updateTrn$trn""") {
                 <input class="hidden" name="original" type="text" id="actual-trn" value="@trn" />
                 <button class="button--link-style" type="submit">
                     @Messages("yourTaxRegistrationNumbers.update.button")
@@ -66,7 +66,7 @@
 
 <p><span class="bold-small">@Messages("yourTaxRegistrationNumbers.want.to.add.another")</span></p>
 
-@form(action = routes.ApplicationController.submitYourTaxRegNumbers, 'class -> "form js-form") {
+@form(action = routes.TaxRegController.submitYourTaxRegNumbers, 'class -> "form js-form") {
     <div class="form-group margin-bottom-30">
         @input_radio_group(
         doYouWantToAddAnotherTrnForm("value"),

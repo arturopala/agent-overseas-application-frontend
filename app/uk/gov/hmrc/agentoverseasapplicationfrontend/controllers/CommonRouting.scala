@@ -92,14 +92,14 @@ trait CommonRouting {
   }
 
   private def collectTaxRegNoOrContinue(agentSession: Option[AgentSession]): Call = agentSession match {
-    case MissingHasTaxRegistrationNumber() => routes.ApplicationController.showTaxRegistrationNumberForm()
+    case MissingHasTaxRegistrationNumber() => routes.TaxRegController.showTaxRegistrationNumberForm()
     case HasTaxRegistrationNumber()        => collectTaxRegFileUploadOrContinue(agentSession)
     case NoTaxRegistrationNumber()         => routes.ApplicationController.showCheckYourAnswers()
   }
 
   private def collectTaxRegFileUploadOrContinue(agentSession: Option[AgentSession]): Call = agentSession match {
     case MissingHasTaxRegistrationNumber() => collectTaxRegNoOrContinue(agentSession)
-    case TaxRegistrationNumbersEmpty()     => routes.ApplicationController.showAddTaxRegNoForm()
+    case TaxRegistrationNumbersEmpty()     => routes.TaxRegController.showAddTaxRegNoForm()
     case MissingTaxRegFile()               => routes.FileUploadController.showTrnUploadForm()
     case _                                 => routes.ApplicationController.showCheckYourAnswers()
 

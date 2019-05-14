@@ -49,8 +49,6 @@ class TradingAddressController @Inject()(
   private val countries = countryNamesLoader.load
   private val validCountryCodes = countries.keys.toSet
 
-  private val showCheckYourAnswersUrl = routes.ApplicationController.showCheckYourAnswers().url
-
   def showMainBusinessAddressForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     val form = MainBusinessAddressForm.mainBusinessAddressForm(validCountryCodes)
     if (request.agentSession.changingAnswers) {
@@ -81,12 +79,5 @@ class TradingAddressController @Inject()(
             updateSession(request.agentSession.copy(mainBusinessAddress = Some(validForm)))(
               routes.FileUploadController.showTradingAddressUploadForm().url)
         )
-    }
-
-  private def updateSession(agentSession: AgentSession)(redirectTo: String)(implicit hc: HeaderCarrier) =
-    if (agentSession.changingAnswers) {
-      updateSessionAndRedirect(agentSession.copy(changingAnswers = false))(showCheckYourAnswersUrl)
-    } else {
-      updateSessionAndRedirect(agentSession)(redirectTo)
     }
 }

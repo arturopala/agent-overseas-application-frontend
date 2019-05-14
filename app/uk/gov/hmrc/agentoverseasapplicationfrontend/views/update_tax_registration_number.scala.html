@@ -23,7 +23,7 @@
 
 @uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = error_prefix(updateTrnForm) + Messages("updateTrn.title")) {
 
-    <a href="@routes.ApplicationController.showYourTaxRegNumbersForm" class="link-back">@Messages("button.back")</a>
+    <a href="@routes.TaxRegController.showYourTaxRegNumbersForm" class="link-back">@Messages("button.back")</a>
 
     <h1 class="heading-xlarge">@Messages("updateTrn.title")</h1>
 
@@ -31,7 +31,7 @@
         @errorSummary(Messages("error.summary.heading"), updateTrnForm, Seq.empty, Some("update-trn"))
     }
 
-    @form(action = routes.ApplicationController.submitUpdateTaxRegNumber, 'class -> "form js-form", 'id -> "updateTrn") {
+    @form(action = routes.TaxRegController.submitUpdateTaxRegNumber, 'class -> "form js-form", 'id -> "updateTrn") {
 
         <div class="form-group">
             @input(

@@ -46,18 +46,18 @@ POST        /uk-tax-registration                         @uk.gov.hmrc.agentovers
 GET         /personal-details                            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showPersonalDetailsForm
 POST        /personal-details                            @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitPersonalDetails
 
-GET         /tax-registration-number                     @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showTaxRegistrationNumberForm
-POST        /tax-registration-number                     @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitTaxRegistrationNumber
+GET         /tax-registration-number                     @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.TaxRegController.showTaxRegistrationNumberForm
+POST        /tax-registration-number                     @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.TaxRegController.submitTaxRegistrationNumber
 
-GET         /your-tax-registration-numbers               @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showYourTaxRegNumbersForm
-POST        /your-tax-registration-numbers               @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitYourTaxRegNumbers
+GET         /your-tax-registration-numbers               @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.TaxRegController.showYourTaxRegNumbersForm
+POST        /your-tax-registration-numbers               @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.TaxRegController.submitYourTaxRegNumbers
 
-GET         /add-tax-registration-number                 @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showAddTaxRegNoForm
-POST        /add-tax-registration-number                 @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitAddTaxRegNo
+GET         /add-tax-registration-number                 @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.TaxRegController.showAddTaxRegNoForm
+POST        /add-tax-registration-number                 @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.TaxRegController.submitAddTaxRegNo
 
-POST        /update-tax-registration-number              @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitUpdateTaxRegNumber
-GET         /remove-tax-registration-number/:trn         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showRemoveTaxRegNumber(trn: String)
-POST        /remove-tax-registration-number/:trn              @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitRemoveTaxRegNumber(trn: String)
+POST        /update-tax-registration-number              @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.TaxRegController.submitUpdateTaxRegNumber
+GET         /remove-tax-registration-number/:trn         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.TaxRegController.showRemoveTaxRegNumber(trn: String)
+POST        /remove-tax-registration-number/:trn         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.TaxRegController.submitRemoveTaxRegNumber(trn: String)
 
 GET         /check-your-answers                          @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showCheckYourAnswers
 POST        /check-your-answers                          @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitCheckYourAnswers

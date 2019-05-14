@@ -43,8 +43,6 @@ class FileUploadController @Inject()(
   configuration: Configuration)
     extends AgentOverseasBaseController(sessionStoreService, applicationService) with SessionBehaviour {
 
-  private val showCheckYourAnswersUrl = routes.ApplicationController.showCheckYourAnswers().url
-
   def showAmlsUploadForm: Action[AnyContent] = validApplicantAction.async {
     implicit request: CredentialRequest[AnyContent] =>
       showUploadForm("amls")
@@ -189,7 +187,7 @@ class FileUploadController @Inject()(
       fileType match {
         case "trading-address" => Some(routes.TradingAddressController.showMainBusinessAddressForm().url)
         case "amls"            => Some(routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url)
-        case "trn"             => Some(routes.ApplicationController.showYourTaxRegNumbersForm().url)
+        case "trn"             => Some(routes.TaxRegController.showYourTaxRegNumbersForm().url)
         case _ => {
           Logger.info("routing error for back link- unrecognized document proof file key!")
           None
