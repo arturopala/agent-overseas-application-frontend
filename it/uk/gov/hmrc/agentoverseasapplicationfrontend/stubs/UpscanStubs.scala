@@ -10,7 +10,7 @@ trait UpscanStubs {
   val request = s"""{
                                        |"callbackUrl": "http://localhost:$wireMockPort/agent-overseas-application/upscan-callback",
                                        |"minimumFileSize": 1000,
-                                       |"maximumFileSize": 25000000
+                                       |"maximumFileSize": 5000000
                                        |}
     """.stripMargin
 

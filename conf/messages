@@ -95,7 +95,7 @@ error.removeTrn.no-radio.selected=Select yes if you want to remove this tax regi
 
 error.fileUpload.no-file=Select a file
 error.fileUpload.empty-file=The selected file is empty
-error.fileUpload.too-large=The selected file must be smaller than 25MB
+error.fileUpload.too-large=The selected file must be smaller than 5MB
 error.fileUpload.password-protected=The selected file is password protected
 error.fileUpload.no-upload=The selected file could not be uploaded - try again
 error.fileUpload.virus=The selected file contains a virus
@@ -170,7 +170,7 @@ fileUpload.li.1.trn=dated in the last 12 months
 fileUpload.caption=Your business details
 fileUpload.p2=Your document needs to be:
 fileUpload.li.2=in PDF or JPG format
-fileUpload.li.3=no more than 25MB
+fileUpload.li.3=no more than 5MB
 fileUpload.upload=Upload a file
 fileUpload.inset=It may take a few moments to upload your file. Do not close this window while your file is uploading.
 fileUpload.button=Upload your file

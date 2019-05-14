@@ -43,7 +43,7 @@ class UpscanConnector @Inject()(
 
   val callBackUrl = new URL(overseasApplicationBaseUrl, "/agent-overseas-application/upscan-callback")
 
-  val maxFileSize = 25000000 //25MB
+  val maxFileSize = 5000000 //5MB
 
   val payload: JsValue = Json.parse(s"""{
                                        |"callbackUrl": "$callBackUrl",

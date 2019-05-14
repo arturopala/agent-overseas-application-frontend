@@ -161,7 +161,7 @@ $(document).ready(function () {
         errorMessageInvalid = $('.file-upload').data('invalid'),
         loadingSection = $('.loader'),
         uploadFormElements = $('.hide-when-uploading'),
-        maxUploadSize = 25000000;
+        maxUploadSize = 5000000;
 
     file.on('click', function() {
         fileUploadClass.removeAttr('disabled');
