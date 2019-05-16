@@ -201,6 +201,7 @@ $(document).ready(function () {
             return false;
         } else if(fileIsPasswordProtected()){
             error(errorMessagePswdProtected);
+            return false;
         } else if(fileTooLarge()){
             error(errorMessageFileTooLarge);
             return false;
