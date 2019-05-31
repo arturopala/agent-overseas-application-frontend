@@ -59,6 +59,8 @@ POST        /update-tax-registration-number              @uk.gov.hmrc.agentovers
 GET         /remove-tax-registration-number/:trn         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.TaxRegController.showRemoveTaxRegNumber(trn: String)
 POST        /remove-tax-registration-number/:trn         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.TaxRegController.submitRemoveTaxRegNumber(trn: String)
 
+GET         /more-information-needed                     @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.TaxRegController.showMoreInformationNeeded
+
 GET         /check-your-answers                          @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showCheckYourAnswers
 POST        /check-your-answers                          @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.submitCheckYourAnswers
 

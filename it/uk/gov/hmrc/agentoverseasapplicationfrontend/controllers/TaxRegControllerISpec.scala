@@ -142,7 +142,7 @@ class TaxRegControllerISpec extends BaseISpec with AgentOverseasApplicationStubs
         """<input id="canProvideTaxRegNo_true" type="radio" name="canProvideTaxRegNo" value="true" checked>""") shouldBe true
     }
 
-    "Provided selected 'No' on radioButton submit and redirect to next page /your-tax-registration-number" in {
+    "Provided selected 'No' on radioButton submit and redirect to next page /more-information-needed" in {
       sessionStoreService.currentSession.agentSession = Some(currentApplication)
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody("canProvideTaxRegNo" -> "false")
@@ -151,11 +151,13 @@ class TaxRegControllerISpec extends BaseISpec with AgentOverseasApplicationStubs
 
       status(result) shouldBe 303
 
-      redirectLocation(result) shouldBe Some(routes.ApplicationController.showCheckYourAnswers().url)
+      redirectLocation(result) shouldBe Some(routes.TaxRegController.showMoreInformationNeeded().url)
       val modifiedApplication = sessionStoreService.currentSession.agentSession.get
 
-      modifiedApplication.hasTaxRegNumbers shouldBe Some(false)
+      modifiedApplication.hasTaxRegNumbers shouldBe None
       modifiedApplication.taxRegistrationNumbers shouldBe None
+      modifiedApplication.hasTrnsChanged shouldBe false
+      modifiedApplication.trnUploadStatus shouldBe None
     }
 
     "Provided nothing selected on radio form submit and return with form error taxRegNo.form.no-radio.selected" in {
@@ -515,6 +517,23 @@ class TaxRegControllerISpec extends BaseISpec with AgentOverseasApplicationStubs
       status(result) shouldBe 200
 
       result should containMessages("error.removeTrn.no-radio.selected")
+    }
+  }
+
+  "GET /more-information-needed" should {
+    "return page with expected content" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession)
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+
+      val result = await(controller.showMoreInformationNeeded()(authenticatedRequest))
+
+      status(result) shouldBe 200
+
+      containMessages(
+        "taxRegNo.more_info_required.title",
+        "taxRegNo.more_info_required.p1",
+        "taxRegNo.more_info_required.p2"
+      )
     }
   }
 

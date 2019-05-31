@@ -24,7 +24,7 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.{AgentAffin
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.{AddTrnForm, DoYouWantToAddAnotherTrnForm, RemoveTrnForm, TaxRegistrationNumberForm, UpdateTrnForm}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, TaxRegistrationNumber, Trn}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.{add_tax_registration_number, error_template, remove_tax_reg_number, tax_registration_number, update_tax_registration_number, your_tax_registration_numbers}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
 
 import scala.collection.immutable.SortedSet
@@ -62,19 +62,34 @@ class TaxRegController @Inject()(
       .fold(
         formWithErrors => Ok(tax_registration_number(formWithErrors)),
         validForm => {
-          val redirectLink = if (validForm.canProvideTaxRegNo.contains(true)) {
-            routes.TaxRegController.showYourTaxRegNumbersForm().url
-          } else {
-            routes.ApplicationController.showCheckYourAnswers().url
-          }
-          updateSession(
-            request.agentSession.copy(
-              hasTaxRegNumbers = validForm.canProvideTaxRegNo,
-              taxRegistrationNumbers = validForm.value.flatMap(taxId => Some(SortedSet(taxId))),
-              hasTrnsChanged = validForm.value.isDefined
-            ))(redirectLink)
+
+          val (updatedSession, redirectLink) =
+            if (validForm.canProvideTaxRegNo.contains(true)) {
+              (
+                request.agentSession.copy(
+                  hasTaxRegNumbers = validForm.canProvideTaxRegNo,
+                  taxRegistrationNumbers = validForm.value.flatMap(taxId => Some(SortedSet(taxId))),
+                  hasTrnsChanged = validForm.value.isDefined
+                ),
+                routes.TaxRegController.showYourTaxRegNumbersForm().url)
+            } else {
+              (
+                request.agentSession.copy(
+                  hasTaxRegNumbers = None,
+                  taxRegistrationNumbers = None,
+                  trnUploadStatus = None,
+                  hasTrnsChanged = false
+                ),
+                routes.TaxRegController.showMoreInformationNeeded().url)
+            }
+
+          updateSession(updatedSession)(redirectLink)
         }
       )
+  }
+
+  def showMoreInformationNeeded: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    Ok(tax_more_info_needed())
   }
 
   def showAddTaxRegNoForm: Action[AnyContent] = validApplicantAction.async { implicit request =>

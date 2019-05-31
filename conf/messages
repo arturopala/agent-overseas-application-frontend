@@ -244,6 +244,9 @@ taxRegNo.form.yes=Yes
 taxRegNo.form.yes.prompt=Enter your tax registration number
 taxRegNo.form.no=No
 taxRegNo.form.no-radio.selected=Select yes if you have any tax registration numbers in your country
+taxRegNo.more_info_required.title=You need to enter your tax registration details
+taxRegNo.more_info_required.p1=You cannot submit your application if you do not have this information.
+taxRegNo.more_info_required.p2=Go back and enter your tax registration details.
 
 # Company Registration Number
 companyRegistrationNumber.title=Does your business have a company registration number or equivalent in your country?

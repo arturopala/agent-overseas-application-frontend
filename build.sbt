@@ -67,8 +67,6 @@ lazy val root = Project("agent-overseas-application-frontend", file("."))
   )
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
 
-inConfig(IntegrationTest)(scalafmtCoreSettings)
-
 def oneForkedJvmPerTest(tests: Seq[TestDefinition]) = {
   tests.map { test =>
     new Group(test.name, Seq(test), SubProcess(ForkOptions(runJVMOptions = Seq(s"-Dtest.name=${test.name}"))))
