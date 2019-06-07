@@ -183,8 +183,6 @@ $(document).ready(function () {
     });
 
 
-
-
     fileUploadClass.on('click', function (e) {
 
         $( this ).removeAttr('disabled');

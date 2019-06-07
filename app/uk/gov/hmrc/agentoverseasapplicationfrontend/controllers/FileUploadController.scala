@@ -73,7 +73,33 @@ class FileUploadController @Inject()(
 
   //these pollStatus functions are called via ajax in the assets/javascripts/script.js
   def pollStatus(fileType: String, reference: String) = validApplicantAction.async { implicit request =>
-    upscanPollStatus(fileType, reference)
+    sessionStoreService.fetchAgentSession.flatMap {
+      case Some(agentSession) =>
+        applicationService
+          .upscanPollStatus(reference)
+          .flatMap { response =>
+            if (response.fileStatus == "READY") {
+              val updatedSession = fileType match {
+                case "trading-address" =>
+                  agentSession.copy(tradingAddressUploadStatus = Some(response))
+                case "amls" =>
+                  agentSession.copy(amlsUploadStatus = Some(response))
+                case "trn" =>
+                  agentSession.copy(trnUploadStatus = Some(response))
+                case _ => throw new RuntimeException(s"invalid fileType for upscan callback $fileType")
+              }
+              sessionStoreService
+                .cacheAgentSession(updatedSession)
+                .flatMap(_ => {
+                  Logger.info(s"saving the callback response $response for fileType $fileType")
+                  Ok(Json.toJson(response))
+                })
+            } else {
+              Ok(Json.toJson(response))
+            }
+          }
+      case None => throw new RuntimeException("no agent session")
+    }
   }
 
   def showSuccessfulUploadedForm() = validApplicantAction.async { implicit request =>
@@ -143,28 +169,6 @@ class FileUploadController @Inject()(
     }
   }
 
-  private def upscanPollStatus(fileType: String, reference: String)(implicit hc: HeaderCarrier): Future[Result] =
-    sessionStoreService.fetchAgentSession.flatMap {
-      case Some(agentSession) =>
-        applicationService
-          .upscanPollStatus(reference)
-          .flatMap { response =>
-            {
-              val updatedSession = fileType match {
-                case "trading-address" =>
-                  agentSession.copy(tradingAddressUploadStatus = Some(response))
-                case "amls" =>
-                  agentSession.copy(amlsUploadStatus = Some(response))
-                case "trn" =>
-                  agentSession.copy(trnUploadStatus = Some(response))
-                case _ => throw new RuntimeException("unexpected file status returned from aws")
-              }
-              sessionStoreService.cacheAgentSession(updatedSession).flatMap(_ => Ok(Json.toJson(response)))
-            }
-          }
-      case None => throw new RuntimeException("TODO")
-    }
-
   private def getFileNameFromSession(fileType: String)(implicit hc: HeaderCarrier): Future[Option[String]] =
     sessionStoreService.fetchAgentSession.flatMap {
       case Some(agentSession) => {
@@ -172,11 +176,11 @@ class FileUploadController @Inject()(
           case "trading-address" => agentSession.tradingAddressUploadStatus
           case "amls"            => agentSession.amlsUploadStatus
           case "trn"             => agentSession.trnUploadStatus
-          case _                 => throw new RuntimeException("could not get filename from session - unexpected fileType identifier")
+          case _                 => throw new RuntimeException(s"could not get filename from session for fileType $fileType")
         }
 
       }.map(_.fileName)
-        .getOrElse(throw new RuntimeException("could not get filename from session - no file name in session"))
+        .getOrElse(throw new RuntimeException(s"filename is missing from the session for fileType $fileType"))
       case None => throw new RuntimeException("no agent session")
     }
 

@@ -1,6 +1,7 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
 import org.jsoup.Jsoup
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers.redirectLocation
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, FailureDetails, FileUploadStatus}
@@ -54,6 +55,40 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
         "fileUploadTradingAddress.no_js_page.p1",
         "fileUploadTradingAddress.no_js_page.p2"
       )
+    }
+  }
+
+  "GET /poll-status/:fileType/:ref" should {
+    "given fileStatus NOT_READY return Ok with FileStatus response body and not store FileStatus in session" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession)
+
+      given200UpscanPollStatusNotReady()
+
+      val result = await(controller.pollStatus("amls","reference")(cleanCredsAgent(FakeRequest())))
+
+      status(result) shouldBe 200
+
+      bodyOf(result) shouldBe """{"reference":"reference","fileStatus":"NOT_READY"}"""
+
+      await(sessionStoreService.fetchAgentSession.flatMap(_.flatMap(_.amlsUploadStatus))) shouldBe None
+
+    }
+
+    "given fileStatus READY return Ok with FileStatus response body and store FileStatus in session" in {
+      sessionStoreService.currentSession.agentSession = Some(agentSession)
+
+      given200UpscanPollStatusReady()
+
+      val result = await(controller.pollStatus("amls","reference")(cleanCredsAgent(FakeRequest())))
+
+      status(result) shouldBe 200
+
+      val fileUploadStatus = """{"reference":"reference","fileStatus":"READY","fileName":"some"}"""
+
+      bodyOf(result) shouldBe fileUploadStatus
+
+      await(sessionStoreService.fetchAgentSession.flatMap(_.flatMap(_.amlsUploadStatus))) shouldBe
+        Some(Json.parse(fileUploadStatus).as[FileUploadStatus])
     }
   }
 
