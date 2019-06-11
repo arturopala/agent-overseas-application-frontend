@@ -106,6 +106,7 @@ class CommonValidatorsSpec extends UnitSpec with EitherValues {
 
       "not a valid email" in {
         shouldRejectFieldValueAsInvalid("bademail")
+        shouldRejectFieldValueAsInvalid("a.@test.com")
       }
 
       "has spaces" in {
@@ -121,6 +122,7 @@ class CommonValidatorsSpec extends UnitSpec with EitherValues {
       shouldAcceptFieldValue("valid-email@test.com")
       shouldAcceptFieldValue("valid-email.address@test.com")
       shouldAcceptFieldValue("valid-email._address@test.com")
+      shouldAcceptFieldValue("a1@test.com")
     }
   }
 

@@ -24,8 +24,10 @@ import uk.gov.hmrc.domain.Nino
 object CommonValidators {
 
   private val TelephoneNumberRegex = "^[A-Z0-9 )\\/(\\-*#]*"
-  private val EmailRegex =
-    """^[a-zA-Z0-9\.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"""
+  private val EmailLocalPartRegex = """^[a-zA-Z0-9\.!#$%&'*+\/=?^_`{|}~-]+(?<!\.)$"""
+  private val EmailDomainRegex =
+    """[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"""
+
   private val JobTitleRegex = "[a-zA-Z' \\-\\s]+"
   private val NameRegex = "[a-zA-Z' \\-\\s]+"
   private val MembershipNumberRegex = "[a-zA-Z0-9\\/ \\-\\s]+"
@@ -80,7 +82,7 @@ object CommonValidators {
   def businessTelephone: Mapping[String] =
     text verifying commonFormConstraint("telephone", TelephoneNumberRegex, TelephoneMaxLength)
 
-  def businessEmail: Mapping[String] = text verifying nonEmptyEmailAddress
+  def businessEmail: Mapping[String] = text verifying validEmailAddress
 
   def tradingName: Mapping[String] =
     text verifying commonFormConstraint("tradingName", OverseasTradingNameRegex, TradingNameMaxLength)
@@ -220,18 +222,20 @@ object CommonValidators {
     else Valid
   }
 
-  private def nonEmptyEmailAddress = Constraint { fieldValue: String =>
+  private def validEmailAddress = Constraint { fieldValue: String =>
     nonEmptyWithMessage("error.email.blank")(fieldValue) match {
-      case i: Invalid =>
-        i
-      case Valid =>
-        fieldValue match {
-          case value if value.size > EmailMaxLength =>
-            Invalid(ValidationError("error.email.maxlength"))
-          case value if !value.matches(EmailRegex) =>
+      case i: Invalid => i
+      case Valid => {
+        if (fieldValue.size > EmailMaxLength) {
+          Invalid(ValidationError("error.email.maxlength"))
+        } else if (fieldValue.contains('@')) {
+          val email = fieldValue.split('@')
+          if (!email(0).matches(EmailLocalPartRegex) || !email(1).matches(EmailDomainRegex)) {
             Invalid(ValidationError("error.email.invalid"))
-          case _ => Constraints.emailAddress(fieldValue)
-        }
+          } else Constraints.emailAddress(fieldValue)
+        } else
+          Invalid(ValidationError("error.email.invalid"))
+      }
     }
   }
 
