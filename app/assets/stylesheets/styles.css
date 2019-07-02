@@ -437,7 +437,6 @@ input[type="text"].autocomplete__input {
     font-weight: 400;
     text-transform: none;
     font-size: 16px;
-    line-height: 1.25;
     display: block;
     line-height: 1em;
     margin-top: -.5em;
@@ -447,6 +446,11 @@ input[type="text"].autocomplete__input {
 .loader {
     display: none;
 }
+
+details .panel[aria-hidden=true] a {
+    display: none; /* Accessibility requirement - Aria hidden elements do not contain focusable elements */
+}
+
 
 @media (min-width: 641px) {
     .govuk-c-loader__label {
@@ -479,3 +483,5 @@ input[type="text"].autocomplete__input {
 #file-upload-container.form-field--error input[type=file] {
     border: 4px solid #b10e1e;
 }
+
+
