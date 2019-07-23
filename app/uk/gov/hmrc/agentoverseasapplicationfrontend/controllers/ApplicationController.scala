@@ -233,6 +233,7 @@ class ApplicationController @Inject()(
     if (request.agentSession.changingAnswers) {
       Ok(personal_details(request.agentSession.personalDetails.fold(form)(form.fill), Some(showCheckYourAnswersUrl)))
     } else {
+      println(s"agent session ukregistered ${request.agentSession.registeredForUkTax}")
       Ok(personal_details(request.agentSession.personalDetails.fold(form)(form.fill)))
     }
   }

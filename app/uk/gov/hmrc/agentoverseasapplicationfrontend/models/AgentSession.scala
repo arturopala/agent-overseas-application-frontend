@@ -42,11 +42,8 @@ case class AgentSession(
   def sanitize: AgentSession = {
     val agentCodes = if (this.registeredWithHmrc.contains(Yes)) this.agentCodes else None
 
-    val registeredForUkTax = this.registeredWithHmrc match {
-      case Some(Yes) if !this.agentCodes.exists(_.hasOneOrMoreCodes) => this.registeredForUkTax
-      case Some(No)                                                  => this.registeredForUkTax
-      case _                                                         => None
-    }
+    val registeredForUkTax = this.registeredForUkTax
+
     val personalDetails = if (registeredForUkTax.contains(Yes)) this.personalDetails else None
     val companyRegistrationNumber = registeredForUkTax.flatMap(_ => this.companyRegistrationNumber)
     val taxRegistrationNumbers = registeredForUkTax.flatMap(_ => this.taxRegistrationNumbers)
