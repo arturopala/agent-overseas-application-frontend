@@ -116,13 +116,9 @@ object AgentSession {
     def unapply(session: Option[AgentSession]): Boolean = session.exists(_.agentCodes.isEmpty)
   }
 
-  object HasAnsweredWithOneOrMoreAgentCodes {
-    def unapply(session: Option[AgentSession]): Boolean = session.flatMap(_.agentCodes).exists(_.hasOneOrMoreCodes)
-  }
-
-  object HasAnsweredWithNoAgentCodes {
+  object HasAnsweredAgentCodes {
     def unapply(session: Option[AgentSession]): Boolean =
-      session.flatMap(_.agentCodes).exists(_.hasOneOrMoreCodes == false)
+      session.flatMap(_.agentCodes).isDefined
   }
 
   object MissingRegisteredForUkTax {

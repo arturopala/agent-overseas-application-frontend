@@ -69,9 +69,8 @@ trait CommonRouting {
   }
 
   private def routesFromAgentCodesOnwards(agentSession: Option[AgentSession]): Call = agentSession match {
-    case MissingAgentCodes()                  => routes.ApplicationController.showAgentCodesForm()
-    case HasAnsweredWithOneOrMoreAgentCodes() => routes.ApplicationController.showCheckYourAnswers()
-    case HasAnsweredWithNoAgentCodes()        => routesFromUkTaxRegistrationOnwards(agentSession)
+    case MissingAgentCodes()     => routes.ApplicationController.showAgentCodesForm()
+    case HasAnsweredAgentCodes() => routesFromUkTaxRegistrationOnwards(agentSession)
   }
 
   private def routesFromUkTaxRegistrationOnwards(agentSession: Option[AgentSession]): Call = agentSession match {

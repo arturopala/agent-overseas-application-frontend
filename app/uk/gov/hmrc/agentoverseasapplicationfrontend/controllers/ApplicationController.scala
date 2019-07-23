@@ -170,13 +170,8 @@ class ApplicationController @Inject()(
           }
         },
         validFormValue => {
-          if (validFormValue.hasOneOrMoreCodes) {
-            updateSession(request.agentSession.copy(agentCodes = Some(validFormValue), changingAnswers = false))(
-              routes.ApplicationController.showCheckYourAnswers().url)
-          } else {
-            updateSession(request.agentSession.copy(agentCodes = Some(validFormValue), changingAnswers = false))(
-              routes.ApplicationController.showUkTaxRegistrationForm().url)
-          }
+          updateSession(request.agentSession.copy(agentCodes = Some(validFormValue), changingAnswers = false))(
+            routes.ApplicationController.showUkTaxRegistrationForm().url)
         }
       )
   }
@@ -306,9 +301,7 @@ class ApplicationController @Inject()(
             .getOrElse(sys.error(s"No country found for code: '${countryCode.getOrElse("")}'"))
 
           val backLink =
-            if (request.agentSession.agentCodes.exists(_.hasOneOrMoreCodes))
-              routes.ApplicationController.showAgentCodesForm().url
-            else if (request.agentSession.taxRegistrationNumbers.exists(_.nonEmpty))
+            if (request.agentSession.taxRegistrationNumbers.exists(_.nonEmpty))
               routes.FileUploadController.showSuccessfulUploadedForm().url
             else routes.TaxRegController.showTaxRegistrationNumberForm().url
 
