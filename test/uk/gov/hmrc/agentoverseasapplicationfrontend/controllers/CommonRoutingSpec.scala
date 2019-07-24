@@ -243,12 +243,22 @@ class CommonRoutingSpec extends UnitSpec {
     await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.ApplicationController.showAgentCodesForm()
   }
 
-  "return showCheckYourAnswers when one or more agent codes have been given" in {
+  "return showUkTaxRegistrationForm when one or more agent codes have been given" in {
     val agentSession = detailsUpToRegisteredWithHmrc
       .copy(registeredWithHmrc = Some(Yes), agentCodes = Some(AgentCodes(Some(SaAgentCode("saCode")), None)))
     await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession))
 
-    await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.ApplicationController.showCheckYourAnswers()
+    await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.ApplicationController
+      .showUkTaxRegistrationForm()
+  }
+
+  "return showUkTaxRegistrationForm when no agent codes have been given" in {
+    val agentSession = detailsUpToRegisteredWithHmrc
+      .copy(registeredWithHmrc = Some(Yes), agentCodes = Some(AgentCodes(None, None)))
+    await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession))
+
+    await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.ApplicationController
+      .showUkTaxRegistrationForm()
   }
 
   "return correct branching page after having submitted no agent codes" when {

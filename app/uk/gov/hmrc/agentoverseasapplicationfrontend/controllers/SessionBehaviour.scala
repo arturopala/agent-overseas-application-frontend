@@ -41,4 +41,5 @@ trait SessionBehaviour extends CommonRouting with Results {
     } else {
       updateSessionAndRedirect(agentSession)(redirectTo)
     }
+
 }

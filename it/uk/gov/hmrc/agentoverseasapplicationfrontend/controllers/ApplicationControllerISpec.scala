@@ -939,7 +939,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       val result = await(controller.submitAgentCodes(authenticatedRequest))
 
       status(result) shouldBe 303
-      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showCheckYourAnswers().url
+      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showUkTaxRegistrationForm().url
 
       val session = await(sessionStoreService.fetchAgentSession).get
 
@@ -1019,26 +1019,8 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
     }
 
     "have correct back link" when {
-      "provided agent codes journey branch, back link to show agent codes page" in {
-        sessionStoreService.currentSession.agentSession = Some(
-          AgentSession(
-            amlsDetails = Some(amlsDetails),
-            contactDetails = Some(contactDetails),
-            tradingName = Some("tradingName"),
-            mainBusinessAddress = Some(mainBusinessAddress),
-            registeredWithHmrc = Some(Yes),
-            agentCodes = Some(AgentCodes(Some(SaAgentCode("selfAssessmentCode")), Some(CtAgentCode("corporationTaxCode")))),
-            amlsUploadStatus = Some(fileUploadStatus),
-            tradingAddressUploadStatus = Some(fileUploadStatus)
-            ))
 
-        val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
-
-        status(result) shouldBe 200
-        result should containLink("button.back", routes.ApplicationController.showAgentCodesForm().url)
-      }
-
-      "no agent codes provided hence longer journey branch & any taxRegNumber/s provided, back link to file-uploaded-successfully" in {
+      "back link to file-uploaded-successfully" in {
         sessionStoreService.currentSession.agentSession = Some(
           AgentSession(
             Some(amlsDetails),
@@ -1084,47 +1066,6 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
         result should containLink("button.back", routes.TaxRegController.showTaxRegistrationNumberForm().url)
       }
     }
-
-    "display the form with all data as expected when user goes through 'RegsiteredWithHmrc=Yes' flow" when {
-      "agent codes are available" in {
-        val registeredWithHmrc = Some(Yes)
-        val agentCodes =
-          AgentCodes(Some(SaAgentCode("selfAssessmentCode")), Some(CtAgentCode("corporationTaxCode")))
-
-        sessionStoreService.currentSession.agentSession = Some(
-          AgentSession(
-            Some(amlsDetails),
-            Some(contactDetails),
-            Some("tradingName"),
-            Some(mainBusinessAddress),
-            registeredWithHmrc,
-            Some(agentCodes),
-            amlsUploadStatus = Some(fileUploadStatus),
-            tradingAddressUploadStatus = Some(fileUploadStatus),
-            trnUploadStatus = Some(fileUploadStatus)
-            ))
-
-        val result = await(controller.showCheckYourAnswers(cleanCredsAgent(FakeRequest())))
-
-        status(result) shouldBe 200
-
-        testMandatoryContent(result)
-        result should containMessages(
-
-          "checkAnswers.agentCode.selfAssessment",
-          "checkAnswers.agentCode.corporationTax"
-        )
-
-        result shouldNot containMessages(
-          "checkAnswers.tradingAddressFile.title",
-          "checkAnswers.companyRegistrationNumber.title",
-          "checkAnswers.taxRegistrationNumbers.title",
-          "checkAnswers.registeredForUKTax.title",
-          "checkAnswers.personalDetails.nino.title")
-
-        testAgentCodes(bodyOf(result), true)
-        bodyOf(result).contains("trading-address-file-name") shouldBe true
-      }
 
       "agents codes are not available" when {
         "UkTaxRegistration is Yes" when {
@@ -1315,7 +1256,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
           bodyOf(result).contains("trading-address-file-name") shouldBe true
         }
       }
-    }
+
 
     "should display the form with all data as expected when user goes through 'RegsiteredWithHmrc=No' flow" in {
       val registeredWithHmrc = Some(No)
