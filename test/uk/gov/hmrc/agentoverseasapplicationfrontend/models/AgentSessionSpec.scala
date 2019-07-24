@@ -59,17 +59,17 @@ class AgentSessionSpec extends UnitSpec {
     "keep the wanted details and discard the unwanted details" when {
       "registeredWithHmrc is Yes" when {
         "one or more agent codes were provided" in {
-          val cleanedSession = agentSession.copy(registeredWithHmrc = Some(Yes), agentCodes = Some(agentCodes)).sanitize
+          val cleanedSession = agentSession.sanitize
 
           assertCommonDetails(cleanedSession)
 
           cleanedSession.agentCodes shouldBe agentSession.agentCodes
 
-          cleanedSession.registeredForUkTax shouldBe None
+          cleanedSession.registeredForUkTax shouldBe Some(No)
           cleanedSession.registeredWithHmrc shouldBe Some(Yes)
           cleanedSession.personalDetails shouldBe None
-          cleanedSession.companyRegistrationNumber shouldBe None
-          cleanedSession.taxRegistrationNumbers shouldBe None
+          cleanedSession.companyRegistrationNumber shouldBe Some(crn)
+          cleanedSession.taxRegistrationNumbers shouldBe Some(SortedSet(Trn("123"), Trn("456")))
         }
 
         "no agents codes were provided" when {
