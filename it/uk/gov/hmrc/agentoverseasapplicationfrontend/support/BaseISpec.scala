@@ -1,7 +1,9 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.support
 
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import com.google.inject.AbstractModule
 import org.jsoup.Jsoup
+import org.scalatest.Assertion
 import org.scalatest.matchers.{MatchResult, Matcher}
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
@@ -49,6 +51,7 @@ class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with A
   override def commonStubs(): Unit = {
     givenCleanMetricRegistry()
     givenAuditConnector()
+    ()
   }
 
   protected lazy val sessionStoreService = new TestSessionStoreService
@@ -66,7 +69,7 @@ class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with A
 
   protected implicit val materializer = app.materializer
 
-  protected def checkHtmlResultWithBodyText(result: Result, expectedSubstring: String): Unit = {
+  protected def checkHtmlResultWithBodyText(result: Result, expectedSubstring: String): Assertion = {
     status(result) shouldBe 200
     contentType(result) shouldBe Some("text/html")
     charset(result) shouldBe Some("utf-8")

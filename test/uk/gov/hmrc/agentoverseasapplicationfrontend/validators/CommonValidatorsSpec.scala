@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.agentoverseasapplicationfrontend.validators
 
-import org.scalatest.EitherValues
+import org.scalatest.{Assertion, EitherValues}
 import play.api.data.{FormError, Mapping}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.validators.CommonValidators._
 import uk.gov.hmrc.play.test.UnitSpec
@@ -79,10 +79,10 @@ class CommonValidatorsSpec extends UnitSpec with EitherValues {
 
     def bind(fieldValue: String) = emailAddress.bind(Map("testKey" -> fieldValue))
 
-    def shouldRejectFieldValueAsInvalid(fieldValue: String): Unit =
+    def shouldRejectFieldValueAsInvalid(fieldValue: String): Assertion =
       bind(fieldValue) should matchPattern { case Left(List(FormError("testKey", List("error.email.invalid"), _))) => }
 
-    def shouldAcceptFieldValue(fieldValue: String): Unit =
+    def shouldAcceptFieldValue(fieldValue: String): Assertion =
       bind(fieldValue) shouldBe Right(fieldValue)
 
     "reject email address" when {
@@ -163,7 +163,7 @@ class CommonValidatorsSpec extends UnitSpec with EitherValues {
 
     def bind(fieldValue: String) = addressLine23Mapping.bind(Map("testKey" -> fieldValue))
 
-    def shouldAcceptFieldValue(fieldValue: String): Unit =
+    def shouldAcceptFieldValue(fieldValue: String): Assertion =
       if (fieldValue.isEmpty) bind(fieldValue) shouldBe Right(None)
       else bind(fieldValue) shouldBe Right(Some(fieldValue))
 
@@ -186,15 +186,15 @@ class CommonValidatorsSpec extends UnitSpec with EitherValues {
 
     def bind(fieldValue: String) = addressLine1Mapping.bind(Map("testKey" -> fieldValue))
 
-    def shouldRejectFieldValueAsInvalid(fieldValue: String): Unit =
+    def shouldRejectFieldValueAsInvalid(fieldValue: String): Assertion =
       bind(fieldValue) should matchPattern {
         case Left(List(FormError("testKey", List(emptyError), _))) =>
       }
 
-    def shouldRejectFieldValueAsTooLong(fieldValue: String): Unit =
+    def shouldRejectFieldValueAsTooLong(fieldValue: String): Assertion =
       bind(fieldValue) shouldBe Left(List(FormError("testKey", List(s"error.addressline.$lineNumber.maxlength"))))
 
-    def shouldAcceptFieldValue(fieldValue: String): Unit =
+    def shouldAcceptFieldValue(fieldValue: String): Assertion =
       if (fieldValue.isEmpty) bind(fieldValue) shouldBe Right(None)
       else bind(fieldValue) shouldBe Right(fieldValue)
 
@@ -243,17 +243,17 @@ class CommonValidatorsSpec extends UnitSpec with EitherValues {
     val invalidErrorMessage = s"error.$nameType.invalid"
     val maxLengthErrorMessage = s"error.$nameType.maxlength"
 
-    def shouldRejectFieldValueAsInvalid(fieldValue: String): Unit =
+    def shouldRejectFieldValueAsInvalid(fieldValue: String): Assertion =
       bind(fieldValue) should matchPattern {
         case Left(List(FormError("testKey", List(invalidErrorMessage), _))) =>
       }
 
-    def shouldRejectFieldValueAsTooLong(fieldValue: String): Unit =
+    def shouldRejectFieldValueAsTooLong(fieldValue: String): Assertion =
       bind(fieldValue) should matchPattern {
         case Left(List(FormError("testKey", List(maxLengthErrorMessage), _))) =>
       }
 
-    def shouldAcceptFieldValue(fieldValue: String): Unit =
+    def shouldAcceptFieldValue(fieldValue: String): Assertion =
       bind(fieldValue) shouldBe Right(fieldValue)
 
     s"reject $nameType" when {
@@ -303,17 +303,17 @@ class CommonValidatorsSpec extends UnitSpec with EitherValues {
 
     def bind(fieldValue: String) = mapping.bind(Map("testKey" -> fieldValue))
 
-    def shouldRejectFieldValueAsInvalid(fieldValue: String): Unit =
+    def shouldRejectFieldValueAsInvalid(fieldValue: String): Assertion =
       bind(fieldValue) should matchPattern {
         case Left(List(FormError("testKey", List("error.jobTitle.invalid"), _))) =>
       }
 
-    def shouldRejectFieldValueAsIncorrectLength(fieldValue: String): Unit =
+    def shouldRejectFieldValueAsIncorrectLength(fieldValue: String): Assertion =
       bind(fieldValue) should matchPattern {
         case Left(List(FormError("testKey", List("error.jobTitle.length"), _))) =>
       }
 
-    def shouldAcceptFieldValue(fieldValue: String): Unit =
+    def shouldAcceptFieldValue(fieldValue: String): Assertion =
       bind(fieldValue) shouldBe Right(fieldValue)
 
     s"reject job Title" when {
@@ -367,17 +367,17 @@ class CommonValidatorsSpec extends UnitSpec with EitherValues {
 
     def bind(fieldValue: String) = tradingNameMapping.bind(Map("testKey" -> fieldValue))
 
-    def shouldRejectFieldValueAsInvalid(fieldValue: String): Unit =
+    def shouldRejectFieldValueAsInvalid(fieldValue: String): Assertion =
       bind(fieldValue) should matchPattern {
         case Left(List(FormError("testKey", List("error.tradingName.invalid"), _))) =>
       }
 
-    def shouldRejectFieldValueAsTooLong(fieldValue: String): Unit =
+    def shouldRejectFieldValueAsTooLong(fieldValue: String): Assertion =
       bind(fieldValue) should matchPattern {
         case Left(List(FormError("testKey", List("error.tradingName.maxlength"), _))) =>
       }
 
-    def shouldAcceptFieldValue(fieldValue: String): Unit =
+    def shouldAcceptFieldValue(fieldValue: String): Assertion =
       bind(fieldValue) shouldBe Right(fieldValue)
 
     "reject trading name" when {
@@ -509,10 +509,10 @@ class CommonValidatorsSpec extends UnitSpec with EitherValues {
     val amlsBodyMapping = amlsBody.withPrefix("testKey")
     def bind(fieldValue: String) = amlsBodyMapping.bind(Map("testKey" -> fieldValue))
 
-    def shouldAcceptFieldValue(fieldValue: String): Unit =
+    def shouldAcceptFieldValue(fieldValue: String): Assertion =
       bind(fieldValue) shouldBe Right(fieldValue)
 
-    def shouldRejectFieldValueAsInvalid(fieldValue: String): Unit =
+    def shouldRejectFieldValueAsInvalid(fieldValue: String): Assertion =
       bind(fieldValue) should matchPattern {
         case Left(List(FormError("testKey", List("error.moneyLaunderingCompliance.amlsbody.invalid"), _))) =>
       }

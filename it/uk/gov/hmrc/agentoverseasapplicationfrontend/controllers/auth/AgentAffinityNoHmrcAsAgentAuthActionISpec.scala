@@ -9,6 +9,9 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.{Accepted, AttemptingRegistration, Complete, Registered}
+import uk.gov.hmrc.auth.core.UnsupportedCredentialRole
+
+import scala.language.postfixOps
 
 class AgentAffinityNoHmrcAsAgentAuthActionISpec extends BaseISpec with AgentOverseasApplicationStubs {
 
@@ -46,9 +49,17 @@ class AgentAffinityNoHmrcAsAgentAuthActionISpec extends BaseISpec with AgentOver
       givenUnauthorisedWith("MissingBearerToken")
       val result = await(testController.withValidApplicant(FakeRequest()))
 
-      status(result) shouldBe  303
+      status(result) shouldBe 303
 
       redirectLocation(result).get shouldBe "/gg/sign-in?continue=%2F&origin=agent-overseas-application-frontend"
+    }
+
+    "throw an exception when the user has no credentials" in {
+      initialiseAgentSession
+      val authenticatedRequest = agentWithNoEnrolmentsOrCreds(FakeRequest())
+      intercept[UnsupportedCredentialRole] {
+        await(testController.withValidApplicant(authenticatedRequest))
+      }.getMessage shouldBe "User has no credentials"
     }
 
     "given UnsupportedAffinityGroup" in {
@@ -91,7 +102,7 @@ class AgentAffinityNoHmrcAsAgentAuthActionISpec extends BaseISpec with AgentOver
         isAgentSessionInitialised shouldBe true
       }
 
-      Seq(Accepted, AttemptingRegistration, Registered, Complete).foreach( status =>
+      Seq(Accepted, AttemptingRegistration, Registered, Complete).foreach(status =>
         s"application found with status: ${status.key}, Redirect to overseas-subscription-frontend" in {
           given200OverseasRedirectStatusApplication(status.key)
 
@@ -99,7 +110,7 @@ class AgentAffinityNoHmrcAsAgentAuthActionISpec extends BaseISpec with AgentOver
           redirectLocation(result).get shouldBe "http://localhost:9403/agent-services/apply-from-outside-uk/create-account"
           isAgentSessionInitialised shouldBe false
         }
-        )
+      )
     }
   }
 

@@ -20,13 +20,13 @@ import com.google.inject.ImplementedBy
 import javax.inject.{Inject, Named, Singleton}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionBuilder, ActionFunction, Request, Result}
-import play.api.{Configuration, Environment, Mode}
+import play.api.{Configuration, Environment, Logger, Mode}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.{CommonRouting, routes}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.CredentialRequest
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.Retrievals.{allEnrolments, credentials}
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{allEnrolments, credentials}
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
@@ -50,13 +50,14 @@ class AgentAffinityNoEnrolmentAuthActionImpl @Inject()(
       HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
     authorised(AuthProviders(GovernmentGateway) and AffinityGroup.Agent)
       .retrieve(credentials and allEnrolments) {
-        case creds ~ enrolments =>
+        case credentialsOpt ~ enrolments =>
           if (isEnrolledForHmrcAsAgent(enrolments))
             Future.successful(Redirect(agentServicesAccountRootPath))
           else
             sessionStoreService.fetchAgentSession.flatMap {
               case Some(agentSession) =>
-                block(CredentialRequest(creds.providerId, request, agentSession))
+                credentialsOpt.fold(throw new UnsupportedCredentialRole("User has no credentials"))(credentials =>
+                  block(CredentialRequest(credentials.providerId, request, agentSession)))
               case None =>
                 routesIfExistingApplication(subscriptionRootPath).map(Redirect)
             }

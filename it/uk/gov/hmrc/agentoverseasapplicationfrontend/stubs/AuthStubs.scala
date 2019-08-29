@@ -1,6 +1,7 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.stubs
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.WireMockSupport
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.SessionKeys
@@ -34,14 +35,14 @@ trait AuthStubs {
     request.withSession(SessionKeys.authToken -> "Bearer XYZ")
   }
 
-  def givenUnauthorisedWith(mdtpDetail: String): Unit = {
+  def givenUnauthorisedWith(mdtpDetail: String): StubMapping = {
     stubFor(post(urlEqualTo("/auth/authorise"))
       .willReturn(aResponse()
         .withStatus(401)
         .withHeader("WWW-Authenticate", s"""MDTP detail="$mdtpDetail"""")))
   }
 
-  def givenAuthorisedFor(payload: String, responseBody: String): Unit = {
+  def givenAuthorisedFor(payload: String, responseBody: String): StubMapping = {
     stubFor(post(urlEqualTo("/auth/authorise"))
       .atPriority(1)
       .withRequestBody(equalToJson(payload, true, true))
@@ -80,11 +81,29 @@ trait AuthStubs {
          |    {"key":"${enrolment.identifierName}", "value": "${enrolment.identifierValue}"}
          |  ]}
          |],
-         |    "credentials": {
+         |    "optionalCredentials": {
          |    "providerId": "12345-credId",
          |    "providerType": "GovernmentGateway"
          |  }}
           """.stripMargin)
+    request.withSession(SessionKeys.authToken -> "Bearer XYZ")
+  }
+
+  def agentWithNoEnrolmentsOrCreds[A](request: FakeRequest[A]): FakeRequest[A] = {
+    givenAuthorisedFor(
+      s"""
+         |{
+         |  "authorise": [
+         |    { "authProviders": ["GovernmentGateway"] },
+         |    {
+         |      "affinityGroup": "Agent"
+         |    }
+         |  ],
+         |  "retrieve":["allEnrolments"]
+         |}
+           """.stripMargin,
+      s"""
+         |{"allEnrolments": []}""".stripMargin)
     request.withSession(SessionKeys.authToken -> "Bearer XYZ")
   }
 
@@ -104,7 +123,7 @@ trait AuthStubs {
       s"""
          |{
          |"allEnrolments": [],
-         |    "credentials": {
+         |    "optionalCredentials": {
          |    "providerId": "12345-credId",
          |    "providerType": "GovernmentGateway"
          |  }
@@ -123,7 +142,7 @@ trait AuthStubs {
            """.stripMargin,
       s"""
          |{
-         |    "credentials": {
+         |    "optionalCredentials": {
          |    "providerId": "12345-credId",
          |    "providerType": "GovernmentGateway"
          |  }
@@ -144,7 +163,7 @@ trait AuthStubs {
            """.stripMargin,
       s"""
          |{
-         |    "credentials": {
+         |    "optionalCredentials": {
          |    "providerId": "12345-credId",
          |    "providerType": "GovernmentGateway"
          |  }

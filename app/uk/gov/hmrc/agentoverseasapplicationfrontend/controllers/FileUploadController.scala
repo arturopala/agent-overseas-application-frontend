@@ -19,7 +19,7 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, Result}
+import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Logger}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.connectors.UpscanConnector
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
@@ -72,41 +72,42 @@ class FileUploadController @Inject()(
   }
 
   //these pollStatus functions are called via ajax in the assets/javascripts/script.js
-  def pollStatus(fileType: String, reference: String) = validApplicantAction.async { implicit request =>
-    sessionStoreService.fetchAgentSession.flatMap {
-      case Some(agentSession) =>
-        applicationService
-          .upscanPollStatus(reference)
-          .flatMap { response =>
-            if (response.fileStatus == "READY") {
-              val updatedSession = fileType match {
-                case "trading-address" =>
-                  agentSession.copy(tradingAddressUploadStatus = Some(response))
-                case "amls" =>
-                  agentSession.copy(amlsUploadStatus = Some(response))
-                case "trn" =>
-                  agentSession.copy(trnUploadStatus = Some(response))
-                case _ => throw new RuntimeException(s"invalid fileType for upscan callback $fileType")
+  def pollStatus(fileType: String, reference: String): Action[AnyContent] = validApplicantAction.async {
+    implicit request =>
+      sessionStoreService.fetchAgentSession.flatMap {
+        case Some(agentSession) =>
+          applicationService
+            .upscanPollStatus(reference)
+            .flatMap { response =>
+              if (response.fileStatus == "READY") {
+                val updatedSession = fileType match {
+                  case "trading-address" =>
+                    agentSession.copy(tradingAddressUploadStatus = Some(response))
+                  case "amls" =>
+                    agentSession.copy(amlsUploadStatus = Some(response))
+                  case "trn" =>
+                    agentSession.copy(trnUploadStatus = Some(response))
+                  case _ => throw new RuntimeException(s"invalid fileType for upscan callback $fileType")
+                }
+                sessionStoreService
+                  .cacheAgentSession(updatedSession)
+                  .flatMap(_ => {
+                    Logger.info(s"saving the callback response $response for fileType $fileType")
+                    Ok(Json.toJson(response))
+                  })
+              } else {
+                Ok(Json.toJson(response))
               }
-              sessionStoreService
-                .cacheAgentSession(updatedSession)
-                .flatMap(_ => {
-                  Logger.info(s"saving the callback response $response for fileType $fileType")
-                  Ok(Json.toJson(response))
-                })
-            } else {
-              Ok(Json.toJson(response))
             }
-          }
-      case None => throw new RuntimeException("no agent session")
-    }
+        case None => throw new RuntimeException("no agent session")
+      }
   }
 
-  def showSuccessfulUploadedForm() = validApplicantAction.async { implicit request =>
+  def showSuccessfulUploadedForm(): Action[AnyContent] = validApplicantAction.async { implicit request =>
     sessionStoreService.fetchAgentSession.flatMap {
-      case Some(agentSession) => {
+      case Some(agentSession) =>
         agentSession.fileType match {
-          case Some(fileType) => {
+          case Some(fileType) =>
             getFileNameFromSession(fileType).map { filename =>
               Ok(
                 successful_file_upload(
@@ -115,13 +116,11 @@ class FileUploadController @Inject()(
                   fileType,
                   backToFileUploadPage(fileType)))
             }
-          }
-          case None => {
+          case None =>
             Logger.info(s"could not find fileType in session")
             Redirect(routes.FileUploadController.showAmlsUploadForm())
-          }
         }
-      }
+      case None => throw new RuntimeException("no agent session")
     }
   }
 
@@ -161,11 +160,11 @@ class FileUploadController @Inject()(
         agentSession.fileType match {
           case Some(fileType) =>
             Ok(file_upload_failed(fileType, backToFileUploadPage(fileType)))
-          case None => {
+          case None =>
             Logger.info("expecting a fileType in session for failed upload but none found")
             Redirect(routes.FileUploadController.showAmlsUploadForm())
-          }
         }
+      case None => throw new RuntimeException("no agent session")
     }
   }
 
@@ -192,10 +191,9 @@ class FileUploadController @Inject()(
         case "trading-address" => Some(routes.TradingAddressController.showMainBusinessAddressForm().url)
         case "amls"            => Some(routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url)
         case "trn"             => Some(routes.TaxRegController.showYourTaxRegNumbersForm().url)
-        case _ => {
+        case _ =>
           Logger.info("routing error for back link- unrecognized document proof file key!")
           None
-        }
       }
     }
 

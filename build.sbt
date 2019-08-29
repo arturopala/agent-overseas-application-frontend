@@ -41,6 +41,16 @@ lazy val root = Project("agent-overseas-application-frontend", file("."))
     name := "agent-overseas-application-frontend",
     organization := "uk.gov.hmrc",
     scalaVersion := "2.11.11",
+    scalacOptions ++= Seq(
+      "-Xfatal-warnings",
+      "-Xlint:-missing-interpolator,_",
+      "-Yno-adapted-args",
+      "-Ywarn-value-discard",
+      "-Ywarn-dead-code",
+      "-deprecation",
+      "-feature",
+      "-unchecked",
+      "-language:implicitConversions"),
     PlayKeys.playDefaultPort := 9404,
     resolvers := Seq(
       Resolver.bintrayRepo("hmrc", "releases"),

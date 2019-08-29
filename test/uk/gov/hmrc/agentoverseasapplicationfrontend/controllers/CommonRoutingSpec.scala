@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
-import java.time.{LocalDate, LocalDateTime}
+import java.time.LocalDateTime
 
 import org.mockito.Mockito.when
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Results
 import uk.gov.hmrc.agentoverseasapplicationfrontend.connectors.AgentOverseasApplicationConnector
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.{Accepted, AttemptingRegistration, Complete, Registered, Rejected}

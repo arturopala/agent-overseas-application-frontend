@@ -4,6 +4,7 @@ import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers.redirectLocation
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
+import scala.language.postfixOps
 
 class BasicAuthActionISpec extends BaseISpec {
 

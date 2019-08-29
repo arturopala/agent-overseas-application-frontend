@@ -3,6 +3,7 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{LOCATION, redirectLocation}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
+import scala.language.postfixOps
 
 class SignOutControllerISpec extends BaseISpec{
 

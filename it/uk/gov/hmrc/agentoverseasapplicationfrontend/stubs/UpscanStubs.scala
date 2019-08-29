@@ -1,6 +1,7 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.stubs
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.WireMockSupport
 
@@ -14,7 +15,7 @@ trait UpscanStubs {
                                        |}
     """.stripMargin
 
-  def given200UpscanInitiate(): Unit = {
+  def given200UpscanInitiate(): StubMapping = {
     stubFor(post(urlEqualTo("/upscan/initiate"))
       .withRequestBody(equalToJson(request, true, true))
       .willReturn(aResponse().withBody("""{

@@ -63,6 +63,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
     bindBaseUrl("cachable.session-cache")
     bindBaseUrl("agent-overseas-application")
     bindBaseUrl("upscan")
+    ()
   }
 
   private def bindBaseUrl(serviceName: String) =
