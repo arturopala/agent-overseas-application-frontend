@@ -48,7 +48,7 @@ class StartController @Inject()(
     extends AgentOverseasBaseController(sessionStoreService, applicationService) with I18nSupport {
 
   def root: Action[AnyContent] = basicAuthAction { implicit request =>
-    Redirect(routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm())
+    Redirect(routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired())
   }
 
   def showNotAgent: Action[AnyContent] = basicAuthAction { implicit request =>

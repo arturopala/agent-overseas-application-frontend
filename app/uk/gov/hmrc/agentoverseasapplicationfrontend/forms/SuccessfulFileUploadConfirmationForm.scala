@@ -28,8 +28,10 @@ object SuccessfulFileUploadConfirmationForm {
       "fileType" -> text
         .verifying("wrong fileType returned from user", f => f == "amls" || f == "trading-address" || f == "trn"),
       "choice" -> mapping(
-        "correctFile" -> optional(boolean).verifying(radioInputSelected("fileUpload.correctFile.no-radio.selected")))(
-        RadioConfirm.apply)(RadioConfirm.unapply)
+        "correctFile" -> optional(boolean)
+          .verifying(radioInputSelected("fileUpload.correctFile.no-radio.selected"))
+          .transform(_.getOrElse(false), (Some(_)): Boolean => Option[Boolean])
+      )(RadioConfirm.apply)(RadioConfirm.unapply)
     )(SuccessfulFileUploadConfirmation.apply)(SuccessfulFileUploadConfirmation.unapply)
   )
 }

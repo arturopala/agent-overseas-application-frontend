@@ -21,6 +21,7 @@ import play.api.libs.json.{Json, OFormat}
 import scala.collection.immutable.SortedSet
 
 case class AgentSession(
+  amlsRequired: Option[Boolean] = None,
   amlsDetails: Option[AmlsDetails] = None,
   contactDetails: Option[ContactDetails] = None,
   tradingName: Option[String] = None,
@@ -49,6 +50,7 @@ case class AgentSession(
     val taxRegistrationNumbers = registeredForUkTax.flatMap(_ => this.taxRegistrationNumbers)
 
     AgentSession(
+      this.amlsRequired,
       this.amlsDetails,
       this.contactDetails,
       this.tradingName,

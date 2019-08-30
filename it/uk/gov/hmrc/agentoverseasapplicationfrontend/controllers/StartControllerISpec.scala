@@ -24,12 +24,12 @@ class StartControllerISpec extends BaseISpec with AgentOverseasApplicationStubs 
   }
 
   "GET / " should {
-    "simply redirect to start of journey showAntiMoneyLaunderingForm" in {
+    "simply redirect to start of journey showMoneyLaunderingRequired" in {
       given200GetOverseasApplications(true)
       val result = await(controller.root(basicRequest(FakeRequest())))
 
       status(result) shouldBe 303
-      redirectLocation(result).get shouldBe routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url
+      redirectLocation(result).get shouldBe routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired().url
     }
   }
 

@@ -21,7 +21,8 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.{AgentAffinityNoHmrcAsAgentAuthAction, BasicAgentAuthAction}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.{AddTrnForm, DoYouWantToAddAnotherTrnForm, RemoveTrnForm, TaxRegistrationNumberForm, UpdateTrnForm}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.{AddTrnForm, DoYouWantToAddAnotherTrnForm, TaxRegistrationNumberForm, UpdateTrnForm}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.YesNoRadioButtonForms.removeTrnForm
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, TaxRegistrationNumber, Trn}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
@@ -188,40 +189,39 @@ class TaxRegController @Inject()(
 
   def showRemoveTaxRegNumber(trn: String): Action[AnyContent] = validApplicantAction.async { implicit request =>
     if (request.agentSession.taxRegistrationNumbers.exists(_.contains(Trn(trn))))
-      Ok(remove_tax_reg_number(RemoveTrnForm.form, trn))
+      Ok(remove_tax_reg_number(removeTrnForm, trn))
     else
       Ok(error_template("global.error.404.title", "global.error.404.heading", "global.error.404.message"))
   }
 
   def submitRemoveTaxRegNumber(trn: String): Action[AnyContent] = validApplicantAction.async { implicit request =>
-    RemoveTrnForm.form
+    removeTrnForm
       .bindFromRequest()
       .fold(
         formWithErrors => Ok(remove_tax_reg_number(formWithErrors, trn)),
         validForm => {
-          validForm.value match {
-            case Some(true) => {
-              val updatedSet = request.agentSession.taxRegistrationNumbers
-                .fold[SortedSet[Trn]](SortedSet.empty)(trns => trns - Trn(trn))
-              val toUpdate: AgentSession =
-                if (updatedSet.isEmpty)
-                  request.agentSession
-                    .copy(
-                      hasTaxRegNumbers = None,
-                      taxRegistrationNumbers = None,
-                      trnUploadStatus = None,
-                      changingAnswers = false,
-                      hasTrnsChanged = true)
-                else
-                  request.agentSession
-                    .copy(taxRegistrationNumbers = Some(updatedSet), changingAnswers = false, hasTrnsChanged = true)
+          if (validForm.value) {
+            val updatedSet = request.agentSession.taxRegistrationNumbers
+              .fold[SortedSet[Trn]](SortedSet.empty)(trns => trns - Trn(trn))
+            val toUpdate: AgentSession =
+              if (updatedSet.isEmpty)
+                request.agentSession
+                  .copy(
+                    hasTaxRegNumbers = None,
+                    taxRegistrationNumbers = None,
+                    trnUploadStatus = None,
+                    changingAnswers = false,
+                    hasTrnsChanged = true)
+              else
+                request.agentSession
+                  .copy(taxRegistrationNumbers = Some(updatedSet), changingAnswers = false, hasTrnsChanged = true)
 
-              val redirectUrl =
-                if (updatedSet.nonEmpty) routes.TaxRegController.showYourTaxRegNumbersForm().url
-                else routes.TaxRegController.showTaxRegistrationNumberForm().url
-              updateSession(toUpdate)(redirectUrl)
-            }
-            case _ => Redirect(routes.TaxRegController.showYourTaxRegNumbersForm())
+            val redirectUrl =
+              if (updatedSet.nonEmpty) routes.TaxRegController.showYourTaxRegNumbersForm().url
+              else routes.TaxRegController.showTaxRegistrationNumberForm().url
+            updateSession(toUpdate)(redirectUrl)
+          } else {
+            Redirect(routes.TaxRegController.showYourTaxRegNumbersForm())
           }
         }
       )

@@ -316,8 +316,8 @@ class CommonRoutingSpec extends UnitSpec {
       }
     }
 
-    "return /money-laundering page" in {
-      testRoutesForApplicationStatuses(List.empty, "/money-laundering")
+    "return /money-laundering-registration page" in {
+      testRoutesForApplicationStatuses(List.empty, "/money-laundering-registration")
     }
   }
 

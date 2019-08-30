@@ -21,9 +21,26 @@ import play.api.data.Forms.{boolean, mapping, optional}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.RadioConfirm
 import uk.gov.hmrc.agentoverseasapplicationfrontend.validators.CommonValidators.radioInputSelected
 
-object RemoveTrnForm {
-  val form: Form[RadioConfirm] = Form(
-    mapping("isRemovingTrn" -> optional(boolean).verifying(radioInputSelected("error.removeTrn.no-radio.selected")))(
-      RadioConfirm.apply)(RadioConfirm.unapply)
+object YesNoRadioButtonForms {
+
+  def form(field: String, errorMsg: String): Form[RadioConfirm] = Form(
+    mapping(
+      field -> optional(boolean)
+        .verifying(radioInputSelected(errorMsg))
+        .transform(_.getOrElse(false), (Some(_)): Boolean => Option[Boolean])
+    )(RadioConfirm.apply)(RadioConfirm.unapply)
   )
+
+  val amlsRequiredForm: Form[RadioConfirm] = form("amlsRequired", "error.amls.required.empty")
+
+  val removeTrnForm: Form[RadioConfirm] = form("isRemovingTrn", "error.removeTrn.no-radio.selected")
+
+  val registeredForUkTaxForm: Form[RadioConfirm] =
+    form("registeredForUkTax", "error.registeredForUkTaxForm.no-radio.selected")
+
+  val registeredWithHmrcForm: Form[RadioConfirm] =
+    form("registeredWithHmrc", "error.registeredWithHmrc.no-radio.selected")
+
+  val successfulFileUploadForm: Form[RadioConfirm] =
+    form("correctFile", "fileUploadTradingAddress.correctFile.no-radio.selected")
 }

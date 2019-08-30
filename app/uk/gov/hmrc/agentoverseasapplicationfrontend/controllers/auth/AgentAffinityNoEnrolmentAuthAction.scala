@@ -56,9 +56,10 @@ class AgentAffinityNoEnrolmentAuthActionImpl @Inject()(
           else
             sessionStoreService.fetchAgentSession.flatMap {
               case Some(agentSession) =>
-                credentialsOpt.fold(throw new UnsupportedCredentialRole("User has no credentials"))(credentials =>
+                credentialsOpt.fold(throw UnsupportedCredentialRole("User has no credentials"))(credentials =>
                   block(CredentialRequest(credentials.providerId, request, agentSession)))
               case None =>
+                val root = subscriptionRootPath
                 routesIfExistingApplication(subscriptionRootPath).map(Redirect)
             }
       }

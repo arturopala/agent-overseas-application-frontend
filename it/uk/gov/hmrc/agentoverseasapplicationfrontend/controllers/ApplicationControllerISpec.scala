@@ -41,7 +41,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
       await(
         sessionStoreService.cacheAgentSession(
-          AgentSession(Some(AmlsDetails("body", Some("123"))), changingAnswers = true)))
+          AgentSession(amlsRequired = Some(true), Some(AmlsDetails("body", Some("123"))), changingAnswers = true)))
 
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
 
@@ -60,20 +60,20 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       result should containSubstrings(routes.ApplicationController.showCheckYourAnswers().url)
     }
 
-    "redirect to /money-laundering when session not found" in {
+    "redirect to /money-laundering-registration when session not found" in {
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
 
       val result = await(controller.showContactDetailsForm(authenticatedRequest))
 
       status(result) shouldBe 303
 
-      redirectLocation(result) shouldBe Some(routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url)
+      redirectLocation(result) shouldBe Some(routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired().url)
     }
   }
 
   "POST /contact-details" should {
     "submit form and then redirect to trading-name" in {
-      await(sessionStoreService.cacheAgentSession(AgentSession(Some(AmlsDetails("body", Some("123"))), None)))
+      await(sessionStoreService.cacheAgentSession(AgentSession(amlsRequired = Some(true), Some(AmlsDetails("body", Some("123"))), None)))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody(
@@ -97,7 +97,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       //pre state
       await(
         sessionStoreService.cacheAgentSession(
-          AgentSession(Some(AmlsDetails("body", Some("123"))), changingAnswers = true)))
+          AgentSession(amlsRequired = Some(true), Some(AmlsDetails("body", Some("123"))), changingAnswers = true)))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody(
@@ -124,7 +124,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       //pre state
       await(
         sessionStoreService.cacheAgentSession(
-          AgentSession(Some(AmlsDetails("body", Some("123"))), changingAnswers = true)))
+          AgentSession(amlsRequired = Some(true), Some(AmlsDetails("body", Some("123"))), changingAnswers = true)))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody(
@@ -161,7 +161,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       result should containSubstrings(routes.ApplicationController.showCheckYourAnswers().url)
     }
 
-    "redirect to /money-laundering when session not found" in {
+    "redirect to /money-laundering-registration when session not found" in {
 
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
 
@@ -169,7 +169,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
       status(result) shouldBe 303
 
-      redirectLocation(result) shouldBe Some(routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url)
+      redirectLocation(result) shouldBe Some(routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired().url)
     }
 
     "pre-fill trading name if previously has used the endpoint POST /trading-name" in {
@@ -322,12 +322,12 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       elForm.attr("method") shouldBe "POST"
     }
 
-    "redirect to /money-laundering when session not found" in {
+    "redirect to /money-laundering-registration when session not found" in {
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
       val result = await(controller.showRegisteredWithHmrcForm(authenticatedRequest))
 
       status(result) shouldBe 303
-      result.header.headers(LOCATION) shouldBe routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url
+      result.header.headers(LOCATION) shouldBe routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired().url
     }
   }
 
@@ -478,12 +478,12 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       elForm.attr("method") shouldBe "POST"
     }
 
-    "redirect to /money-laundering when session not found" in {
+    "redirect to /money-laundering-registration when session not found" in {
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
       val result = await(controller.showUkTaxRegistrationForm(authenticatedRequest))
 
       status(result) shouldBe 303
-      result.header.headers(LOCATION) shouldBe routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url
+      result.header.headers(LOCATION) shouldBe routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired().url
     }
   }
 
@@ -590,12 +590,12 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       elForm.attr("method") shouldBe "POST"
     }
 
-    "redirect to /money-laundering when session not found" in {
+    "redirect to /money-laundering-registration when session not found" in {
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
       val result = await(controller.showUkTaxRegistrationForm(authenticatedRequest))
 
       status(result) shouldBe 303
-      result.header.headers(LOCATION) shouldBe routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url
+      result.header.headers(LOCATION) shouldBe routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired().url
     }
   }
 
@@ -911,12 +911,12 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       elForm.attr("method") shouldBe "POST"
     }
 
-    "redirect to /money-laundering when session not found" in {
+    "redirect to /money-laundering-registration when session not found" in {
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
       val result = await(controller.showUkTaxRegistrationForm(authenticatedRequest))
 
       status(result) shouldBe 303
-      result.header.headers(LOCATION) shouldBe routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url
+      result.header.headers(LOCATION) shouldBe routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired().url
     }
   }
 
@@ -1023,6 +1023,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       "back link to file-uploaded-successfully" in {
         sessionStoreService.currentSession.agentSession = Some(
           AgentSession(
+            amlsRequired = Some(true),
             Some(amlsDetails),
             Some(contactDetails),
             Some("tradingName"),
@@ -1047,6 +1048,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       "no agent codes no taxRegNumbers provided, back link to ask if has tax-registration-number" in {
         sessionStoreService.currentSession.agentSession = Some(
           AgentSession(
+            amlsRequired = Some(true),
             Some(amlsDetails),
             Some(contactDetails),
             Some("tradingName"),
@@ -1076,6 +1078,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
             sessionStoreService.currentSession.agentSession = Some(
               AgentSession(
+                amlsRequired = Some(true),
                 Some(amlsDetails),
                 Some(contactDetails),
                 Some("tradingName"),
@@ -1112,6 +1115,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
             sessionStoreService.currentSession.agentSession = Some(
               AgentSession(
+                amlsRequired = Some(true),
                 Some(amlsDetails),
                 Some(contactDetails),
                 Some("tradingName"),
@@ -1144,6 +1148,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
             sessionStoreService.currentSession.agentSession = Some(
               AgentSession(
+                amlsRequired = Some(true),
                 Some(amlsDetails),
                 Some(contactDetails),
                 Some("tradingName"),
@@ -1181,6 +1186,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
             sessionStoreService.currentSession.agentSession = Some(
               AgentSession(
+                amlsRequired = Some(true),
                 Some(amlsDetails),
                 Some(contactDetails),
                 Some("tradingName"),
@@ -1221,6 +1227,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
           sessionStoreService.currentSession.agentSession = Some(
             AgentSession(
+              amlsRequired = Some(true),
               Some(amlsDetails),
               Some(contactDetails),
               Some("tradingName"),
@@ -1263,6 +1270,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
       sessionStoreService.currentSession.agentSession = Some(
         AgentSession(
+          amlsRequired = Some(true),
           Some(amlsDetails),
           Some(contactDetails),
           Some("tradingName"),
@@ -1354,12 +1362,12 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       an[Exception] should be thrownBy(await(controller.submitCheckYourAnswers(cleanCredsAgent(FakeRequest()))))
     }
 
-    "redirect to /money-laundering when session not found" in {
+    "redirect to /money-laundering-registration when session not found" in {
       val result = await(controller.submitCheckYourAnswers()(cleanCredsAgent(FakeRequest())))
 
       status(result) shouldBe 303
 
-      redirectLocation(result) shouldBe Some(routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url)
+      redirectLocation(result) shouldBe Some(routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired().url)
     }
   }
 

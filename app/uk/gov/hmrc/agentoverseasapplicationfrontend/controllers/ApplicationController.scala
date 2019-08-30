@@ -19,18 +19,17 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 import javax.inject.{Inject, Named, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
-import play.api.{Configuration, Environment, Logger}
+import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.config.CountryNamesLoader
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.{AgentAffinityNoHmrcAsAgentAuthAction, BasicAgentAuthAction}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.YesNoRadioButtonForms.{registeredForUkTaxForm, registeredWithHmrcForm}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession.{IsRegisteredForUkTax, IsRegisteredWithHmrc}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, No, Yes, _}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
-import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.collection.immutable.SortedSet
 import scala.concurrent.ExecutionContext
 
 @Singleton
@@ -55,7 +54,10 @@ class ApplicationController @Inject()(
     if (request.agentSession.changingAnswers) {
       Ok(contact_details(request.agentSession.contactDetails.fold(form)(form.fill), Some(showCheckYourAnswersUrl)))
     } else {
-      Ok(contact_details(request.agentSession.contactDetails.fold(form)(form.fill)))
+      val backLink =
+        if (request.agentSession.amlsRequired.getOrElse(false)) routes.FileUploadController.showSuccessfulUploadedForm()
+        else routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired()
+      Ok(contact_details(request.agentSession.contactDetails.fold(form)(form.fill), Some(backLink.url)))
     }
   }
 
@@ -104,7 +106,7 @@ class ApplicationController @Inject()(
   }
 
   def showRegisteredWithHmrcForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    val form = RegisteredWithHmrcForm.form
+    val form = registeredWithHmrcForm
     if (request.agentSession.changingAnswers) {
       Ok(
         registered_with_hmrc(
@@ -117,7 +119,7 @@ class ApplicationController @Inject()(
   }
 
   def submitRegisteredWithHmrc: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    RegisteredWithHmrcForm.form
+    registeredWithHmrcForm
       .bindFromRequest()
       .fold(
         formWithErrors => Ok(registered_with_hmrc(formWithErrors)),
@@ -177,7 +179,7 @@ class ApplicationController @Inject()(
   }
 
   def showUkTaxRegistrationForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    val form = RegisteredForUkTaxForm.form
+    val form = registeredForUkTaxForm
     if (request.agentSession.changingAnswers) {
       Ok(
         uk_tax_registration(
@@ -192,7 +194,7 @@ class ApplicationController @Inject()(
   }
 
   def submitUkTaxRegistration: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    RegisteredForUkTaxForm.form
+    registeredForUkTaxForm
       .bindFromRequest()
       .fold(
         formWithErrors => {

@@ -58,7 +58,7 @@ trait CommonRouting {
       case Some(application)
           if Set(Accepted, AttemptingRegistration, Registered, Complete).contains(application.status) =>
         StatusRouting(Call(GET, subscriptionRootPath), false)
-      case None => StatusRouting(routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm(), true)
+      case None => StatusRouting(routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired(), true)
     }
 
     for {

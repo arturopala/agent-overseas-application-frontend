@@ -23,11 +23,12 @@ import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.connectors.UpscanConnector
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffinityNoHmrcAsAgentAuthAction
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.AmlsDetailsForm
+import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.YesNoRadioButtonForms.amlsRequiredForm
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.Rejected
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
-import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.anti_money_laundering
+import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.{anti_money_laundering, anti_money_laundering_required}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,6 +45,29 @@ class AntiMoneyLaunderingController @Inject()(
     extends AgentOverseasBaseController(sessionStoreService, applicationService) with SessionBehaviour
     with I18nSupport {
 
+  def showMoneyLaunderingRequired: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    Ok(anti_money_laundering_required(amlsRequiredForm))
+  }
+
+  def submitMoneyLaunderingRequired: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    amlsRequiredForm
+      .bindFromRequest()
+      .fold(
+        formWithErrors => {
+          Ok(anti_money_laundering_required(formWithErrors))
+        },
+        isRequired =>
+          for {
+            sessionOpt <- sessionStoreService.fetchAgentSession
+            session = sessionOpt.getOrElse(AgentSession())
+            updatedSession = session.copy(amlsRequired = Some(isRequired.value))
+            redirectUrl = if (isRequired.value) routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url
+            else routes.ApplicationController.showContactDetailsForm().url
+            result <- updateSession(updatedSession)(redirectUrl)
+          } yield result
+      )
+  }
+
   def showAntiMoneyLaunderingForm: Action[AnyContent] = validApplicantAction.async { implicit request =>
     val form = AmlsDetailsForm.form
 
@@ -53,7 +77,7 @@ class AntiMoneyLaunderingController @Inject()(
         applicationService.getCurrentApplication.map {
           case Some(application) if application.status == Rejected =>
             Some(routes.StartController.applicationStatus().url)
-          case _ => None
+          case _ => Some(routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired().url)
         }
     }
 

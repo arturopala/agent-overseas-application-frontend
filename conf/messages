@@ -16,8 +16,8 @@ error.summary.heading=There is a problem
 error.postcode.invalid=You can only enter these characters: A-Z 0-9
 error.string.invalid=You can only enter these characters: a-z A-Z 0-9 ,.() - ! @ space
 error.maxLength=You can only enter up to {0} characters
-error.summary.heading=There is a problem
 error.no-radio-selected=You must choose an option
+error.amls.required.empty=Select yes if your country requires you to register with a money laundering supervisory body
 
 error.jobTitle.blank=Enter your job title
 error.jobTitle.invalid=Job title must only include letters a to z, apostrophes, hyphens and spaces
@@ -124,6 +124,11 @@ application_not_ready.p3=We will tell you within {0} calendar days if your appli
 application_not_ready.p4=If your application is rejected we will tell you why.
 application_not_ready.h3=If you need help
 application_not_ready.p5=If you need help using this service, use the ''get help with this page'' link at the bottom of this page.
+
+# AMLS required
+amls.required.title=Does your country require you to register with a money laundering supervisory body?
+amls.required.yes=Yes
+amls.required.no=No
 
 # AMLS
 amls.title=Money laundering compliance details

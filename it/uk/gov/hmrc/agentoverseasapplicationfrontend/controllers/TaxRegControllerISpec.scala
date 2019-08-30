@@ -210,7 +210,7 @@ class TaxRegControllerISpec extends BaseISpec with AgentOverseasApplicationStubs
       )
     }
 
-    "redirect to /money-laundering when session not found" in {
+    "redirect to /money-laundering-registration when session not found" in {
 
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
 
@@ -218,7 +218,7 @@ class TaxRegControllerISpec extends BaseISpec with AgentOverseasApplicationStubs
 
       status(result) shouldBe 303
 
-      redirectLocation(result) shouldBe Some(routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url)
+      redirectLocation(result) shouldBe Some(routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired().url)
     }
   }
 
@@ -313,7 +313,7 @@ class TaxRegControllerISpec extends BaseISpec with AgentOverseasApplicationStubs
       result should containSubstrings("You have added 0 tax registration numbers.")
     }
 
-    "redirect to /money-laundering when session not found" in {
+    "redirect to /money-laundering-registration when session not found" in {
 
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
 
@@ -321,7 +321,7 @@ class TaxRegControllerISpec extends BaseISpec with AgentOverseasApplicationStubs
 
       status(result) shouldBe 303
 
-      redirectLocation(result) shouldBe Some(routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url)
+      redirectLocation(result) shouldBe Some(routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired().url)
     }
   }
 
@@ -434,12 +434,12 @@ class TaxRegControllerISpec extends BaseISpec with AgentOverseasApplicationStubs
       )
     }
 
-    "redirect to /money-laundering when session not found" in {
+    "redirect to /money-laundering-registration when session not found" in {
       val result = await(controller.showRemoveTaxRegNumber("abc123")(cleanCredsAgent(FakeRequest())))
 
       status(result) shouldBe 303
 
-      redirectLocation(result) shouldBe Some(routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url)
+      redirectLocation(result) shouldBe Some(routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired().url)
     }
 
     "return 404 error page when the remove-tax-registration-number is called without trn" in {

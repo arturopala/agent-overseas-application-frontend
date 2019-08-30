@@ -46,7 +46,7 @@ class TradingAddressControllerISpec extends BaseISpec with AgentOverseasApplicat
       result should containSubstrings(routes.ApplicationController.showCheckYourAnswers().url)
     }
 
-    "redirect to /money-laundering when session not found" in {
+    "redirect to /money-laundering-registration when session not found" in {
 
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
 
@@ -54,7 +54,7 @@ class TradingAddressControllerISpec extends BaseISpec with AgentOverseasApplicat
 
       status(result) shouldBe 303
 
-      redirectLocation(result) shouldBe Some(routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url)
+      redirectLocation(result) shouldBe Some(routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired().url)
     }
   }
 

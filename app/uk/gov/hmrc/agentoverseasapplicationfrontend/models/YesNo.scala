@@ -19,7 +19,7 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.models
 import play.api.libs.json._
 import uk.gov.hmrc.http.BadRequestException
 
-case class RadioConfirm(value: Option[Boolean])
+case class RadioConfirm(value: Boolean)
 
 object RadioConfirm {
   implicit val format = Json.format[RadioConfirm]
@@ -58,13 +58,15 @@ object YesNo {
     override def writes(o: YesNo): JsValue = JsString(o.value)
   }
 
-  def apply(radioConfirm: RadioConfirm): YesNo = radioConfirm.value match {
-    case Some(true) => Yes
-    case _          => No
-  }
+  def apply(radioConfirm: RadioConfirm): YesNo =
+    if (radioConfirm.value) {
+      Yes
+    } else {
+      No
+    }
 
   def toRadioConfirm(answer: YesNo): RadioConfirm = answer match {
-    case Yes => RadioConfirm(Some(true))
-    case No  => RadioConfirm(Some(false))
+    case Yes => RadioConfirm(true)
+    case No  => RadioConfirm(false)
   }
 }
