@@ -1007,6 +1007,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       result should containMessages(
         "checkAnswers.title",
         "checkAnswers.change.button",
+        "checkAnswers.amlsRequired.title",
         "checkAnswers.amlsDetails.title",
         "checkAnswers.contactDetails.title",
         "checkAnswers.BusinessDetails.title",

@@ -289,6 +289,7 @@ doYouWantToAddAnotherTrn.error.no-radio.selected=Select yes if you want to add a
 checkAnswers.title=Check your details before sending your application
 checkAnswers.change.button=Change
 checkAnswers.amlsDetails.title=Money laundering compliance details
+checkAnswers.amlsDetails.required=Required to register with a money laundering supervisory body
 checkAnswers.amlsDetails.supervisoryBody=Name of supervisory body
 checkAnswers.amlsDetails.membershipNumber=Membership number
 checkAnswers.amlsFile.title=Proof of anti-money laundering registration

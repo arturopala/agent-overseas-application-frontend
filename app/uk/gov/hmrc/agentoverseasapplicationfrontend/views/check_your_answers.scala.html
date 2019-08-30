@@ -24,74 +24,106 @@
 @import uk.gov.hmrc.play.views.html.helpers.form
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.helpers.check_answers_div
 
-
-
-
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.views.config.Section
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.views.config.Row
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.views.config.HeadingAndData
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.views.config.CheckYourAnswersConfig
 @(agentSession: AgentSession, countryName: String, backLink: String)(implicit request: Request[_], messages: Messages, configuration: Configuration)
 
 
 @showFullBusinessDetails = {
 
-    @agentSession.registeredForUkTax.map { isRegisteredForUKTax =>
-        @check_answers_div(Messages("checkAnswers.registeredForUKTax.title"),  isRegisteredForUKTax, "isRegisteredForTax", routes.ChangingAnswersController.changeRegisteredForUKTax())
-        
-        <script>gaSendEvent('check-answers-registered-for-tax-title')</script>
-        
-        @if(isRegisteredForUKTax == Yes) {
-            @agentSession.personalDetails.flatMap(_.nino).map { nino =>
-                @check_answers_div(Messages("checkAnswers.personalDetails.nino.title"),  nino, "nino", routes.ChangingAnswersController.changePersonalDetails())
-                <script>gaSendEvent('check-answers-nino-title')</script>
-            }
+@agentSession.registeredForUkTax.map { isRegisteredForUKTax =>
+    @check_answers_div(Messages("checkAnswers.registeredForUKTax.title"), isRegisteredForUKTax, "isRegisteredForTax", routes.ChangingAnswersController.changeRegisteredForUKTax())
 
-            @agentSession.personalDetails.flatMap(_.saUtr).map { saUtr =>
-                @check_answers_div(Messages("checkAnswers.personalDetails.saUtr.title"),  saUtr, "saUtr", routes.ChangingAnswersController.changePersonalDetails())
-                <script>gaSendEvent('check-answers-saUtr-title')</script>
-            }
+    <script>gaSendEvent('check-answers-registered-for-tax-title')</script>
+
+    @if(isRegisteredForUKTax == Yes) {
+        @agentSession.personalDetails.flatMap(_.nino).map { nino =>
+            @check_answers_div(Messages("checkAnswers.personalDetails.nino.title"), nino, "nino", routes.ChangingAnswersController.changePersonalDetails())
+            <script>gaSendEvent('check-answers-nino-title')</script>
+        }
+
+        @agentSession.personalDetails.flatMap(_.saUtr).map { saUtr =>
+            @check_answers_div(Messages("checkAnswers.personalDetails.saUtr.title"), saUtr, "saUtr", routes.ChangingAnswersController.changePersonalDetails())
+            <script>gaSendEvent('check-answers-saUtr-title')</script>
         }
     }
+}
 
-    @agentSession.companyRegistrationNumber.map(_.registrationNumber).map { crn =>
-        @if(crn.nonEmpty) {
-            @check_answers_div(Messages("checkAnswers.companyRegistrationNumber.title"), crn.get.value, "companyRegNo", routes.ChangingAnswersController.changeCompanyRegistrationNumber())
-        } else {
-            @check_answers_div(Messages("checkAnswers.companyRegistrationNumber.title"), Messages("checkAnswers.companyRegistrationNumber.empty"), "companyRegNo",
+@agentSession.companyRegistrationNumber.map(_.registrationNumber).map { crn =>
+    @if(crn.nonEmpty) {
+        @check_answers_div(Messages("checkAnswers.companyRegistrationNumber.title"), crn.get.value, "companyRegNo", routes.ChangingAnswersController.changeCompanyRegistrationNumber())
+    } else {
+        @check_answers_div(Messages("checkAnswers.companyRegistrationNumber.title"), Messages("checkAnswers.companyRegistrationNumber.empty"), "companyRegNo",
             routes.ChangingAnswersController.changeCompanyRegistrationNumber())
-        }
-        
-        <script>gaSendEvent('check-answers-company-registration-number-title')</script>
-      
     }
 
-    @agentSession.taxRegistrationNumbers match {
-        case Some(trns) if trns.nonEmpty => {
-            @check_answers_div(
-                Messages("checkAnswers.taxRegistrationNumbers.title"),
-                Html(agentSession.taxRegistrationNumbers.map(_.map(_.value)).getOrElse(SortedSet.empty[String]).mkString("<br>")),
-              "taxRegistrationNumbersTitle",
-                routes.ChangingAnswersController.changeYourTaxRegistrationNumbers())
-            
-            <script>gaSendEvent('check-answers-tax-registration-numbers')</script>
-          
-        }
-        case _ => {
-            @check_answers_div(
-                Messages("checkAnswers.taxRegistrationNumbers.title"),
-                Messages("checkAnswers.taxRegistrationNumbers.empty"),
-              "taxRegistrationNumbersTitle",
-                routes.ChangingAnswersController.changeYourTaxRegistrationNumbers() )
-            
-            <script>gaSendEvent('check-answers-tax-registration-numbers-empty')</script>
-          
-        }
+    <script>gaSendEvent('check-answers-company-registration-number-title')</script>
+
+}
+
+@agentSession.taxRegistrationNumbers match {
+    case Some(trns) if trns.nonEmpty => {
+        @check_answers_div(
+            Messages("checkAnswers.taxRegistrationNumbers.title"),
+            Html(agentSession.taxRegistrationNumbers.map(_.map(_.value)).getOrElse(SortedSet.empty[String]).mkString("<br>")),
+            "taxRegistrationNumbersTitle",
+            routes.ChangingAnswersController.changeYourTaxRegistrationNumbers())
+
+        <script>gaSendEvent('check-answers-tax-registration-numbers')</script>
+
     }
+    case _ => {
+        @check_answers_div(
+            Messages("checkAnswers.taxRegistrationNumbers.title"),
+            Messages("checkAnswers.taxRegistrationNumbers.empty"),
+            "taxRegistrationNumbersTitle",
+            routes.ChangingAnswersController.changeYourTaxRegistrationNumbers())
+
+        <script>gaSendEvent('check-answers-tax-registration-numbers-empty')</script>
+
+    }
+}
 }
 
 @formatFileName(fileName: String) = @{
-if(fileName.length > 20){
-    s"${fileName.take(10)}...${fileName.takeRight(10)}"
-} else {
-    fileName
+    if(fileName.length > 20) {
+        s"${fileName.take(10)}...${fileName.takeRight(10)}"
+    } else {
+        fileName
+    }
 }
+
+@checkAnswersBlock(section: Section) = {
+    <h2 class="heading-medium margin-bottom-10">@section.subtitle</h2>
+        @for(row <- section.rows) {
+            <div class="app-check-your-answers--group margin-bottom-10">
+                <dl class="app-check-your-answers app-check-your-answers--long">
+
+                @for(headingAndData <- row.headingAndData) {
+
+                <div class="app-check-your-answers__contents">
+                        <dt class="app-check-your-answers__question">
+                    @headingAndData.heading
+                    </dt>
+                    <dd class="app-check-your-answers__answers" id="">
+                    @headingAndData.data
+                    </dd>
+                    @if(row.headingAndData.indexOf(headingAndData) == 0){<dd class="app-check-your-answers__change">
+                        <a href="@row.changeLink" data-include-hidden="@Messages("checkAnswers.change.button") @section.subtitle">@Messages("checkAnswers.change.button") <span class="visuallyhidden">@section.subtitle</span></a>
+                </dd>}
+                </div>
+                }
+
+            <script>
+                    @for(gaEvent <- section.gaEvents) {
+                        gaSendEvent(gaEvent)
+                    }
+                  </script>
+            </div>
+            }
+        </dl>
 }
 
 
@@ -102,56 +134,60 @@ if(fileName.length > 20){
     <h1 class="heading-xlarge margin-bottom-30">@Messages("checkAnswers.title")</h1>
 
     @agentSession.amlsDetails.map { details =>
-
-        <h2 class="heading-medium margin-bottom-10">@Messages("checkAnswers.amlsDetails.title")</h2>
-
-        <div class="app-check-your-answers--group margin-bottom-30">
-            <dl class="app-check-your-answers app-check-your-answers--long">
-                <div class="app-check-your-answers__contents">
-                    <dt class="app-check-your-answers__question">
-                        @Messages("checkAnswers.amlsDetails.supervisoryBody")
-                    </dt>
-                    <dd class="app-check-your-answers__answers" id="amls-details-supervisory-body">
-                        @details.supervisoryBody
-                    </dd>
-                    <dd class="app-check-your-answers__change">
-                        <a href="@routes.ChangingAnswersController.changeAmlsDetails()" data-include-hidden="@Messages("checkAnswers.change.button") @Messages("checkAnswers.amlsDetails.title")">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @Messages("checkAnswers.amlsDetails.title")</span></a>
-                    </dd>
-                </div>
-
-                <div class="app-check-your-answers__contents">
-                    <dt class="app-check-your-answers__question">
-                        @Messages("checkAnswers.amlsDetails.membershipNumber")
-                    </dt>
-                    <dd class="app-check-your-answers__answer" id="amls-details">
-                        @details.membershipNumber
-                    </dd>
-                </div>
-                <script>
-                    @if(details.supervisoryBody.nonEmpty) {
-                        gaSendEvent('check-answers-supervisory-body');
-                    }
-                    @if(details.membershipNumber.nonEmpty) {
-                        gaSendEvent('check-answers-membership-number');
-                    }
-                </script>
-
-            </dl>
-        </div>
+        @checkAnswersBlock(
+            CheckYourAnswersConfig.makeAmlsSection(true, details)
+        )
     }
+    @* @agentSession.amlsDetails.map { details =>*@
 
-    <div class="app-check-your-answers--group margin-bottom-10">
-    @agentSession.amlsUploadStatus.flatMap(_.fileName).map { fileName =>
-        <dl class="app-check-your-answers app-check-your-answers--long">
-            @check_answers_div(Messages("checkAnswers.amlsFile.title"), formatFileName(fileName), "amlsFileName", routes.ChangingAnswersController.changeAmlsFile())
-        </dl>
-        <script>
-            @if(fileName.nonEmpty) {
-                    gaSendEvent('check-answers-amls-file-name');
-                }
-        </script>
-    }
-    </div>
+    @* <h2 class="heading-medium margin-bottom-10">@Messages("checkAnswers.amlsDetails.title")</h2>*@
+
+    @* <div class="app-check-your-answers--group margin-bottom-30">*@
+    @* <dl class="app-check-your-answers app-check-your-answers--long">*@
+    @* <div class="app-check-your-answers__contents">*@
+    @* <dt class="app-check-your-answers__question">*@
+    @* @Messages("checkAnswers.amlsDetails.supervisoryBody")*@
+    @* </dt>*@
+    @* <dd class="app-check-your-answers__answers" id="amls-details-supervisory-body">*@
+    @* @details.supervisoryBody*@
+    @* </dd>*@
+    @* <dd class="app-check-your-answers__change">*@
+    @* <a href="@routes.ChangingAnswersController.changeAmlsDetails()" data-include-hidden="@Messages("checkAnswers.change.button") @Messages("checkAnswers.amlsDetails.title")">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @Messages("checkAnswers.amlsDetails.title")</span></a>*@
+    @* </dd>*@
+    @* </div>*@
+
+    @* <div class="app-check-your-answers__contents">*@
+    @* <dt class="app-check-your-answers__question">*@
+    @* @Messages("checkAnswers.amlsDetails.membershipNumber")*@
+    @* </dt>*@
+    @* <dd class="app-check-your-answers__answer" id="amls-details">*@
+    @* @details.membershipNumber*@
+    @* </dd>*@
+    @* </div>*@
+    @* <script>*@
+    @* @if(details.supervisoryBody.nonEmpty) {*@
+    @* gaSendEvent('check-answers-supervisory-body');*@
+    @* }*@
+    @* @if(details.membershipNumber.nonEmpty) {*@
+    @* gaSendEvent('check-answers-membership-number');*@
+    @* }*@
+    @* </script>*@
+
+    @* </dl>*@
+    @* </div>*@
+    @* }*@
+@*    <div class="app-check-your-answers--group margin-bottom-10">*@
+@*    @agentSession.amlsUploadStatus.flatMap(_.fileName).map { fileName =>*@
+@*        <dl class="app-check-your-answers app-check-your-answers--long">*@
+@*            @check_answers_div(Messages("checkAnswers.amlsFile.title"), formatFileName(fileName), "amlsFileName", routes.ChangingAnswersController.changeAmlsFile())*@
+@*        </dl>*@
+@*        <script>*@
+@*            @if(fileName.nonEmpty) {*@
+@*                    gaSendEvent('check-answers-amls-file-name');*@
+@*                }*@
+@*        </script>*@
+@*    }*@
+@*    </div>*@
 
     @agentSession.contactDetails.map { details =>
 
@@ -161,7 +197,7 @@ if(fileName.length > 20){
             <dl class="app-check-your-answers app-check-your-answers--long">
                 <div class="app-check-your-answers__contents">
                     <dt class="app-check-your-answers__question">
-                        @Messages("checkAnswers.contactDetails.name")
+                    @Messages("checkAnswers.contactDetails.name")
                     </dt>
                     <dd class="app-check-your-answers__answer" id="name">
                         @details.firstName @details.lastName
@@ -172,26 +208,26 @@ if(fileName.length > 20){
                 </div>
                 <div class="app-check-your-answers__contents">
                     <dt class="app-check-your-answers__question">
-                        @Messages("checkAnswers.contactDetails.jobTitle")
+                    @Messages("checkAnswers.contactDetails.jobTitle")
                     </dt>
                     <dd class="app-check-your-answers__answer" id="jobTitle">
-                        @details.jobTitle
+                    @details.jobTitle
                     </dd>
                 </div>
                 <div class="app-check-your-answers__contents">
                     <dt class="app-check-your-answers__question">
-                        @Messages("checkAnswers.contactDetails.businessTelephone")
+                    @Messages("checkAnswers.contactDetails.businessTelephone")
                     </dt>
                     <dd class="app-check-your-answers__answer" id="businessTelephone">
-                        @details.businessTelephone
+                    @details.businessTelephone
                     </dd>
                 </div>
                 <div class="app-check-your-answers__contents">
                     <dt class="app-check-your-answers__question">
-                        @Messages("checkAnswers.contactDetails.businessEmail")
+                    @Messages("checkAnswers.contactDetails.businessEmail")
                     </dt>
                     <dd class="app-check-your-answers__answer" id="businessEmail">
-                        @details.businessEmail
+                    @details.businessEmail
                     </dd>
                 </div>
             </dl>
@@ -218,93 +254,93 @@ if(fileName.length > 20){
     <h2 class="heading-medium margin-bottom-10">@Messages("checkAnswers.BusinessDetails.title")</h2>
 
     <div class="app-check-your-answers--group margin-bottom-10">
-        @agentSession.tradingName.map { name =>
-            <dl class="app-check-your-answers app-check-your-answers--long">
-               @check_answers_div(Messages("checkAnswers.tradingName.title"), name, "tradingName", routes.ChangingAnswersController.changeTradingName())
-            </dl>
-            <script>
-                @if(name.nonEmpty) {
+    @agentSession.tradingName.map { name =>
+        <dl class="app-check-your-answers app-check-your-answers--long">
+            @check_answers_div(Messages("checkAnswers.tradingName.title"), name, "tradingName", routes.ChangingAnswersController.changeTradingName())
+        </dl>
+        <script>
+            @if(name.nonEmpty) {
                     gaSendEvent('check-answers-trading-name');
                 }
-            </script>
-        }
+        </script>
+    }
     </div>
     <div class="app-check-your-answers--group margin-bottom-10">
-        @agentSession.mainBusinessAddress.map { address =>
-            <dl class="app-check-your-answers app-check-your-answers--long">
-                @check_answers_div(
-                    Messages("checkAnswers.mainBusinessAddress.title"),
-                    Html(List(address.addressLine1,address.addressLine2, address.addressLine3.getOrElse(""), address.addressLine4.getOrElse(""), countryName).filter(_.nonEmpty).mkString("<br>")),
-                    "mainBusinessAddressTitle",
-                    routes.ChangingAnswersController.changeTradingAddress()
-                )
-            </dl>
-            <script>
-                @if(address.addressLine1.nonEmpty) {
+    @agentSession.mainBusinessAddress.map { address =>
+        <dl class="app-check-your-answers app-check-your-answers--long">
+            @check_answers_div(
+                Messages("checkAnswers.mainBusinessAddress.title"),
+                Html(List(address.addressLine1, address.addressLine2, address.addressLine3.getOrElse(""), address.addressLine4.getOrElse(""), countryName).filter(_.nonEmpty).mkString("<br>")),
+                "mainBusinessAddressTitle",
+                routes.ChangingAnswersController.changeTradingAddress()
+            )
+        </dl>
+        <script>
+            @if(address.addressLine1.nonEmpty) {
                     gaSendEvent('check-answers-address-line1');
                 }
-                @if(address.addressLine2.nonEmpty) {
+            @if(address.addressLine2.nonEmpty) {
                     gaSendEvent('check-answers-address-line2');
                 }
-                @if(address.addressLine3.nonEmpty) {
+            @if(address.addressLine3.nonEmpty) {
                     gaSendEvent('check-answers-address-line3');
                 }
-                @if(address.addressLine4.nonEmpty) {
+            @if(address.addressLine4.nonEmpty) {
                     gaSendEvent('check-answers-address-line4');
                 }
-                @if(countryName.nonEmpty) {
+            @if(countryName.nonEmpty) {
                     gaSendEvent('check-answers-country-name');
                 }
-            </script>
-        }
+        </script>
+    }
     </div>
     <div class="app-check-your-answers--group margin-bottom-10">
-        @agentSession.tradingAddressUploadStatus.flatMap(_.fileName).map { fileName =>
-            <dl class="app-check-your-answers app-check-your-answers--long">
-                @check_answers_div(Messages("checkAnswers.tradingAddressFile.title"), formatFileName(fileName), "tradingAddressFileName", routes.ChangingAnswersController.changeTradingAddressFile())
-            </dl>
-            <script>
-                @if(fileName.nonEmpty) {
+    @agentSession.tradingAddressUploadStatus.flatMap(_.fileName).map { fileName =>
+        <dl class="app-check-your-answers app-check-your-answers--long">
+            @check_answers_div(Messages("checkAnswers.tradingAddressFile.title"), formatFileName(fileName), "tradingAddressFileName", routes.ChangingAnswersController.changeTradingAddressFile())
+        </dl>
+        <script>
+            @if(fileName.nonEmpty) {
                     gaSendEvent('check-answers-trading-address-file-name');
                 }
-            </script>
-        }
+        </script>
+    }
     </div>
 
     <h2 class="heading-medium margin-bottom-10">@Messages("checkAnswers.OtherBusinessDetails.title")</h2>
 
     <div class="app-check-your-answers--group margin-bottom-30">
-        @agentSession.registeredWithHmrc.map { isRegistered =>
+    @agentSession.registeredWithHmrc.map { isRegistered =>
 
-            <dl class="app-check-your-answers app-check-your-answers--long">
-                @check_answers_div(Messages("checkAnswers.registeredWithHmrc.title"), isRegistered, "isRegistered", routes.ChangingAnswersController.changeRegisteredWithHmrc())
-                <script>
+        <dl class="app-check-your-answers app-check-your-answers--long">
+            @check_answers_div(Messages("checkAnswers.registeredWithHmrc.title"), isRegistered, "isRegistered", routes.ChangingAnswersController.changeRegisteredWithHmrc())
+        <script>
                     @if(isRegistered == Yes) {
                         gaSendEvent('check-answers-is-registered');
                     }
                 </script>
-                @if(isRegistered == Yes && agentSession.agentCodes.map(_.hasOneOrMoreCodes).contains(true)) {
-                    @agentSession.agentCodes.flatMap(_.selfAssessment).map { sa =>
-                        @check_answers_div(Messages("checkAnswers.agentCode.selfAssessment"), sa.value, "sa", routes.ChangingAnswersController.changeAgentCodes())
-                        <script>gaSendEvent('check-answers-sa')</script>
-                    }
-
-                    @agentSession.agentCodes.flatMap(_.corporationTax).map { ct =>
-                        @check_answers_div(Messages("checkAnswers.agentCode.corporationTax"), ct.value, "ct", routes.ChangingAnswersController.changeAgentCodes())
-                        <script>gaSendEvent('check-answers-ct')</script>
-                    }
+            @if(isRegistered == Yes && agentSession.agentCodes.map(_.hasOneOrMoreCodes).contains(true)) {
+                @agentSession.agentCodes.flatMap(_.selfAssessment).map { sa =>
+                    @check_answers_div(Messages("checkAnswers.agentCode.selfAssessment"), sa.value, "sa", routes.ChangingAnswersController.changeAgentCodes())
+                    <script>gaSendEvent('check-answers-sa')</script>
                 }
 
-                @if(isRegistered == Yes && agentSession.agentCodes.map(_.isEmpty).contains(true)) {
-                    @check_answers_div(Messages("checkAnswers.agentCode.title"),  Messages("checkAnswers.agentCode.empty"), "agentCodeEmpty", routes.ChangingAnswersController.changeAgentCodes())
-                    @showFullBusinessDetails
+                @agentSession.agentCodes.flatMap(_.corporationTax).map { ct =>
+                    @check_answers_div(Messages("checkAnswers.agentCode.corporationTax"), ct.value, "ct", routes.ChangingAnswersController.changeAgentCodes())
+                    <script>gaSendEvent('check-answers-ct')</script>
                 }
+            }
+
+            @if(isRegistered == Yes && agentSession.agentCodes.map(_.isEmpty).contains(true)) {
+                @check_answers_div(Messages("checkAnswers.agentCode.title"), Messages("checkAnswers.agentCode.empty"), "agentCodeEmpty", routes.ChangingAnswersController.changeAgentCodes())
+                @showFullBusinessDetails
+            }
 
 
-                   @showFullBusinessDetails
+            @showFullBusinessDetails
 
-            </dl>
-        }
+        </dl>
+    }
     </div>
 
     @if(agentSession.trnUploadStatus.isDefined && agentSession.taxRegistrationNumbers.fold(false)(_.nonEmpty)) {
