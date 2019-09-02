@@ -116,17 +116,18 @@ object CheckYourAnswersConfig {
           Seq.empty ++ (if (isRegisteredWithHmrc == Yes) Seq("check-answers-is-registered") else Seq.empty)
         ),
         agentCodes.map(codes => {
-          if(codes.selfAssessment.nonEmpty) {
             Row(
               Seq(
-                HeadingAndData(Messages("checkAnswers.agentCode.selfAssessment"), codes.selfAssessment)
-              )
+               HeadingAndData(Messages("checkAnswers.agentCode.selfAssessment"), codes.selfAssessment.map(_.value)),
+               HeadingAndData(Messages("checkAnswers.agentCode.corporationTax"), codes.corporationTax.map(_.value))
+              ),
+              routes.ChangingAnswersController.changeAgentCodes(),
+              Seq.empty ++ (if (codes.selfAssessment.nonEmpty) Seq("check-answers-sa") else Seq.empty) ++
+                (if (codes.corporationTax.nonEmpty) Seq("check-answers-ct") else Seq.empty)
             )
           }
         })
-
       ))
-
 }
 
 case class Section(subtitle: String, rows: Seq[Row])
