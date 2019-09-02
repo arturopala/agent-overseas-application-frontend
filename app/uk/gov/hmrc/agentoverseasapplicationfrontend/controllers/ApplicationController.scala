@@ -28,6 +28,7 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.models.AgentSession.{IsRegis
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, No, Yes, _}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
+import uk.gov.hmrc.agentoverseasapplicationfrontend.views.config.CheckYourAnswersConfig
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
 
 import scala.concurrent.ExecutionContext
@@ -307,7 +308,7 @@ class ApplicationController @Inject()(
               routes.FileUploadController.showSuccessfulUploadedForm().url
             else routes.TaxRegController.showTaxRegistrationNumberForm().url
 
-          Ok(check_your_answers(request.agentSession, countryName, backLink))
+          Ok(check_your_answers(CheckYourAnswersConfig(request.agentSession, countryName), backLink))
         } else Redirect(call)
       }
   }
