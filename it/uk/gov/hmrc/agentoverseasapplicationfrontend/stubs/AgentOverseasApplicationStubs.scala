@@ -17,6 +17,7 @@ trait AgentOverseasApplicationStubs {
 
   val defaultRequestBody =
     s"""|{
+        |"amlsRequired": true,
         |  "amls": {
         |    "supervisoryBody": "Association of AccountingTechnicians (AAT)",
         |    "membershipNumber": "12121"

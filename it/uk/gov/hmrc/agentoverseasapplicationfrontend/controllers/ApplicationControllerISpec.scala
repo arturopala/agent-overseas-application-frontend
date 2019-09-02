@@ -1322,6 +1322,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
         AgentCodes(Some(SaAgentCode("selfAssessmentCode")), Some(CtAgentCode("corporationTaxCode")))
 
       val agentSession =  AgentSession(
+        amlsRequired = Some(true),
         amlsDetails = Some(amlsDetails),
         contactDetails = Some(contactDetails),
         tradingName = Some("tradingName"),

@@ -51,6 +51,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with BeforeAndAf
     Some(FileUploadStatus(reference = "fileRef", fileStatus = "READY", fileName = Some("fileName")))
 
   private val agentSession = AgentSession(
+    amlsRequired = Some(true),
     amlsDetails = Some(amlsDetails),
     contactDetails = Some(contactDetails),
     tradingName = Some("Trading name"),

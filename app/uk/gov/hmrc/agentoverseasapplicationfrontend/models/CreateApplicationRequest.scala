@@ -21,7 +21,8 @@ import play.api.libs.functional.syntax._
 import uk.gov.hmrc.domain.{Nino, SaUtr}
 
 case class CreateApplicationRequest(
-  amls: AmlsDetails,
+  amlsRequired: Boolean,
+  amls: Option[AmlsDetails],
   contactDetails: ContactDetails,
   tradingName: String,
   businessAddress: MainBusinessAddress,
@@ -41,7 +42,7 @@ object CreateApplicationRequest {
 
   def apply(agentSession: AgentSession): CreateApplicationRequest =
     (for {
-      amls                    <- agentSession.amlsDetails
+      amlsRequired <- agentSession.amlsRequired
       contactDetails          <- agentSession.contactDetails
       tradingName             <- agentSession.tradingName
       businessAddress         <- agentSession.mainBusinessAddress
@@ -50,7 +51,8 @@ object CreateApplicationRequest {
       tradingAddressFileRef   <- agentSession.tradingAddressUploadStatus.map(_.reference)
     } yield
       CreateApplicationRequest(
-        amls,
+        amlsRequired,
+        agentSession.amlsDetails,
         contactDetails,
         tradingName,
         businessAddress,
@@ -68,7 +70,8 @@ object CreateApplicationRequest {
       )).getOrElse(throw new Exception("Could not create application request from agent session"))
 
   implicit val writes: Writes[CreateApplicationRequest] = (
-    (__ \ "amls" \ "supervisoryBody").write[String] and
+    (__ \ "amlsRequired").write[Boolean] and
+    (__ \ "amls" \ "supervisoryBody").write[Option[String]] and
       (__ \ "amls" \ "membershipNumber").write[Option[String]] and
       (__ \ "contactDetails").write[ContactDetails] and
       (__ \ "tradingDetails" \ "tradingName").write[String] and
@@ -86,8 +89,9 @@ object CreateApplicationRequest {
       (__ \ "taxRegFileRef").write[Option[String]]
   ) { request: CreateApplicationRequest =>
     (
-      request.amls.supervisoryBody,
-      request.amls.membershipNumber,
+    request.amlsRequired,
+      request.amls.map(_.supervisoryBody),
+      request.amls.flatMap(_.membershipNumber),
       request.contactDetails,
       request.tradingName,
       request.businessAddress,
@@ -105,7 +109,8 @@ object CreateApplicationRequest {
   }
 
   implicit val reads: Reads[CreateApplicationRequest] = (
-    (__ \ "amls" \ "supervisoryBody").read[String] and
+    (__ \ "amlsRequired").read[Boolean] and
+    (__ \ "amls" \ "supervisoryBody").readNullable[String] and
       (__ \ "amls" \ "membershipNumber").readNullable[String] and
       (__ \ "contactDetails").read[ContactDetails] and
       (__ \ "tradingDetails" \ "tradingName").read[String] and
@@ -122,6 +127,7 @@ object CreateApplicationRequest {
       (__ \ "tradingAddressFileRef").read[String] and
       (__ \ "taxRegFileRef").readNullable[String]
     ) ((
+    amlsRequired,
       supervisoryBody,
       membershipNumber,
       contactDetails,
@@ -137,7 +143,7 @@ object CreateApplicationRequest {
       taxRegNo,
       amlsFileRef,
       tradingAddressFileRef,
-      taxRegFileRef) => CreateApplicationRequest(AmlsDetails(supervisoryBody, membershipNumber),
+      taxRegFileRef) => CreateApplicationRequest(amlsRequired, supervisoryBody.map(s => AmlsDetails(s, membershipNumber)),
     contactDetails, tradingName, businessAddress,
     isUkRegisteredTaxOrNino, isHmrcAgentRegistered,
     saAgentCode, ctAgentCode, regNo, utr, nino, taxRegNo, amlsFileRef,tradingAddressFileRef,taxRegFileRef))
