@@ -8,11 +8,6 @@ import scala.language.postfixOps
 
 class BasicAuthActionISpec extends BaseISpec {
 
-  implicit val timeout = akka.util.Timeout {
-    import scala.concurrent.duration._
-    5 seconds
-  }
-
   val authAction = app.injector.instanceOf[BasicAuthAction]
 
   class TestController(authAction: BasicAuthAction) {

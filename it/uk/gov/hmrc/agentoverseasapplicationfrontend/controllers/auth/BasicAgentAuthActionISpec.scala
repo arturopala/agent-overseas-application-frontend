@@ -9,11 +9,6 @@ import scala.language.postfixOps
 
 class BasicAgentAuthActionISpec extends BaseISpec {
 
-  implicit val timeout = akka.util.Timeout {
-    import scala.concurrent.duration._
-    5 seconds
-  }
-
   val authAction = app.injector.instanceOf[BasicAgentAuthAction]
 
   class TestController(authAction: BasicAgentAuthAction) {

@@ -20,8 +20,8 @@ import com.google.inject.ImplementedBy
 import javax.inject.{Inject, Named, Singleton}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionBuilder, ActionFunction, Request, Result}
-import play.api.{Configuration, Environment, Logger, Mode}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.{CommonRouting, routes}
+import play.api.{Configuration, Environment}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.CommonRouting
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.CredentialRequest
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
@@ -30,7 +30,6 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{allEnrolments, credentials}
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
-import uk.gov.hmrc.play.bootstrap.config.AuthRedirects
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -43,7 +42,7 @@ class AgentAffinityNoEnrolmentAuthActionImpl @Inject()(
   val sessionStoreService: SessionStoreService,
   @Named("agent-services-account.root-path") agentServicesAccountRootPath: String,
   @Named("agent-overseas-subscription-frontend.root-path") subscriptionRootPath: String)(implicit ec: ExecutionContext)
-    extends AgentAffinityNoHmrcAsAgentAuthAction with CommonRouting with AuthorisedFunctions with AuthRedirects {
+    extends AgentAffinityNoHmrcAsAgentAuthAction with CommonRouting with AuthAction {
 
   def invokeBlock[A](request: Request[A], block: CredentialRequest[A] => Future[Result]): Future[Result] = {
     implicit val hc: HeaderCarrier =
@@ -59,18 +58,10 @@ class AgentAffinityNoEnrolmentAuthActionImpl @Inject()(
                 credentialsOpt.fold(throw UnsupportedCredentialRole("User has no credentials"))(credentials =>
                   block(CredentialRequest(credentials.providerId, request, agentSession)))
               case None =>
-                val root = subscriptionRootPath
                 routesIfExistingApplication(subscriptionRootPath).map(Redirect)
             }
       }
-      .recover {
-        case _: NoActiveSession =>
-          val isDevEnv =
-            if (env.mode.equals(Mode.Test)) false else config.getString("run.mode").forall(Mode.Dev.toString.equals)
-          toGGLogin(if (isDevEnv) s"http://${request.host}${request.uri}" else s"${request.uri}")
-        case _: UnsupportedAffinityGroup =>
-          Redirect(routes.StartController.showNotAgent())
-      }
+      .recover(handleFailure(request))
   }
 
   private def isEnrolledForHmrcAsAgent(enrolments: Enrolments): Boolean =

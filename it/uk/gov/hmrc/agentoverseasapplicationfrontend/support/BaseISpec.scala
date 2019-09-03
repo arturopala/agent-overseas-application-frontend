@@ -1,6 +1,6 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.support
 
-import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import akka.util.Timeout
 import com.google.inject.AbstractModule
 import org.jsoup.Jsoup
 import org.scalatest.Assertion
@@ -19,7 +19,12 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.test.UnitSpec
 
+import scala.concurrent.duration._
+
 class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with AuthStubs with DataStreamStubs with MetricsTestSupport with DefaultAwaitTimeout {
+
+  implicit val timeout =  Timeout(5.seconds)
+
   implicit val ec = play.api.libs.concurrent.Execution.defaultContext
 
   override implicit lazy val app: Application = appBuilder.build()

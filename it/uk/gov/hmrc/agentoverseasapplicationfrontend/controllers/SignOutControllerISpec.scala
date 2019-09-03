@@ -7,11 +7,6 @@ import scala.language.postfixOps
 
 class SignOutControllerISpec extends BaseISpec{
 
-  implicit val timeout = akka.util.Timeout {
-    import scala.concurrent.duration._
-    5 seconds
-  }
-
   private val controller: SignOutController = app.injector.instanceOf[SignOutController]
 
   "signOut" should {

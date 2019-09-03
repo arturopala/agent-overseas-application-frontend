@@ -15,11 +15,8 @@ import scala.language.postfixOps
 
 class AgentAffinityNoHmrcAsAgentAuthActionISpec extends BaseISpec with AgentOverseasApplicationStubs {
 
-  implicit val timeout = akka.util.Timeout {
-    import scala.concurrent.duration._
-    5 seconds
-  }
   implicit val hc = HeaderCarrier()
+
   val authAction = app.injector.instanceOf[AgentAffinityNoHmrcAsAgentAuthAction]
 
   class TestController(authAction: AgentAffinityNoHmrcAsAgentAuthAction) {

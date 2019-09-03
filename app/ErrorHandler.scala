@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-import javax.inject.{Inject, Singleton}
 import com.google.inject.name.Named
-import play.api.i18n.{Messages, MessagesApi}
+import javax.inject.{Inject, Singleton}
+import play.api.i18n.MessagesApi
 import play.api.mvc.Results._
 import play.api.mvc.{Request, RequestHeader, Result}
 import play.api.{Configuration, Environment, Mode}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.error_template
-import uk.gov.hmrc.auth.core.{InsufficientEnrolments, NoActiveSession}
 import uk.gov.hmrc.http.{JsValidationException, NotFoundException}
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
@@ -49,12 +48,11 @@ class ErrorHandler @Inject()(
   override def resolveError(request: RequestHeader, exception: Throwable) = {
     auditServerError(request, exception)
     implicit val r = Request(request, "")
-    exception match {
-      case _: NoActiveSession        => toGGLogin(if (isDevEnv) s"http://${request.host}${request.uri}" else s"${request.uri}")
-      case _: InsufficientEnrolments => Forbidden
-      case _ =>
-        Ok(standardErrorTemplate("global.error.500.title", "global.error.500.heading", "global.error.500.message"))
-    }
+    Ok(standardErrorTemplate(
+      "global.error.500.title",
+      "global.error.500.heading",
+      "global.error.500.message")
+    )
   }
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(
