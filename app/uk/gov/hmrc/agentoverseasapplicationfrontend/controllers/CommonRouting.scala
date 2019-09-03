@@ -35,6 +35,7 @@ trait CommonRouting {
 
   def lookupNextPage(agentSession: Option[AgentSession]): Call =
     agentSession match {
+      case MissingAmlsRequired()               => routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired()
       case MissingAmlsDetails()                => routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm()
       case MissingAmlsUploadStatus()           => routes.FileUploadController.showAmlsUploadForm()
       case MissingContactDetails()             => routes.ApplicationController.showContactDetailsForm()
@@ -45,7 +46,7 @@ trait CommonRouting {
       case IsRegisteredWithHmrc(Yes)           => routesFromAgentCodesOnwards(agentSession)
       case IsRegisteredWithHmrc(No)            => routesFromUkTaxRegistrationOnwards(agentSession)
 
-      case _ => routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm()
+      case _ => routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired()
     }
 
   def routesIfExistingApplication(

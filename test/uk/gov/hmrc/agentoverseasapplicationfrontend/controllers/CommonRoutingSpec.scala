@@ -50,6 +50,7 @@ class CommonRoutingSpec extends UnitSpec {
 
   private val detailsUpToRegisteredWithHmrc =
     AgentSession(
+      amlsRequired = Some(true),
       amlsDetails = Some(amlsDetails),
       amlsUploadStatus = Some(amlsUploadStatus),
       contactDetails = Some(contactDetails),
@@ -67,6 +68,14 @@ class CommonRoutingSpec extends UnitSpec {
   )
 
   "lookupNextPage" should {
+    "return showAntiMoneyLaunderingRegistration when AmlsRequired is not found in session" in {
+      val agentSession = detailsUpToRegisteredWithHmrc.copy(amlsRequired = None)
+      await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession))
+
+      await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.AntiMoneyLaunderingController
+        .showMoneyLaunderingRequired()
+    }
+
     "return showAntiMoneyLaunderingForm when AmlsDetails are not found in session" in {
       val agentSession = detailsUpToRegisteredWithHmrc.copy(amlsDetails = None)
       await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession))
@@ -75,9 +84,9 @@ class CommonRoutingSpec extends UnitSpec {
         .showAntiMoneyLaunderingForm()
     }
 
-    "return showAntiMoneyLaunderingForm when session not found" in {
+    "return showAntiMoneyLaunderingRegistration when session not found" in {
       await(FakeRouting.lookupNextPage(None)) shouldBe routes.AntiMoneyLaunderingController
-        .showAntiMoneyLaunderingForm()
+        .showMoneyLaunderingRequired()
     }
 
     "return showFileUpload(amls) when amlsFileUploadStatus not found in session" in {

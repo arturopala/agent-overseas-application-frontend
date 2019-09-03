@@ -68,6 +68,7 @@ POST        /check-your-answers                          @uk.gov.hmrc.agentovers
 
 GET         /application-complete                        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ApplicationController.showApplicationComplete
 
+GET         /change-amls-required                        @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeAmlsRequired
 GET         /change-amls-details                         @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeAmlsDetails
 GET         /change-amls-details-file                    @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeAmlsFile
 GET         /change-contact-details                      @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.ChangingAnswersController.changeContactDetails

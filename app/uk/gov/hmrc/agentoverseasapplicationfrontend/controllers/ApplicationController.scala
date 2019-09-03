@@ -307,6 +307,7 @@ class ApplicationController @Inject()(
               routes.FileUploadController.showSuccessfulUploadedForm().url
             else routes.TaxRegController.showTaxRegistrationNumberForm().url
 
+          sessionStoreService.cacheAgentSession(request.agentSession.copy(changingAnswers = false))
           Ok(check_your_answers(request.agentSession, countryName, backLink))
         } else Redirect(call)
       }

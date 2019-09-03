@@ -39,6 +39,12 @@ class ChangingAnswersController @Inject()(
     extends AgentOverseasBaseController(sessionStoreService, applicationService) with SessionBehaviour
     with I18nSupport {
 
+  def changeAmlsRequired: Action[AnyContent] = validApplicantAction.async { implicit request =>
+    updateSessionAndRedirect(request.agentSession.copy(changingAnswers = true))(
+      routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired().url
+    )
+  }
+
   def changeAmlsDetails: Action[AnyContent] = validApplicantAction.async { implicit request =>
     updateSessionAndRedirect(request.agentSession.copy(changingAnswers = true))(
       routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url)

@@ -78,13 +78,19 @@ object AgentSession {
 
   implicit val format: OFormat[AgentSession] = Json.format[AgentSession]
 
+  object MissingAmlsRequired {
+    def unapply(session: Option[AgentSession]): Boolean =
+      session.exists(_.amlsRequired.isEmpty)
+  }
+
   object MissingAmlsDetails {
-    def unapply(session: Option[AgentSession]): Boolean = session.exists(_.amlsDetails.isEmpty)
+    def unapply(session: Option[AgentSession]): Boolean =
+      session.exists(_.amlsRequired.contains(true)) && session.exists(_.amlsDetails.isEmpty)
   }
 
   object MissingAmlsUploadStatus {
     def unapply(session: Option[AgentSession]): Boolean =
-      session.exists(_.amlsUploadStatus.isEmpty)
+      session.exists(_.amlsRequired.contains(true)) && session.exists(_.amlsUploadStatus.isEmpty)
   }
 
   object MissingContactDetails {

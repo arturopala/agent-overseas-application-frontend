@@ -34,6 +34,18 @@ class AntiMoneyLaunderingControllerISpec extends BaseISpec with AgentOverseasApp
         "Yes",
         "No")
     }
+
+    "back link should be check your answers when changing" in {
+      await(sessionStoreService.cacheAgentSession(AgentSession(changingAnswers = true)))
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+
+      val result = await(controller.showMoneyLaunderingRequired(authenticatedRequest))
+      status(result) shouldBe 200
+
+      checkHtmlResultWithBodyText(
+        result,
+        "<a href=\"/agent-services/apply-from-outside-uk/check-your-answers\" class=\"link-back\"")
+    }
   }
 
   "POST /money-laundering-registration" should {
@@ -63,6 +75,42 @@ class AntiMoneyLaunderingControllerISpec extends BaseISpec with AgentOverseasApp
       sessionStoreService.fetchAgentSession.get.amlsRequired shouldBe Some(false)
     }
 
+    "redirect to /check-answers and remove AMLS details from session when changing is true and the user selects NO (changing from YES to NO)" in {
+      await(
+        sessionStoreService.cacheAgentSession(
+          AgentSession(
+            amlsRequired = Some(true),
+            amlsDetails = Some(AmlsDetails("supervisory", Some("123"))),
+            changingAnswers = true)))
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("amlsRequired" -> "false")
+
+      val result = await(controller.submitMoneyLaunderingRequired(authenticatedRequest))
+
+      status(result) shouldBe 303
+      redirectLocation(result) shouldBe Some(routes.ApplicationController.showCheckYourAnswers().url)
+
+      sessionStoreService.fetchAgentSession.get.amlsRequired shouldBe Some(false)
+      sessionStoreService.fetchAgentSession.get.amlsDetails shouldBe None
+    }
+
+    "redirect to /money-landering when changing is true and the user selects YES (changing from NO to YES)" in {
+      await(
+        sessionStoreService.cacheAgentSession(
+          AgentSession(
+            amlsRequired = Some(false),
+            changingAnswers = true)))
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("amlsRequired" -> "true")
+
+      val result = await(controller.submitMoneyLaunderingRequired(authenticatedRequest))
+
+      status(result) shouldBe 303
+      redirectLocation(result) shouldBe Some(routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url)
+
+      sessionStoreService.fetchAgentSession.get.amlsRequired shouldBe Some(true)
+    }
+
     "redisplay the page with errors when no radio button is selected" in {
       await(sessionStoreService.cacheAgentSession(AgentSession()))
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
@@ -74,10 +122,10 @@ class AntiMoneyLaunderingControllerISpec extends BaseISpec with AgentOverseasApp
         "Does your country require you to register with a money laundering supervisory body?",
         "Yes",
         "No",
-        "Select yes if your country requires you to register with a money laundering supervisory body")
+        "Select yes if your country requires you to register with a money laundering supervisory body"
+      )
     }
   }
-
 
   "GET /money-laundering" should {
 
@@ -102,7 +150,7 @@ class AntiMoneyLaunderingControllerISpec extends BaseISpec with AgentOverseasApp
 
     "display the money-laundering form with correct back button link when user is CHANGING ANSWERS" in {
       given404OverseasApplications()
-      await(sessionStoreService.cacheAgentSession(AgentSession(changingAnswers = true)))
+      await(sessionStoreService.cacheAgentSession(AgentSession(amlsDetails = Some(AmlsDetails("super", Some("123"))), changingAnswers = true)))
       val authenticatedRequest = cleanCredsAgent(FakeRequest())
 
       val result = await(controller.showAntiMoneyLaunderingForm(authenticatedRequest))
@@ -110,6 +158,18 @@ class AntiMoneyLaunderingControllerISpec extends BaseISpec with AgentOverseasApp
       status(result) shouldBe 200
 
       result should containLink("button.back", routes.ApplicationController.showCheckYourAnswers().url)
+    }
+
+    "display the money-laundering form with correct back button link when user is CHANGING ANSWERS via the /anti-money-laundering-registration page" in {
+      given404OverseasApplications()
+      await(sessionStoreService.cacheAgentSession(AgentSession(amlsRequired = Some(true), changingAnswers = true)))
+      val authenticatedRequest = cleanCredsAgent(FakeRequest())
+
+      val result = await(controller.showAntiMoneyLaunderingForm(authenticatedRequest))
+
+      status(result) shouldBe 200
+
+      result should containLink("button.back", routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired().url)
     }
 
     "display the money-laundering form with correct back button link when user is not changing answers and Has seen previously rejected application page" in {
@@ -129,7 +189,9 @@ class AntiMoneyLaunderingControllerISpec extends BaseISpec with AgentOverseasApp
     "redirect to upload/amls" in {
       await(sessionStoreService.cacheAgentSession(AgentSession()))
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
-        .withFormUrlEncodedBody("amlsBody" -> "Association of AccountingTechnicians (AAT)", "membershipNumber" -> "123445")
+        .withFormUrlEncodedBody(
+          "amlsBody"         -> "Association of AccountingTechnicians (AAT)",
+          "membershipNumber" -> "123445")
 
       val result = await(controller.submitAntiMoneyLaundering(authenticatedRequest))
 
@@ -141,27 +203,26 @@ class AntiMoneyLaunderingControllerISpec extends BaseISpec with AgentOverseasApp
       amlsDetails shouldBe Some(AmlsDetails("Association of AccountingTechnicians (AAT)", Some("123445")))
     }
 
-    "redirect to check-your-answers if user is changing the details" in {
+    "redirect to upload-proof-anti-money-laundering-registration if user is changing the details" in {
       //pre-state
       await(sessionStoreService.cacheAgentSession(AgentSession(changingAnswers = true)))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
-        .withFormUrlEncodedBody("amlsBody" -> "Association of AccountingTechnicians (AAT)", "membershipNumber" -> "123445")
+        .withFormUrlEncodedBody(
+          "amlsBody"         -> "Association of AccountingTechnicians (AAT)",
+          "membershipNumber" -> "123445")
 
       val result = await(controller.submitAntiMoneyLaundering(authenticatedRequest))
 
       status(result) shouldBe 303
-      result.header.headers(LOCATION) shouldBe routes.ApplicationController.showCheckYourAnswers().url
+      result.header.headers(LOCATION) shouldBe routes.FileUploadController.showAmlsUploadForm().url
 
       val session = await(sessionStoreService.fetchAgentSession).get
 
       session.amlsDetails shouldBe Some(AmlsDetails("Association of AccountingTechnicians (AAT)", Some("123445")))
-
-      //should revert to normal state after amending is successful
-      session.changingAnswers shouldBe false
     }
 
-    "show validation error when form params are incorrect" in {
+    "show validation error when form params are incorrect with correct back link for changing answers" in {
       await(sessionStoreService.cacheAgentSession(AgentSession(changingAnswers = true)))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
@@ -172,6 +233,22 @@ class AntiMoneyLaunderingControllerISpec extends BaseISpec with AgentOverseasApp
       status(result) shouldBe 200
 
       result should containMessages("error.moneyLaunderingCompliance.amlsbody.blank")
+      result should containLink("button.back", routes.ApplicationController.showCheckYourAnswers().url)
+    }
+
+    "show validation error when form params are incorrect with correct back link for not changing answers" in {
+      await(sessionStoreService.cacheAgentSession(AgentSession()))
+
+      implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
+        .withFormUrlEncodedBody("amlsBody" -> "", "membershipNumber" -> "123445")
+
+      val result = await(controller.submitAntiMoneyLaundering(authenticatedRequest))
+
+      status(result) shouldBe 200
+
+      result should containMessages("error.moneyLaunderingCompliance.amlsbody.blank")
+      result should containLink("button.back", routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired().url)
+
     }
   }
 }

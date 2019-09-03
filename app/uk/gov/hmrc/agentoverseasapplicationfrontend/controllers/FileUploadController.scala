@@ -184,8 +184,16 @@ class FileUploadController @Inject()(
     }
 
   private def getBackLink(fileType: String)(implicit request: CredentialRequest[AnyContent]): Option[String] =
-    if (request.agentSession.changingAnswers) {
+    if (request.agentSession.changingAnswers && (fileType match {
+          case "trading-address" => request.agentSession.tradingAddressUploadStatus.nonEmpty
+          case "amls"            => request.agentSession.amlsUploadStatus.nonEmpty
+          case "trn"             => request.agentSession.trnUploadStatus.nonEmpty
+          case _ =>
+            Logger.info("routing error for back link- unrecognized document proof file key!")
+            false
+        })) {
       Some(showCheckYourAnswersUrl)
+
     } else {
       fileType match {
         case "trading-address" => Some(routes.TradingAddressController.showMainBusinessAddressForm().url)

@@ -34,9 +34,9 @@
 
     @agentSession.registeredForUkTax.map { isRegisteredForUKTax =>
         @check_answers_div(Messages("checkAnswers.registeredForUKTax.title"),  isRegisteredForUKTax, "isRegisteredForTax", routes.ChangingAnswersController.changeRegisteredForUKTax())
-        
+
         <script>gaSendEvent('check-answers-registered-for-tax-title')</script>
-        
+
         @if(isRegisteredForUKTax == Yes) {
             @agentSession.personalDetails.flatMap(_.nino).map { nino =>
                 @check_answers_div(Messages("checkAnswers.personalDetails.nino.title"),  nino, "nino", routes.ChangingAnswersController.changePersonalDetails())
@@ -57,9 +57,9 @@
             @check_answers_div(Messages("checkAnswers.companyRegistrationNumber.title"), Messages("checkAnswers.companyRegistrationNumber.empty"), "companyRegNo",
             routes.ChangingAnswersController.changeCompanyRegistrationNumber())
         }
-        
+
         <script>gaSendEvent('check-answers-company-registration-number-title')</script>
-      
+
     }
 
     @agentSession.taxRegistrationNumbers match {
@@ -69,9 +69,9 @@
                 Html(agentSession.taxRegistrationNumbers.map(_.map(_.value)).getOrElse(SortedSet.empty[String]).mkString("<br>")),
               "taxRegistrationNumbersTitle",
                 routes.ChangingAnswersController.changeYourTaxRegistrationNumbers())
-            
+
             <script>gaSendEvent('check-answers-tax-registration-numbers')</script>
-          
+
         }
         case _ => {
             @check_answers_div(
@@ -79,9 +79,9 @@
                 Messages("checkAnswers.taxRegistrationNumbers.empty"),
               "taxRegistrationNumbersTitle",
                 routes.ChangingAnswersController.changeYourTaxRegistrationNumbers() )
-            
+
             <script>gaSendEvent('check-answers-tax-registration-numbers-empty')</script>
-          
+
         }
     }
 }
@@ -101,9 +101,30 @@ if(fileName.length > 20){
 
     <h1 class="heading-xlarge margin-bottom-30">@Messages("checkAnswers.title")</h1>
 
-    @agentSession.amlsDetails.map { details =>
-
+    @agentSession.amlsRequired.map { amlsRequired =>
         <h2 class="heading-medium margin-bottom-10">@Messages("checkAnswers.amlsDetails.title")</h2>
+
+        <div class="app-check-your-answers--group margin-bottom-30">
+            <dl class="app-check-your-answers app-check-your-answers--long">
+                <div class="app-check-your-answers__contents">
+                    <dt class="app-check-your-answers__question">
+                    @Messages("checkAnswers.amlsDetails.amlsRequired")
+                    </dt>
+                    <dd class="app-check-your-answers__answers" id="amls-details-supervisory-body">
+                    @Messages(s"checkAnswers.amlsDetails.amlsRequired.$amlsRequired")
+                    </dd>
+                    <dd class="app-check-your-answers__change">
+                        <a href="@routes.ChangingAnswersController.changeAmlsRequired()" data-include-hidden="@Messages("checkAnswers.change.button") @Messages("checkAnswers.amlsDetails.title")">@Messages("checkAnswers.change.button") <span class="visuallyhidden"> @Messages("checkAnswers.amlsDetails.title")</span></a>
+        </dd>
+                </div>
+      <script>
+      gaSendEvent('check-answers-amls-required')
+      </script>
+            </dl>
+        </div>
+    }
+
+    @agentSession.amlsDetails.map { details =>
 
         <div class="app-check-your-answers--group margin-bottom-30">
             <dl class="app-check-your-answers app-check-your-answers--long">
@@ -140,7 +161,6 @@ if(fileName.length > 20){
         </div>
     }
 
-    <div class="app-check-your-answers--group margin-bottom-10">
     @agentSession.amlsUploadStatus.flatMap(_.fileName).map { fileName =>
         <dl class="app-check-your-answers app-check-your-answers--long">
             @check_answers_div(Messages("checkAnswers.amlsFile.title"), formatFileName(fileName), "amlsFileName", routes.ChangingAnswersController.changeAmlsFile())
@@ -151,7 +171,6 @@ if(fileName.length > 20){
                 }
         </script>
     }
-    </div>
 
     @agentSession.contactDetails.map { details =>
 
