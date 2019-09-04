@@ -34,20 +34,19 @@ case class CreateApplicationRequest(
   utr: Option[SaUtr],
   nino: Option[Nino],
   taxRegNo: Option[Seq[Trn]],
-  amlsFileRef: String,
+  amlsFileRef: Option[String],
   tradingAddressFileRef: String,
   taxRegFileRef: Option[String])
 
 object CreateApplicationRequest {
 
-  def apply(agentSession: AgentSession): CreateApplicationRequest =
+  def apply(agentSession: AgentSession): CreateApplicationRequest = {
     (for {
-      amlsRequired <- agentSession.amlsRequired
+      amlsRequired            <- agentSession.amlsRequired
       contactDetails          <- agentSession.contactDetails
       tradingName             <- agentSession.tradingName
       businessAddress         <- agentSession.mainBusinessAddress
       isHmrcAgentRegistered   <- agentSession.registeredWithHmrc
-      amlsFileRef             <- agentSession.amlsUploadStatus.map(_.reference)
       tradingAddressFileRef   <- agentSession.tradingAddressUploadStatus.map(_.reference)
     } yield
       CreateApplicationRequest(
@@ -64,10 +63,11 @@ object CreateApplicationRequest {
         agentSession.personalDetails.flatMap(_.saUtr),
         agentSession.personalDetails.flatMap(_.nino),
         agentSession.taxRegistrationNumbers.map(_.toSeq),
-        amlsFileRef,
+        agentSession.amlsUploadStatus.map(_.reference),
         tradingAddressFileRef,
         agentSession.trnUploadStatus.map(_.reference)
       )).getOrElse(throw new Exception("Could not create application request from agent session"))
+  }
 
   implicit val writes: Writes[CreateApplicationRequest] = (
     (__ \ "amlsRequired").write[Boolean] and
@@ -84,7 +84,7 @@ object CreateApplicationRequest {
       (__ \ "personalDetails" \ "saUtr").write[Option[SaUtr]] and
       (__ \ "personalDetails" \ "nino").write[Option[Nino]] and
       (__ \ "tradingDetails" \ "taxRegistrationNumbers").write[Option[Seq[Trn]]] and
-      (__ \ "amlsFileRef").write[String] and
+      (__ \ "amlsFileRef").write[Option[String]] and
       (__ \ "tradingAddressFileRef").write[String] and
       (__ \ "taxRegFileRef").write[Option[String]]
   ) { request: CreateApplicationRequest =>
@@ -123,7 +123,7 @@ object CreateApplicationRequest {
       (__ \ "personalDetails" \ "saUtr").readNullable[SaUtr] and
       (__ \ "personalDetails" \ "nino").readNullable[Nino] and
       (__ \ "tradingDetails" \ "taxRegistrationNumbers").readNullable[Seq[Trn]] and
-      (__ \ "amlsFileRef").read[String] and
+      (__ \ "amlsFileRef").readNullable[String] and
       (__ \ "tradingAddressFileRef").read[String] and
       (__ \ "taxRegFileRef").readNullable[String]
     ) ((
