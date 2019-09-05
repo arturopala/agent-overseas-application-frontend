@@ -21,3 +21,5 @@ addSbtPlugin("com.lucidchart" % "sbt-scalafmt" % "1.15")
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-artifactory" % "0.14.0")
 
+addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.8")
+
