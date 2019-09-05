@@ -16,11 +16,11 @@
 
 @import play.api.Configuration
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
-@import uk.gov.hmrc.agentoverseasapplicationfrontend.models.MainBusinessAddress
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.models.OverseasAddress
 @import uk.gov.hmrc.play.views.html.helpers.{form, input, errorSummary}
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.helpers._
 
-@(mainBusinessAddressForm: Form[MainBusinessAddress], countries: Map[String, String], backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
+@(mainBusinessAddressForm: Form[OverseasAddress], countries: Map[String, String], backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
 @uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = error_prefix(mainBusinessAddressForm) + Messages("mainBusinessAddress.title")) {
 

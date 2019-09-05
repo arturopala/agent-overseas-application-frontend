@@ -5,8 +5,8 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{LOCATION, redirectLocation, flash}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetails.RadioOption
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetails.RadioOption.SaUtrChoice
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetailsChoice.RadioOption
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetailsChoice.RadioOption.SaUtrChoice
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.stubs.AgentOverseasApplicationStubs
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
@@ -20,8 +20,8 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
   private val contactDetails = ContactDetails("test", "last", "senior agent", "12345", "test@email.com")
   private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
-  private val mainBusinessAddress = MainBusinessAddress("line 1", "line 2", None, None, countryCode = "IE")
-  private val personalDetails = PersonalDetails(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
+  private val overseasAddress = OverseasAddress("line 1", "line 2", None, None, countryCode = "IE")
+  private val personalDetails = PersonalDetailsChoice(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
   val failureDetails = FailureDetails("QUARANTINE","a virus was found!")
   val fileUploadStatus = FileUploadStatus("reference","READY",Some("filename"),Some(failureDetails))
 
@@ -30,7 +30,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
     amlsDetails = Some(amlsDetails),
     contactDetails = Some(contactDetails),
     tradingName = Some("some name"),
-    mainBusinessAddress = Some(mainBusinessAddress),
+    overseasAddress = Some(overseasAddress),
     personalDetails = Some(personalDetails)
   )
 
@@ -193,7 +193,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
   "POST /trading-name" should {
     "submit form and then redirect to main-business-details" in {
       sessionStoreService.currentSession.agentSession =
-        Some(agentSession.copy(tradingName = None, mainBusinessAddress = None))
+        Some(agentSession.copy(tradingName = None, overseasAddress = None))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody("tradingName" -> "test")
@@ -210,7 +210,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
     "submit form and then redirect to check-your-details if user is changing answers" in {
       sessionStoreService.currentSession.agentSession =
-        Some(agentSession.copy(tradingName = None, mainBusinessAddress = None, changingAnswers = true))
+        Some(agentSession.copy(tradingName = None, overseasAddress = None, changingAnswers = true))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody("tradingName" -> "test")
@@ -231,7 +231,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
     "show validation errors when form data is incorrect" in {
       sessionStoreService.currentSession.agentSession =
-        Some(agentSession.copy(tradingName = None, mainBusinessAddress = None, changingAnswers = true))
+        Some(agentSession.copy(tradingName = None, overseasAddress = None, changingAnswers = true))
 
       implicit val authenticatedRequest = cleanCredsAgent(FakeRequest())
         .withFormUrlEncodedBody("tradingName" -> "")
@@ -616,7 +616,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       result.header.headers(LOCATION) shouldBe routes.ApplicationController.showCompanyRegistrationNumberForm().url
 
       val savedPersonalDetails = await(sessionStoreService.fetchAgentSession).get.personalDetails.get
-      savedPersonalDetails shouldBe PersonalDetails(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
+      savedPersonalDetails shouldBe PersonalDetailsChoice(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
     }
 
     "store choice in session after successful submission and redirect check-your-answers if user is changing answers" in {
@@ -637,7 +637,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
       result.header.headers(LOCATION) shouldBe routes.ApplicationController.showCheckYourAnswers().url
 
       val session = await(sessionStoreService.fetchAgentSession).get
-      session.personalDetails.get shouldBe PersonalDetails(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
+      session.personalDetails.get shouldBe PersonalDetailsChoice(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
       session.changingAnswers shouldBe false
     }
 
@@ -1027,7 +1027,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
             Some(amlsDetails),
             Some(contactDetails),
             Some("tradingName"),
-            Some(mainBusinessAddress),
+            Some(overseasAddress),
             registeredWithHmrc = Some(Yes),
             agentCodes = Some(AgentCodes(None,None)),
             registeredForUkTax = Some(No),
@@ -1052,7 +1052,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
             Some(amlsDetails),
             Some(contactDetails),
             Some("tradingName"),
-            Some(mainBusinessAddress),
+            Some(overseasAddress),
             registeredWithHmrc = Some(Yes),
             agentCodes = Some(AgentCodes(None,None)),
             registeredForUkTax = Some(No),
@@ -1082,11 +1082,11 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
                 Some(amlsDetails),
                 Some(contactDetails),
                 Some("tradingName"),
-                Some(mainBusinessAddress),
+                Some(overseasAddress),
                 registeredWithHmrc,
                 Some(agentCodes),
                 registeredForUkTax = Some(Yes),
-                personalDetails = Some(PersonalDetails(Some(SaUtrChoice), None, Some(SaUtr("SA12345")))),
+                personalDetails = Some(PersonalDetailsChoice(Some(SaUtrChoice), None, Some(SaUtr("SA12345")))),
                 companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(false), None)),
                 hasTaxRegNumbers = Some(false),
                 tradingAddressUploadStatus = Some(fileUploadStatus),
@@ -1119,11 +1119,11 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
                 Some(amlsDetails),
                 Some(contactDetails),
                 Some("tradingName"),
-                Some(mainBusinessAddress),
+                Some(overseasAddress),
                 registeredWithHmrc,
                 Some(agentCodes),
                 registeredForUkTax = Some(Yes),
-                personalDetails = Some(PersonalDetails(Some(SaUtrChoice), None, Some(SaUtr("SA12345")))),
+                personalDetails = Some(PersonalDetailsChoice(Some(SaUtrChoice), None, Some(SaUtr("SA12345")))),
                 companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some(Crn("999999")))),
                 hasTaxRegNumbers = Some(false),tradingAddressUploadStatus = Some(fileUploadStatus), amlsUploadStatus = Some(fileUploadStatus)))
 
@@ -1152,11 +1152,11 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
                 Some(amlsDetails),
                 Some(contactDetails),
                 Some("tradingName"),
-                Some(mainBusinessAddress),
+                Some(overseasAddress),
                 registeredWithHmrc,
                 Some(agentCodes),
                 registeredForUkTax = Some(Yes),
-                personalDetails = Some(PersonalDetails(Some(SaUtrChoice), None, Some(SaUtr("SA12345")))),
+                personalDetails = Some(PersonalDetailsChoice(Some(SaUtrChoice), None, Some(SaUtr("SA12345")))),
                 companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(false), None)),
                 hasTaxRegNumbers = Some(false),
                 taxRegistrationNumbers = None,
@@ -1190,11 +1190,11 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
                 Some(amlsDetails),
                 Some(contactDetails),
                 Some("tradingName"),
-                Some(mainBusinessAddress),
+                Some(overseasAddress),
                 registeredWithHmrc,
                 Some(agentCodes),
                 registeredForUkTax = Some(Yes),
-                personalDetails = Some(PersonalDetails(Some(SaUtrChoice), None, Some(SaUtr("SA12345")))),
+                personalDetails = Some(PersonalDetailsChoice(Some(SaUtrChoice), None, Some(SaUtr("SA12345")))),
                 companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some(Crn("123456")))),
                 hasTaxRegNumbers = Some(true),
                 taxRegistrationNumbers = Some(SortedSet(Trn("TX12345"))),
@@ -1231,7 +1231,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
               Some(amlsDetails),
               Some(contactDetails),
               Some("tradingName"),
-              Some(mainBusinessAddress),
+              Some(overseasAddress),
               registeredWithHmrc,
               Some(agentCodes),
               registeredForUkTax = Some(No),
@@ -1274,7 +1274,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
           Some(amlsDetails),
           Some(contactDetails),
           Some("tradingName"),
-          Some(mainBusinessAddress),
+          Some(overseasAddress),
           registeredWithHmrc,
           registeredForUkTax = Some(Yes),
           personalDetails = Some(personalDetails),
@@ -1326,7 +1326,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
         amlsDetails = Some(amlsDetails),
         contactDetails = Some(contactDetails),
         tradingName = Some("tradingName"),
-        mainBusinessAddress = Some(mainBusinessAddress),
+        overseasAddress = Some(overseasAddress),
         registeredWithHmrc = registeredWithHmrc,
         agentCodes = Some(agentCodes),
         amlsUploadStatus = Some(fileUploadStatus),
@@ -1340,7 +1340,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
     "submit the application and redirect to application-complete" in {
       val agentSession = initialTestSetup
 
-      givenPostOverseasApplication(201, Json.toJson(CreateApplicationRequest(agentSession)).toString())
+      givenPostOverseasApplication(201, Json.toJson(CreateOverseasApplicationRequest(agentSession)).toString())
 
       val result = await(controller.submitCheckYourAnswers(cleanCredsAgent(FakeRequest())))
 
@@ -1358,7 +1358,7 @@ class ApplicationControllerISpec extends BaseISpec with AgentOverseasApplication
 
       sessionStoreService.currentSession.agentSession = Some(agentSession)
 
-      givenPostOverseasApplication(503, Json.toJson(CreateApplicationRequest(agentSession)).toString())
+      givenPostOverseasApplication(503, Json.toJson(CreateOverseasApplicationRequest(agentSession)).toString())
 
       an[Exception] should be thrownBy(await(controller.submitCheckYourAnswers(cleanCredsAgent(FakeRequest()))))
     }

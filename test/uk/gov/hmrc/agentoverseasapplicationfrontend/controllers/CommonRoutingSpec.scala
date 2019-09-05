@@ -23,7 +23,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Results
 import uk.gov.hmrc.agentoverseasapplicationfrontend.connectors.AgentOverseasApplicationConnector
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.{Accepted, AttemptingRegistration, Complete, Registered, Rejected}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetails.RadioOption
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetailsChoice.RadioOption
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.TestSessionCache
@@ -41,9 +41,9 @@ class CommonRoutingSpec extends UnitSpec {
   private val contactDetails = ContactDetails("test", "last", "senior agent", "12345", "test@email.com")
   private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
   private val amlsUploadStatus = FileUploadStatus("ref", "READY", None)
-  private val mainBusinessAddress = MainBusinessAddress("line1", "line2", None, None, "IE")
+  private val overseasAddress = OverseasAddress("line1", "line2", None, None, "IE")
   private val tradingAddressUploadStatus = FileUploadStatus("ref", "READY", None)
-  private val personalDetails = PersonalDetails(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
+  private val personalDetails = PersonalDetailsChoice(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
   private val companyRegistrationNumber = CompanyRegistrationNumber(Some(true), Some(Crn("123")))
 
   private val subscriptionRootPath = "/agent-services/apply-from-outside-uk/create-account"
@@ -55,7 +55,7 @@ class CommonRoutingSpec extends UnitSpec {
       amlsUploadStatus = Some(amlsUploadStatus),
       contactDetails = Some(contactDetails),
       tradingName = Some("some name"),
-      mainBusinessAddress = Some(mainBusinessAddress),
+      overseasAddress = Some(overseasAddress),
       tradingAddressUploadStatus = Some(tradingAddressUploadStatus)
     )
 
@@ -113,7 +113,7 @@ class CommonRoutingSpec extends UnitSpec {
     }
 
     "return showMainBusinessAddressForm when Business Address is not found in session" in {
-      val agentSession = detailsUpToRegisteredWithHmrc.copy(mainBusinessAddress = None)
+      val agentSession = detailsUpToRegisteredWithHmrc.copy(overseasAddress = None)
       await(FakeRouting.sessionStoreService.cacheAgentSession(agentSession))
 
       await(FakeRouting.lookupNextPage(Some(agentSession))) shouldBe routes.TradingAddressController

@@ -23,7 +23,7 @@ import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
 import javax.inject.{Inject, Named, Singleton}
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{ApplicationEntityDetails, ApplicationStatus, CreateApplicationRequest, FileUploadStatus}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{ApplicationEntityDetails, ApplicationStatus, CreateOverseasApplicationRequest, FileUploadStatus}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpPost, HttpResponse, _}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -53,14 +53,14 @@ class AgentOverseasApplicationConnector @Inject()(
         }
     }
 
-  def createOverseasApplication(request: CreateApplicationRequest)(
+  def createOverseasApplication(request: CreateOverseasApplicationRequest)(
     implicit hc: HeaderCarrier,
     ec: ExecutionContext
   ): Future[Unit] = {
     val url = new URL(baseUrl, s"/agent-overseas-application/application")
     monitor(s"Agent-Overseas-Application-application-POST") {
       http
-        .POST[CreateApplicationRequest, HttpResponse](url.toString, request)
+        .POST[CreateOverseasApplicationRequest, HttpResponse](url.toString, request)
         .map(_ => ())
     }
   }

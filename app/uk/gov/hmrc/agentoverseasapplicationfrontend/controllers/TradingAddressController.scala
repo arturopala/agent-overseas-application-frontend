@@ -54,11 +54,11 @@ class TradingAddressController @Inject()(
     if (request.agentSession.changingAnswers) {
       Ok(
         main_business_address(
-          request.agentSession.mainBusinessAddress.fold(form)(form.fill),
+          request.agentSession.overseasAddress.fold(form)(form.fill),
           countries,
           Some(showCheckYourAnswersUrl)))
     } else {
-      Ok(main_business_address(request.agentSession.mainBusinessAddress.fold(form)(form.fill), countries))
+      Ok(main_business_address(request.agentSession.overseasAddress.fold(form)(form.fill), countries))
     }
   }
 
@@ -76,7 +76,7 @@ class TradingAddressController @Inject()(
             }
           },
           validForm =>
-            updateSession(request.agentSession.copy(mainBusinessAddress = Some(validForm)))(
+            updateSession(request.agentSession.copy(overseasAddress = Some(validForm)))(
               routes.FileUploadController.showTradingAddressUploadForm().url)
         )
     }

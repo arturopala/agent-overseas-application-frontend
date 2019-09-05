@@ -16,10 +16,10 @@
 
 @import play.api.Configuration
 @import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.routes
-@import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetails
+@import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetailsChoice
 @import uk.gov.hmrc.play.views.html.helpers.{form, input, errorSummary}
 
-@(personalDetailsForm: Form[PersonalDetails], backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
+@(personalDetailsForm: Form[PersonalDetailsChoice], backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
     @uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = error_prefix(personalDetailsForm) + Messages("personalDetails.title")) {
     <a href="@backLink.getOrElse(routes.ApplicationController.showUkTaxRegistrationForm())" class="link-back">@Messages("button.back")</a>

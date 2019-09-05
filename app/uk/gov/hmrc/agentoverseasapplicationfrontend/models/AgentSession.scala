@@ -25,11 +25,11 @@ case class AgentSession(
   amlsDetails: Option[AmlsDetails] = None,
   contactDetails: Option[ContactDetails] = None,
   tradingName: Option[String] = None,
-  mainBusinessAddress: Option[MainBusinessAddress] = None,
+  overseasAddress: Option[OverseasAddress] = None,
   registeredWithHmrc: Option[YesNo] = None,
   agentCodes: Option[AgentCodes] = None,
   registeredForUkTax: Option[YesNo] = None,
-  personalDetails: Option[PersonalDetails] = None,
+  personalDetails: Option[PersonalDetailsChoice] = None,
   companyRegistrationNumber: Option[CompanyRegistrationNumber] = None,
   hasTaxRegNumbers: Option[Boolean] = None,
   taxRegistrationNumbers: Option[SortedSet[Trn]] = None,
@@ -54,7 +54,7 @@ case class AgentSession(
       this.amlsDetails,
       this.contactDetails,
       this.tradingName,
-      this.mainBusinessAddress,
+      this.overseasAddress,
       this.registeredWithHmrc,
       agentCodes,
       registeredForUkTax,
@@ -102,7 +102,7 @@ object AgentSession {
   }
 
   object MissingTradingAddress {
-    def unapply(session: Option[AgentSession]): Boolean = session.exists(_.mainBusinessAddress.isEmpty)
+    def unapply(session: Option[AgentSession]): Boolean = session.exists(_.overseasAddress.isEmpty)
   }
 
   object MissingTradingAddressUploadStatus {

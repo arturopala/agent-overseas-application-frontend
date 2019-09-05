@@ -249,7 +249,7 @@ if(fileName.length > 20){
         }
     </div>
     <div class="app-check-your-answers--group margin-bottom-10">
-        @agentSession.mainBusinessAddress.map { address =>
+        @agentSession.overseasAddress.map { address =>
             <dl class="app-check-your-answers app-check-your-answers--long">
                 @check_answers_div(
                     Messages("checkAnswers.mainBusinessAddress.title"),

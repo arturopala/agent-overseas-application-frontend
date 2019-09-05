@@ -3,7 +3,7 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.stubs
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.libs.json.Json
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{ApplicationStatus, CreateApplicationRequest}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{ApplicationStatus, CreateOverseasApplicationRequest}
 
 trait AgentOverseasApplicationStubs {
   val allStatuses = ApplicationStatus.allStatuses.map(status => s"statusIdentifier=${status.key}").mkString("&")
@@ -55,7 +55,7 @@ trait AgentOverseasApplicationStubs {
         |}
      """.stripMargin
 
-  val defaultCreateApplicationRequest: CreateApplicationRequest = Json.parse(defaultRequestBody).as[CreateApplicationRequest]
+  val defaultCreateApplicationRequest: CreateOverseasApplicationRequest = Json.parse(defaultRequestBody).as[CreateOverseasApplicationRequest]
 
   def given200OverseasPendingApplication(appCreateDate: Option[String] = Some("2019-02-20T15:11:51.729")): StubMapping = {
     val responseData = StubsTestData.pendingApplication(appCreateDate.getOrElse("2019-02-20T15:11:51.729"))

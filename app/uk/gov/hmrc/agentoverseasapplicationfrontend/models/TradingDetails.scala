@@ -16,12 +16,20 @@
 
 package uk.gov.hmrc.agentoverseasapplicationfrontend.models
 
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.agentmtdidentifiers.model.Utr
-import uk.gov.hmrc.domain.Nino
+import play.api.libs.json._
 
-case class PersonalDetails(saUtr: Option[Utr], nino: Option[Nino])
+import scala.collection.immutable.SortedSet
 
-object PersonalDetails {
-  implicit val format: OFormat[PersonalDetails] = Json.format
+case class TradingDetails(
+  tradingName: String,
+  tradingAddress: OverseasAddress,
+  isUkRegisteredTaxOrNino: Option[YesNo],
+  isHmrcAgentRegistered: YesNo,
+  saAgentCode: Option[SaAgentCode],
+  ctAgentCode: Option[CtAgentCode],
+  companyRegistrationNumber: Option[Crn],
+  taxRegistrationNumbers: Option[SortedSet[Trn]])
+
+object TradingDetails {
+  implicit val format: OFormat[TradingDetails] = Json.format
 }

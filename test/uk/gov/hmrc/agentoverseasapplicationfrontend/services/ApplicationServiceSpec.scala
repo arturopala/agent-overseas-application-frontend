@@ -21,7 +21,7 @@ import org.mockito.Mockito.when
 import org.mockito.ArgumentMatchers.{any, eq => eqs}
 import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.agentoverseasapplicationfrontend.connectors.AgentOverseasApplicationConnector
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetails.RadioOption
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetailsChoice.RadioOption
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models._
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.http.HeaderCarrier
@@ -41,8 +41,8 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with BeforeAndAf
 
   private val contactDetails = ContactDetails("test", "last", "senior agent", "12345", "test@email.com")
   private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
-  private val mainBusinessAddress = MainBusinessAddress("line 1", "line 2", None, None, countryCode = "IE")
-  private val personalDetails = PersonalDetails(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
+  private val overseasAddress = OverseasAddress("line 1", "line 2", None, None, countryCode = "IE")
+  private val personalDetails = PersonalDetailsChoice(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
   private val agentCodes = AgentCodes(Some(SaAgentCode("SA123456")), Some(CtAgentCode("CT123456")))
 
   private val crn = CompanyRegistrationNumber(Some(true), Some(Crn("123456")))
@@ -55,7 +55,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with BeforeAndAf
     amlsDetails = Some(amlsDetails),
     contactDetails = Some(contactDetails),
     tradingName = Some("Trading name"),
-    mainBusinessAddress = Some(mainBusinessAddress),
+    overseasAddress = Some(overseasAddress),
     registeredWithHmrc = Some(Yes),
     agentCodes = Some(agentCodes),
     registeredForUkTax = Some(No),
@@ -74,7 +74,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with BeforeAndAf
     "create new application" in {
       when(
         connector
-          .createOverseasApplication(any[CreateApplicationRequest])(eqs(hc), any[ExecutionContext]))
+          .createOverseasApplication(any[CreateOverseasApplicationRequest])(eqs(hc), any[ExecutionContext]))
         .thenReturn(Future.successful(()))
 
       await(service.createApplication(agentSession)) shouldBe (())
@@ -83,7 +83,7 @@ class ApplicationServiceSpec extends UnitSpec with MockitoSugar with BeforeAndAf
     "returns exception when fails to create new application" in {
       when(
         connector
-          .createOverseasApplication(any[CreateApplicationRequest])(eqs(hc), any[ExecutionContext]))
+          .createOverseasApplication(any[CreateOverseasApplicationRequest])(eqs(hc), any[ExecutionContext]))
         .thenReturn(Future.failed(new Exception("Something went wrong! Please try again later.")))
 
       an[Exception] should be thrownBy (await(service.createApplication(agentSession)))

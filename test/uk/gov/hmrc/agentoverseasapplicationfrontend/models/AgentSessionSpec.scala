@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.agentoverseasapplicationfrontend.models
 
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetails.RadioOption
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetailsChoice.RadioOption
 import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.play.test.UnitSpec
 
@@ -26,8 +26,8 @@ class AgentSessionSpec extends UnitSpec {
 
   private val contactDetails = ContactDetails("test", "last", "senior agent", "12345", "test@email.com")
   private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
-  private val mainBusinessAddress = MainBusinessAddress("line 1", "line 2", None, None, countryCode = "IE")
-  private val personalDetails = PersonalDetails(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
+  private val overseasAddress = OverseasAddress("line 1", "line 2", None, None, countryCode = "IE")
+  private val personalDetails = PersonalDetailsChoice(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
   private val agentCodes = AgentCodes(Some(SaAgentCode("SA123456")), Some(CtAgentCode("CT123456")))
 
   private val crn = CompanyRegistrationNumber(Some(true), Some(Crn("123456")))
@@ -36,7 +36,7 @@ class AgentSessionSpec extends UnitSpec {
     amlsDetails = Some(amlsDetails),
     contactDetails = Some(contactDetails),
     tradingName = Some("Trading name"),
-    mainBusinessAddress = Some(mainBusinessAddress),
+    overseasAddress = Some(overseasAddress),
     registeredWithHmrc = Some(Yes),
     agentCodes = Some(agentCodes),
     registeredForUkTax = Some(No),

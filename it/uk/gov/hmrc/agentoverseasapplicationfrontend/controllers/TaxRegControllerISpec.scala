@@ -3,8 +3,8 @@ package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 import org.jsoup.Jsoup
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{LOCATION, redirectLocation}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetails.RadioOption
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, AmlsDetails, CompanyRegistrationNumber, ContactDetails, Crn, FailureDetails, FileUploadStatus, MainBusinessAddress, No, PersonalDetails, Trn}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.PersonalDetailsChoice.RadioOption
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, AmlsDetails, CompanyRegistrationNumber, ContactDetails, Crn, FailureDetails, FileUploadStatus, OverseasAddress, No, PersonalDetailsChoice, Trn}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.stubs.AgentOverseasApplicationStubs
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
 import uk.gov.hmrc.domain.Nino
@@ -17,8 +17,8 @@ class TaxRegControllerISpec extends BaseISpec with AgentOverseasApplicationStubs
 
   private val contactDetails = ContactDetails("test", "last", "senior agent", "12345", "test@email.com")
   private val amlsDetails = AmlsDetails("Keogh Chartered Accountants", Some("123456"))
-  private val mainBusinessAddress = MainBusinessAddress("line 1", "line 2", None, None, countryCode = "IE")
-  private val personalDetails = PersonalDetails(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
+  private val overseasAddress = OverseasAddress("line 1", "line 2", None, None, countryCode = "IE")
+  private val personalDetails = PersonalDetailsChoice(Some(RadioOption.NinoChoice), Some(Nino("AB123456A")), None)
   val failureDetails = FailureDetails("QUARANTINE","a virus was found!")
   val fileUploadStatus = FileUploadStatus("reference","READY",Some("filename"),Some(failureDetails))
 
@@ -27,7 +27,7 @@ class TaxRegControllerISpec extends BaseISpec with AgentOverseasApplicationStubs
     amlsDetails = Some(amlsDetails),
     contactDetails = Some(contactDetails),
     tradingName = Some("some name"),
-    mainBusinessAddress = Some(mainBusinessAddress),
+    overseasAddress = Some(overseasAddress),
     personalDetails = Some(personalDetails)
   )
 
@@ -39,7 +39,7 @@ class TaxRegControllerISpec extends BaseISpec with AgentOverseasApplicationStubs
       amlsDetails = Some(amlsDetails),
       contactDetails = Some(contactDetails),
       tradingName = Some("some name"),
-      mainBusinessAddress = Some(mainBusinessAddress),
+      overseasAddress = Some(overseasAddress),
       registeredWithHmrc = Some(No),
       registeredForUkTax = Some(No),
       companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some(Crn("ABC123"))))
@@ -101,7 +101,7 @@ class TaxRegControllerISpec extends BaseISpec with AgentOverseasApplicationStubs
       amlsDetails = Some(amlsDetails),
       contactDetails = Some(contactDetails),
       tradingName = Some("some name"),
-      mainBusinessAddress = Some(mainBusinessAddress),
+      overseasAddress = Some(overseasAddress),
       registeredWithHmrc = Some(No),
       registeredForUkTax = Some(No),
       companyRegistrationNumber = Some(CompanyRegistrationNumber(Some(true), Some(Crn("ABC123"))))

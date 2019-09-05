@@ -21,12 +21,12 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.{AgentAffinityNoHmrcAsAgentAuthAction, BasicAgentAuthAction}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.{AddTrnForm, DoYouWantToAddAnotherTrnForm, TaxRegistrationNumberForm, UpdateTrnForm}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.YesNoRadioButtonForms.removeTrnForm
+import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.{AddTrnForm, DoYouWantToAddAnotherTrnForm, TaxRegistrationNumberForm, UpdateTrnForm}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, TaxRegistrationNumber, Trn}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
+import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
 
 import scala.collection.immutable.SortedSet
 import scala.concurrent.ExecutionContext

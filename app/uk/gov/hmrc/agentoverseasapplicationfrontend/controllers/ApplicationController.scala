@@ -297,7 +297,7 @@ class ApplicationController @Inject()(
       .map { call =>
         if (call == routes.ApplicationController.showCheckYourAnswers() || call == routes.TaxRegController
               .showYourTaxRegNumbersForm()) {
-          val countryCode = request.agentSession.mainBusinessAddress.map(_.countryCode)
+          val countryCode = request.agentSession.overseasAddress.map(_.countryCode)
           val countryName = countryCode
             .flatMap(countries.get)
             .getOrElse(sys.error(s"No country found for code: '${countryCode.getOrElse("")}'"))
