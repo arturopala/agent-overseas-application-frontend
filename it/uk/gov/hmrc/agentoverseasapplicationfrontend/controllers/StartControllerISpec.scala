@@ -80,7 +80,7 @@ class StartControllerISpec extends BaseISpec with AgentOverseasApplicationStubs 
       result should containSubstrings(htmlEscapedMessage("statusRejected.para1", stubMatchingTradingName),
         htmlMessage("statusRejected.para2", s"<strong class=bold-small>$stubMatchingEmail</strong>"))
 
-      result should containLink("statusRejected.link.text", routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url)
+      result should containLink("statusRejected.link.text", routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired().url)
     }
   }
 

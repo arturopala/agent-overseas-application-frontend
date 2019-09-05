@@ -48,11 +48,7 @@ class ErrorHandler @Inject()(
   override def resolveError(request: RequestHeader, exception: Throwable) = {
     auditServerError(request, exception)
     implicit val r = Request(request, "")
-    Ok(standardErrorTemplate(
-      "global.error.500.title",
-      "global.error.500.heading",
-      "global.error.500.message")
-    )
+    Ok(standardErrorTemplate("global.error.500.title", "global.error.500.heading", "global.error.500.message"))
   }
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(
