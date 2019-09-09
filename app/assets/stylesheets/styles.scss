@@ -184,7 +184,7 @@
 /* form overrides */
 
 .flash.error-summary {
-    border: 5px solid #b10e1e;
+    border: 5px solid #d4351c;
     margin-top: 30px;
     margin-bottom: 30px;
     padding: 20px 15px 15px;
@@ -206,13 +206,13 @@
 
 .error,
 .form-field--error {
-    border-left: 5px solid #b10e1e;
+    border-left: 5px solid #d4351c;
     padding-left: 15px;
     margin-right: 15px;
 }
 
 .form-field--error input[type="text"] {
-    border: 4px solid #b10e1e;
+    border: 4px solid #d4351c;
 }
 
 .form-field--error .form-date .form-field--error {
@@ -481,7 +481,7 @@ details .panel[aria-hidden=true] a {
 }
 
 #file-upload-container.form-field--error input[type=file] {
-    border: 4px solid #b10e1e;
+    border: 4px solid #d4351c;
 }
 
 
