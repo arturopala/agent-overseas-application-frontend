@@ -21,6 +21,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.config.CountryNamesLoader
+import uk.gov.hmrc.agentoverseasapplicationfrontend.config.view.CheckYourAnswers
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.{AgentAffinityNoHmrcAsAgentAuthAction, BasicAgentAuthAction}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.YesNoRadioButtonForms.{registeredForUkTaxForm, registeredWithHmrcForm}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms._
@@ -290,6 +291,13 @@ class ApplicationController @Inject()(
       )
   }
 
+  private def getCountryName(agentSession: AgentSession): String = {
+    val countryCode = agentSession.overseasAddress.map(_.countryCode)
+    countryCode
+      .flatMap(countries.get)
+      .getOrElse(sys.error(s"No country found for code: '${countryCode.getOrElse("")}'"))
+  }
+
   def showCheckYourAnswers: Action[AnyContent] = validApplicantAction.async { implicit request =>
     //make sure user has gone through all the required pages, if not redirect to appropriate page
     sessionStoreService.fetchAgentSession
@@ -297,31 +305,39 @@ class ApplicationController @Inject()(
       .map { call =>
         if (call == routes.ApplicationController.showCheckYourAnswers() || call == routes.TaxRegController
               .showYourTaxRegNumbersForm()) {
-          val countryCode = request.agentSession.overseasAddress.map(_.countryCode)
-          val countryName = countryCode
-            .flatMap(countries.get)
-            .getOrElse(sys.error(s"No country found for code: '${countryCode.getOrElse("")}'"))
-
-          val backLink =
-            if (request.agentSession.taxRegistrationNumbers.exists(_.nonEmpty))
-              routes.FileUploadController.showSuccessfulUploadedForm().url
-            else routes.TaxRegController.showTaxRegistrationNumberForm().url
 
           sessionStoreService.cacheAgentSession(request.agentSession.copy(changingAnswers = false))
-          Ok(check_your_answers(request.agentSession, countryName, backLink))
+          Ok(
+            check_your_answers(
+              CheckYourAnswers.form,
+              CheckYourAnswers(request.agentSession, getCountryName(request.agentSession))))
         } else Redirect(call)
       }
   }
 
   def submitCheckYourAnswers: Action[AnyContent] = validApplicantAction.async { implicit request =>
-    for {
-      _ <- applicationService.createApplication(request.agentSession)
-      _ <- sessionStoreService.removeAgentSession
-    } yield
-      Redirect(routes.ApplicationController.showApplicationComplete())
-        .flashing(
-          "tradingName"   -> request.agentSession.tradingName.getOrElse(""),
-          "contactDetail" -> request.agentSession.contactDetails.fold("")(_.businessEmail))
+    CheckYourAnswers.form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => {
+          BadRequest(
+            check_your_answers(
+              formWithErrors,
+              CheckYourAnswers(request.agentSession, getCountryName(request.agentSession)))
+          )
+        },
+        cyaConfirmation => {
+          for {
+            _ <- applicationService.createApplication(request.agentSession)
+            _ <- sessionStoreService.removeAgentSession
+          } yield
+            Redirect(routes.ApplicationController.showApplicationComplete())
+              .flashing(
+                "tradingName"   -> request.agentSession.tradingName.getOrElse(""),
+                "contactDetail" -> request.agentSession.contactDetails.fold("")(_.businessEmail))
+        }
+      )
+
   }
 
   def showApplicationComplete: Action[AnyContent] = basicAgentAuthAction.async { implicit request =>

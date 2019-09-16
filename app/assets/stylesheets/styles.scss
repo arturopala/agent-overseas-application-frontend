@@ -229,6 +229,24 @@
     padding-bottom: 0;
 }
 
+.form-field--error{
+    .multiple-choice{
+        [type=checkbox]+label.form-field-single{
+            &::before{
+                top: 65px;
+            }
+            &::after{
+                top: 75px;
+            }
+        }
+    }
+    .form-field-single{
+        .error-notification{
+            margin-left: -2.1em;
+        }
+    }
+}
+
 /* no js style for dates */
 .no-js .form-date .form-field--error {
     border-left: none;

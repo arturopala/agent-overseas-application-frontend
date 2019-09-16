@@ -329,6 +329,9 @@ checkAnswers.OtherBusinessDetails.title=Other business or personal details
 checkAnswers.confirm.p1=By submitting this application you are confirming that, to the best of your knowledge, the details you providing are correct.
 checkAnswers.confirm.button=Confirm answers and send application
 
+checkAnswers.confirm.label=I confirm that my agent business complies with the anti-money laundering regulations in my country.
+checkAnswers.confirm.error=You must confirm that you comply with anti-money laundering rules in your country
+
 # Application Complete
 applicationComplete.title=Application complete
 applicationComplete.panel.body=We received your application for
