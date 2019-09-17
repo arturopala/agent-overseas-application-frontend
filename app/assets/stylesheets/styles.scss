@@ -247,6 +247,10 @@
     }
 }
 
+#checkAnswers label {
+    margin-bottom: 0px;
+}
+
 /* no js style for dates */
 .no-js .form-date .form-field--error {
     border-left: none;
