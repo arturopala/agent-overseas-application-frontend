@@ -322,7 +322,8 @@ object CheckYourAnswers {
         answerLines = session.taxRegistrationNumbers match {
           case Some(taxNumbers) if taxNumbers.nonEmpty => taxNumbers.toList.map(_.value)
           case _                                       => List(Messages("checkAnswers.taxRegistrationNumbers.empty"))
-        }
+        },
+        changeLink = Some(routes.ChangingAnswersController.changeYourTaxRegistrationNumbers())
       )
 
       AnswerGroup(
