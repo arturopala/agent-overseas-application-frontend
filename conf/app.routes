@@ -89,6 +89,8 @@ GET         /start-survey                                @uk.gov.hmrc.agentovers
 
 GET         /server-error                                @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.AgentOverseasBaseController.serverError
 
+GET         /accessibility-statement                     @uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.AccessibilityStatementController.showAccessibilityStatement
+
 GET         /assets/*file                                controllers.Assets.at(path="/public", file)
 
 
