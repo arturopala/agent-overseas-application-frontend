@@ -25,7 +25,7 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.AgentAffini
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.AmlsDetailsForm
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.YesNoRadioButtonForms.amlsRequiredForm
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.Rejected
-import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, CredentialRequest, RadioConfirm}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{AgentSession, RadioConfirm}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.toFuture
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.{anti_money_laundering, anti_money_laundering_required}
@@ -108,7 +108,14 @@ class AntiMoneyLaunderingController @Inject()(
         }
     }
 
-    backUrl.map(url => Ok(anti_money_laundering(request.agentSession.amlsDetails.fold(form)(form.fill), url)))
+    backUrl.map(url =>
+      request.agentSession.amlsRequired match {
+        case Some(true) =>
+          Ok(anti_money_laundering(request.agentSession.amlsDetails.fold(form)(form.fill), url)) // happy path
+        case Some(false) => Redirect(routes.ApplicationController.showContactDetailsForm().url) // skip money laundering
+        case None =>
+          Redirect(routes.AntiMoneyLaunderingController.showMoneyLaunderingRequired().url) // go back and make a choice
+    })
   }
 
   def submitAntiMoneyLaundering: Action[AnyContent] = validApplicantAction.async { implicit request =>

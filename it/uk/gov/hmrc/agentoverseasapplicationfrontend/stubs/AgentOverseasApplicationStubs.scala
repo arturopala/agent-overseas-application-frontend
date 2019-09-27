@@ -6,7 +6,9 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{ApplicationStatus, CreateOverseasApplicationRequest}
 
 trait AgentOverseasApplicationStubs {
-  val allStatuses = ApplicationStatus.allStatuses.map(status => s"statusIdentifier=${status.key}").mkString("&")
+
+  private val allStatuses =
+    ApplicationStatus.allStatuses.map(status => s"statusIdentifier=${status.key}").mkString("&")
 
   def givenPostOverseasApplication(status: Int, requestBody: String = defaultRequestBody): StubMapping = {
     stubFor(post(urlEqualTo(s"/agent-overseas-application/application"))
@@ -15,7 +17,7 @@ trait AgentOverseasApplicationStubs {
         .withStatus(status)))
   }
 
-  val defaultRequestBody =
+  private val defaultRequestBody =
     s"""|{
         |"amlsRequired": true,
         |  "amls": {

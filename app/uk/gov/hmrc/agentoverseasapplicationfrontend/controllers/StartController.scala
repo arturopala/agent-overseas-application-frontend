@@ -28,8 +28,6 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.{AgentAffin
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.{Pending, Rejected}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.{application_not_ready, not_agent, status_rejected}
-import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
 
@@ -57,12 +55,11 @@ class StartController @Inject()(
 
   def applicationStatus: Action[AnyContent] = basicAuthAction.async { implicit request =>
     applicationService.getCurrentApplication.map {
-      case Some(application) if application.status == Pending => {
+      case Some(application) if application.status == Pending =>
         val createdOnPrettifyDate: String = application.applicationCreationDate.format(
           DateTimeFormatter.ofPattern("d MMMM YYYY").withZone(ZoneOffset.UTC))
         val daysUntilReviewed: Int = daysUntilApplicationReviewed(application.applicationCreationDate)
         Ok(application_not_ready(application.tradingName, createdOnPrettifyDate, daysUntilReviewed))
-      }
       case Some(application) if application.status == Rejected => Ok(status_rejected(application))
       case Some(_)                                             => SeeOther(subscriptionRootPath)
       case None                                                => Redirect(routes.StartController.root())
