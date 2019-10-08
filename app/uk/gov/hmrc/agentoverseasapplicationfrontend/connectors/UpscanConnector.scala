@@ -53,7 +53,7 @@ class UpscanConnector @Inject()(
     """.stripMargin)
 
   def initiate()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[UpscanInitiate] =
-    monitor("upscan-initiate POST") {
+    monitor("ConsumedAPI-upscan-initiate-POST") {
       httpClient.POST[JsValue, JsValue](upscanUrl.toString, payload, Seq("content-Type" -> "application/json")).map {
         response =>
           response.as[UpscanInitiate]

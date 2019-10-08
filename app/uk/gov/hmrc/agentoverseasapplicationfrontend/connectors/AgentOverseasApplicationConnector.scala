@@ -44,7 +44,7 @@ class AgentOverseasApplicationConnector @Inject()(
   val urlGetAllApplications = new URL(baseUrl, s"/agent-overseas-application/application?$allStatuses")
 
   def getUserApplications(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApplicationEntityDetails]] =
-    monitor(s"Agent-Overseas-Application-application-GET") {
+    monitor("ConsumedAPI-Agent-Overseas-Application-application-GET") {
       http
         .GET[List[ApplicationEntityDetails]](urlGetAllApplications.toString)
         .recover {
@@ -58,7 +58,7 @@ class AgentOverseasApplicationConnector @Inject()(
     ec: ExecutionContext
   ): Future[Unit] = {
     val url = new URL(baseUrl, s"/agent-overseas-application/application")
-    monitor(s"Agent-Overseas-Application-application-POST") {
+    monitor("ConsumedAPI-Agent-Overseas-Application-application-POST") {
       http
         .POST[CreateOverseasApplicationRequest, HttpResponse](url.toString, request)
         .map(_ => ())
@@ -68,7 +68,7 @@ class AgentOverseasApplicationConnector @Inject()(
   def upscanPollStatus(
     reference: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[FileUploadStatus] = {
     val url = new URL(baseUrl, s"/agent-overseas-application/upscan-poll-status/$reference")
-    monitor(s"Agent-overseas-Application-upscan-poll-status-GET") {
+    monitor("ConsumedAPI-Agent-overseas-Application-upscan-poll-status-GET") {
       http
         .GET[FileUploadStatus](url.toString)
     }
