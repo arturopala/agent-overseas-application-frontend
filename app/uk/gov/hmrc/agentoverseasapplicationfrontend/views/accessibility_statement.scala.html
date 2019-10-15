@@ -16,7 +16,7 @@
 
 @import play.api.Configuration
 
-@()(implicit messages: Messages, request: Request[_], configuration: Configuration)
+@(accessibilityLink: String)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
 @uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("accessibility.statement.title")) {
 
@@ -47,7 +47,7 @@
     <p>@Html(Messages("accessibility.statement.whattodo.p1"))</p>
 
     <h2 class="govuk-heading-l">@Messages("accessibility.statement.reporting.heading")</h2>
-    <p>@Html(Messages("accessibility.statement.reporting.p1"))</p>
+    <p>@Html(Messages("accessibility.statement.reporting.p1", accessibilityLink))</p>
 
     <h2 class="govuk-heading-l">@Messages("accessibility.statement.enforcement.heading")</h2>
     <p>@Html(Messages("accessibility.statement.enforcement.p1"))</p>

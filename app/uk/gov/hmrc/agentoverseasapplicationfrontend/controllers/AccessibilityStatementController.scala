@@ -16,15 +16,17 @@
 
 package uk.gov.hmrc.agentoverseasapplicationfrontend.controllers
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.{Inject, Named, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment}
+import play.mvc.Http.HeaderNames
 import uk.gov.hmrc.agentoverseasapplicationfrontend.config.CountryNamesLoader
 import uk.gov.hmrc.agentoverseasapplicationfrontend.connectors.UpscanConnector
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.{AgentAffinityNoHmrcAsAgentAuthAction, BasicAgentAuthAction}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html._
+
 import scala.concurrent.ExecutionContext
 
 @Singleton class AccessibilityStatementController @Inject()(
@@ -33,7 +35,8 @@ import scala.concurrent.ExecutionContext
   applicationService: ApplicationService,
   val upscanConnector: UpscanConnector,
   countryNamesLoader: CountryNamesLoader,
-  validApplicantAction: AgentAffinityNoHmrcAsAgentAuthAction)(
+  validApplicantAction: AgentAffinityNoHmrcAsAgentAuthAction,
+  @Named("accessibilityUrl") baseAccessibilityUrl: String)(
   implicit configuration: Configuration,
   messagesApi: MessagesApi,
   override val ec: ExecutionContext)
@@ -41,6 +44,8 @@ import scala.concurrent.ExecutionContext
     with I18nSupport {
 
   def showAccessibilityStatement: Action[AnyContent] = Action { implicit request =>
-    Ok(accessibility_statement())
+    val userAction: String = request.headers.get(HeaderNames.REFERER).getOrElse("")
+    val accessibilityUrl: String = s"$baseAccessibilityUrl$userAction"
+    Ok(accessibility_statement(accessibilityUrl))
   }
 }
