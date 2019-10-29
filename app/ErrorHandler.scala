@@ -20,7 +20,7 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.Results._
 import play.api.mvc.{Request, RequestHeader, Result}
 import play.api.{Configuration, Environment, Mode}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.error_template
+import uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.{error_template, error_template_5xx}
 import uk.gov.hmrc.http.{JsValidationException, NotFoundException}
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
@@ -48,7 +48,7 @@ class ErrorHandler @Inject()(
   override def resolveError(request: RequestHeader, exception: Throwable) = {
     auditServerError(request, exception)
     implicit val r = Request(request, "")
-    Ok(standardErrorTemplate("global.error.500.title", "global.error.500.heading", "global.error.500.message"))
+    Ok(error_template_5xx())
   }
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(
