@@ -175,6 +175,10 @@ details summary:focus,
   border-bottom-color: #ffdd00;
 }
 
+.button--link-style:focus {
+  background-color: #fd0;
+}
+
 
 // #00823b to #00703c
 button,
@@ -258,4 +262,8 @@ input.form-control-error[type="text"],
 input.form-control-error[type="password"],
 .error-summary {
   border-color: #d4351c;
+}
+
+.transaction-banner--complete {
+  background-color: #28a197;
 }

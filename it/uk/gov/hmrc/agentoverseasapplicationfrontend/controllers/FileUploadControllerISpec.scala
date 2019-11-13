@@ -103,10 +103,12 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
       result should containMessages(
         "fileUpload.success.caption",
         "fileUpload.success.title",
-        "fileUpload.success.correctFile.confirmation",
         "fileUpload.success.form.correctFile.yes",
         "fileUpload.success.form.correctFile.no"
       )
+
+      result should containSubstrings("Is filename the correct file?")
+
     }
   }
 
@@ -144,11 +146,12 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
       result should containMessages(
         "fileUpload.success.caption",
         "fileUpload.success.title",
-        "fileUpload.success.correctFile.confirmation",
         "fileUpload.success.form.correctFile.yes",
         "fileUpload.success.form.correctFile.no",
         "error.boolean"
       )
+
+      result should containSubstrings("Is filename the correct file?")
     }
 
     "show the form with errors when 'correctFile' field is missing the form" in {
@@ -162,11 +165,12 @@ class FileUploadControllerISpec extends BaseISpec with AgentOverseasApplicationS
       result should containMessages(
         "fileUpload.success.caption",
         "fileUpload.success.title",
-        "fileUpload.success.correctFile.confirmation",
         "fileUpload.success.form.correctFile.yes",
         "fileUpload.success.form.correctFile.no",
         "fileUpload.correctFile.no-radio.selected"
       )
+
+      result should containSubstrings("Is filename the correct file?")
     }
 
     "show the form with errors when 'fileType' field has been modified by the user and contains invalid value" in {

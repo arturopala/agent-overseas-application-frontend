@@ -22,6 +22,10 @@
 
 @(registeredWithHmrcForm: Form[RadioConfirm], backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
+@headerTitle = {
+    <p>@Messages("registeredWithHmrc.form.title")</p>
+}
+
 @uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = error_prefix(registeredWithHmrcForm) + Messages("registeredWithHmrc.title")) {
 
     <a href="@backLink.getOrElse(routes.FileUploadController.showSuccessfulUploadedForm())" class="link-back">@Messages("button.back")</a>
@@ -32,30 +36,25 @@
 
     @form(action = routes.ApplicationController.submitRegisteredWithHmrc, 'class -> "form js-form") {
 
-        <fieldset>
+        <h1 class="heading-xlarge margin-bottom-20">
+            <span class="pre-heading">@Messages("registeredWithHmrc.caption")</span>
+            @Messages("registeredWithHmrc.title")
+        </h1>
 
-            <legend>
-                <h1 class="heading-xlarge margin-bottom-20">
-                    <span class="pre-heading">@Messages("registeredWithHmrc.caption")</span>
-                    @Messages("registeredWithHmrc.title")
-                </h1>
-            </legend>
+        <div class="form-group">
+        @input_radio_group(
+            registeredWithHmrcForm("registeredWithHmrc"),
+            Seq(
+                "true" -> Messages("registeredWithHmrc.form.registered.yes"),
+                "false" -> Messages("registeredWithHmrc.form.registered.no")
+            ),
+            '_legend -> headerTitle,
+            '_groupDivClass -> "soft--ends",
+            '_fieldsetAttributes -> Html("""id='registeredWithHmrc'""")
+        )
 
-            <p>@Messages("registeredWithHmrc.form.title")</p>
+        </div>
+        <button class="button margin-bottom-30" type="submit" id="continue">@Messages("button.continue")</button>
 
-            <div class="form-group">
-            @input_radio_group(
-                registeredWithHmrcForm("registeredWithHmrc"),
-                Seq(
-                    "true" -> Messages("registeredWithHmrc.form.registered.yes"),
-                    "false" -> Messages("registeredWithHmrc.form.registered.no")
-                ),
-                '_groupDivClass -> "soft--ends",
-                '_fieldsetAttributes -> Html("""id='registeredWithHmrc'""")
-            )
-
-            </div>
-            <button class="button margin-bottom-30" type="submit" id="continue">@Messages("button.continue")</button>
-        </fieldset>
     }
 }

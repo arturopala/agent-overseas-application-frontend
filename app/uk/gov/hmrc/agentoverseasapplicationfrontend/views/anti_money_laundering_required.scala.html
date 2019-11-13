@@ -22,6 +22,12 @@
 
 @(amlsRequiredForm: Form[RadioConfirm], backLink: Option[String] = None)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
+@headerTitle = {
+    <h1 class="heading-xlarge  margin-bottom-20 @if(amlsRequiredForm.hasErrors){push--top}">
+    @Messages("amls.required.title")
+    </h1>
+}
+
 @uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = error_prefix(amlsRequiredForm) + Messages("amls.required.title")) {
 
     @if(backLink.isDefined) {
@@ -34,12 +40,6 @@
 
     @form(action = routes.AntiMoneyLaunderingController.submitMoneyLaunderingRequired, 'class -> "form js-form", 'id -> "amlsRequiredForm") {
 
-      <fieldset>
-
-        <legend>
-          <h1 class="heading-xlarge margin-bottom-20">@Messages("amls.required.title")</h1>
-        </legend>
-
           <div class="form-group">
               @input_radio_group(
                   amlsRequiredForm("amlsRequired"),
@@ -47,6 +47,7 @@
                       "true" -> Messages("amls.required.yes"),
                       "false" -> Messages("amls.required.no")
                   ),
+                  '_legend -> headerTitle,
                   '_fieldsetAttributes -> Html("""id='amlsRequired'""")
               )
           </div>
@@ -55,6 +56,6 @@
             <button class="button" type="submit" id="continue">@Messages("button.continue")</button>
         </div>
 
-      </fieldset>
+
     }
 }

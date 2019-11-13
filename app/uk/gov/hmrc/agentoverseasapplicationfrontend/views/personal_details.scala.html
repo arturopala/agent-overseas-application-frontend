@@ -34,9 +34,8 @@
         <fieldset>
             <legend class="margin-bottom-10">
                 <h1 class="heading-xlarge margin-bottom-20 @if(personalDetailsForm.hasErrors){push--top}">@Messages("personalDetails.title")</h1>
-                <p class="margin-bottom-10">@Messages("personalDetails.p1")</p>
             </legend>
-
+            <p class="margin-bottom-10">@Messages("personalDetails.p1")</p>
             <p class="faded-text">@Messages("personalDetails.p2")</p>
             @if(personalDetailsForm.error("variant").isDefined){
                 <span class="error-message">@Messages("personalDetails.error.no-radio.selected")</span>

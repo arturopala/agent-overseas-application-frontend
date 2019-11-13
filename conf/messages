@@ -195,7 +195,7 @@ fileUpload.success.caption=Your business details
 fileUpload.success.title=Your file was uploaded successfully
 fileUpload.success.form.correctFile.yes=Yes
 fileUpload.success.form.correctFile.no=No
-fileUpload.success.correctFile.confirmation=Is this the correct file?
+fileUpload.success.correctFile.confirmation=Is {0} the correct file?
 
 fileUpload.failed.caption=Your business details
 fileUpload.failed.title=There is a problem

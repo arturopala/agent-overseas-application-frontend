@@ -23,6 +23,10 @@
 
 @(registeredForUkTaxForm: Form[RadioConfirm], backLinkRoute: String)(implicit messages: Messages, request: Request[_], configuration: Configuration)
 
+@headerTitle = {
+    <p>@Messages("ukTaxRegistration.form.title")</p>
+}
+
 @uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = error_prefix(registeredForUkTaxForm) + Messages("ukTaxRegistration.title")) {
 
     <a href="@backLinkRoute" class="link-back">@Messages("button.back")</a>
@@ -33,33 +37,25 @@
 
     @form(action = routes.ApplicationController.submitUkTaxRegistration, 'class -> "form js-form") {
 
-      <fieldset>
+      <h1 class="heading-xlarge margin-bottom-20">
+          <span class="pre-heading">@Messages("ukTaxRegistration.caption")</span>
+          @Messages("ukTaxRegistration.title")
+      </h1>
 
-          <legend>
+    <div class="form-group">
+        @input_radio_group(
+            registeredForUkTaxForm("registeredForUkTax"),
+            Seq(
+                "true" -> Messages("ukTaxRegistration.form.registered.yes"),
+                "false" -> Messages("ukTaxRegistration.form.registered.no")
+            ),
+            '_legend -> headerTitle,
+            '_groupDivClass -> "soft--ends",
+            '_fieldsetAttributes -> Html("""id='registeredForUkTax'""")
+        )
+    </div>
 
-              <h1 class="heading-xlarge margin-bottom-20">
-                  <span class="pre-heading">@Messages("ukTaxRegistration.caption")</span>
-                  @Messages("ukTaxRegistration.title")
-              </h1>
+    <button class="button margin-bottom-30" type="submit" id="continue">@Messages("button.continue")</button>
 
-          </legend>
-
-          <p>@Messages("ukTaxRegistration.form.title")</p>
-
-        <div class="form-group">
-            @input_radio_group(
-                registeredForUkTaxForm("registeredForUkTax"),
-                Seq(
-                    "true" -> Messages("ukTaxRegistration.form.registered.yes"),
-                    "false" -> Messages("ukTaxRegistration.form.registered.no")
-                ),
-                '_groupDivClass -> "soft--ends",
-                '_fieldsetAttributes -> Html("""id='registeredForUkTax'""")
-            )
-
-        </div>
-        <button class="button margin-bottom-30" type="submit" id="continue">@Messages("button.continue")</button>
-
-      </fieldset>
     }
 }

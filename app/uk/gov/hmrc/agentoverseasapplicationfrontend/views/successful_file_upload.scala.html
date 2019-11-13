@@ -34,16 +34,10 @@
 
     @form(action = routes.FileUploadController.submitSuccessfulFileUploadedForm, 'class -> "form js-form" ){
 
-        <fieldset>
-
-            <legend class="margin-bottom-10">
-                <h1 class="heading-xlarge margin-bottom-20">
-                    <span class="pre-heading">@Messages("fileUpload.success.caption")</span>
-                    @Messages("fileUpload.success.title")
-                </h1>
-            </legend>
-
-            <p>@fileName</p>
+            <h1 class="heading-xlarge margin-bottom-30">
+                <span class="pre-heading">@Messages("fileUpload.success.caption")</span>
+                @Messages("fileUpload.success.title")
+            </h1>
 
             <div class="form-group">
                 <input type="hidden" name="fileType" value="@fileType">
@@ -53,14 +47,13 @@
                 "true" -> Messages("fileUpload.success.form.correctFile.yes"),
                 "false" -> Messages("fileUpload.success.form.correctFile.no")
                 ),
-                '_legend -> Html("""<h2 class="margin-top-10">""" + Messages("fileUpload.success.correctFile.confirmation") + """</h2>"""),                '_groupDivClass -> "soft--ends",
+                '_legend -> Html("""<h2 class="margin-top-10">""" + Messages(s"fileUpload.success.correctFile.confirmation", fileName.getOrElse("")) + """</h2>"""),
+                '_groupDivClass -> "soft--ends",
                 '_fieldsetAttributes -> Html("""id='fileUploadSuccess'""")
                 )
             </div>
 
-
             <button class="button margin-bottom-30" type="submit" id="continue">@Messages("button.continue")</button>
 
-        </fieldset>
     }
 }

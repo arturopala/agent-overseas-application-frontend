@@ -45,7 +45,7 @@
     }
 }
 
-@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = Messages("checkAnswers.title"), bodyClasses = None) {
+@uk.gov.hmrc.agentoverseasapplicationfrontend.views.html.main_template(title = error_prefix(cyaForm) + Messages("checkAnswers.title"), bodyClasses = None) {
 
     <a href="@checkYourAnswers.backLink" class="link-back">@Messages("button.back")</a>
 
