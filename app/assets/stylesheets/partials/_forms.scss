@@ -35,11 +35,6 @@
 .form-field--error input[type="text"] {
   border: 4px solid #d4351c;
 
-  &:focus {
-    border: 4px solid #0b0c0c;
-    -webkit-box-shadow: none;
-    box-shadow: none;
-  }
 }
 
 .form-field--error .form-date .form-field--error {
@@ -54,6 +49,11 @@
 .form-group-error {
   padding-top: 0;
   padding-bottom: 0;
+}
+
+.form-field--error input[type="text"] {
+  border: 4px solid #d4351c;
+  height: 40px;
 }
 
 .form-field--error{

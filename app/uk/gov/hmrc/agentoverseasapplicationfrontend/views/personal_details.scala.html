@@ -30,7 +30,7 @@
 
     @form(action = routes.ApplicationController.submitPersonalDetails, 'class -> "form js-form") {
 
-        <div class="form-group"  @if(personalDetailsForm.error("personalDetailsChoice").isDefined){form-group-error}"id="radioResponse">
+        <div class="form-group @if(personalDetailsForm.error("personalDetailsChoice").isDefined){form-group-error}" id="personalDetailsChoice">
         <fieldset>
             <legend class="margin-bottom-10">
                 <h1 class="heading-xlarge margin-bottom-20 @if(personalDetailsForm.hasErrors){push--top}">@Messages("personalDetails.title")</h1>

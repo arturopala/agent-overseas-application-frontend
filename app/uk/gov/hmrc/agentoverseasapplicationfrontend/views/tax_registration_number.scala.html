@@ -46,9 +46,9 @@
                     <label for="canProvideTaxRegNo_true">@Messages("taxRegNo.form.yes")</label>
                 </div>
                 <div class="panel panel-border-narrow js-hidden @if(taxRegistrationNumberForm.error("value").isDefined) {form-group-error}" id="taxRegNoFormTarget">
-                    <label class="form-label" for="canProvideTaxRegNo_true_value">@Messages("taxRegNo.form.yes.prompt")</label>
+                    <label class="form-label" for="value">@Messages("taxRegNo.form.yes.prompt")</label>
                     @taxRegistrationNumberForm.errors("value").map { formError => <span class="error-message">@Messages(formError.message)</span> }
-                    <input class="form-control @if(taxRegistrationNumberForm.error("value").isDefined) {form-control-error}" name="value" type="text" id="canProvideTaxRegNo_true_value" value="@taxRegistrationNumberForm.value.map(_.value.map(_.value).getOrElse(""))">
+                    <input class="form-control @if(taxRegistrationNumberForm.error("value").isDefined) {form-control-error}" name="value" type="text" id="value" value="@taxRegistrationNumberForm.value.map(_.value.map(_.value).getOrElse(""))">
                 </div>
 
                 <div class="multiple-choice">

@@ -80,7 +80,7 @@ class TaxRegControllerISpec extends BaseISpec with AgentOverseasApplicationStubs
 
       bodyOf(result).contains(
         """<input id="canProvideTaxRegNo_true" type="radio" name="canProvideTaxRegNo" value="true" checked>""") shouldBe true
-      doc.getElementById("canProvideTaxRegNo_true_value").attr("value") shouldBe taxRegNo.value
+      doc.getElementById("value").attr("value") shouldBe taxRegNo.value
     }
 
     "if previously answered 'No' pre-populate form with checked 'No'" in {
