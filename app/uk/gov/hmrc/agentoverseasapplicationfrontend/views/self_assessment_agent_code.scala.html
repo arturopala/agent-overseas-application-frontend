@@ -46,9 +46,9 @@
 
             <p>@Messages("agentCodes.p1")</p>
 
-            <p class="faded-text margin-bottom-20">@Messages("agentCodes.form.hint")</p>
+            <p id="agent-codes" class="faded-text margin-bottom-20">@Messages("agentCodes.form.hint")</p>
 
-            <div class="panels-conditionals form-group margin-bottom-30">
+            <div aria-describedby="agent-codes" class="panels-conditionals form-group margin-bottom-30">
                 @checkbox_with_conditional_text(agentCodesForm("self-assessment"),
                     '_labelCheckbox -> Messages("agentCodes.form.self-assessment.label"),
                     '_labelInset -> Messages("agentCodes.form.self-assessment.inset"))
@@ -58,7 +58,8 @@
                     '_labelInset -> Messages("agentCodes.form.corporation-tax.inset"))
             </div>
 
-            <button class="button margin-bottom-30" type="submit" id="continue">@Messages("button.continue")</button>
         </fieldset>
+
+        <button class="button margin-bottom-30" type="submit" id="continue">@Messages("button.continue")</button>
     }
 }

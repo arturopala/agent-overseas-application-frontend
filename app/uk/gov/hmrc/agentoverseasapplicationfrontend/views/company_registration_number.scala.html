@@ -54,7 +54,8 @@
                 <input id="confirmRegistration_false" type="radio" name="confirmRegistration" value="false" @if(companyRegistrationNumberForm.value.flatMap(_.confirmRegistration).exists(_ == false)) { checked = "checked" }>
                 <label for="confirmRegistration_false">@Messages("companyRegistrationNumber.form.registered.no")</label>
             </div>
-            <button class="button-block button margin-bottom-30" type="submit" id="continue">@Messages("button.continue")</button>
         </fieldset>
+
+        <button class="button-block button margin-bottom-30" type="submit" id="continue">@Messages("button.continue")</button>
     }
 }

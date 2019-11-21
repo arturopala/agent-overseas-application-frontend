@@ -73,21 +73,22 @@
                 <div class="panel panel-border-wide margin-bottom-30">
                 @Messages("fileUpload.inset")
                 </div>
-                <div class="form-group">
-                    <input type="submit" class="button file-upload"
-                    data-reference="@upscan.reference"
-                    data-filetype="@fileType"
-                    data-nofile="@Messages("error.fileUpload.no-file")"
-                    data-empty-file="@Messages("error.fileUpload.empty-file")"
-                    data-pswd-protected="@Messages("error.fileUpload.password-protected")"
-                    data-no-upload="@Messages("error.fileUpload.no-upload")"
-                    data-virus="@Messages("error.fileUpload.virus")"
-                    data-invalid="@Messages("error.fileUpload.invalid")"
-                    data-too-large="@Messages("error.fileUpload.too-large")"
-                    value="@Messages("fileUpload.button")">
-                </div>
             </div>
         </fieldset>
+
+        <div class="form-group hide-when-uploading">
+            <input type="submit" class="button file-upload"
+            data-reference="@upscan.reference"
+            data-filetype="@fileType"
+            data-nofile="@Messages("error.fileUpload.no-file")"
+            data-empty-file="@Messages("error.fileUpload.empty-file")"
+            data-pswd-protected="@Messages("error.fileUpload.password-protected")"
+            data-no-upload="@Messages("error.fileUpload.no-upload")"
+            data-virus="@Messages("error.fileUpload.virus")"
+            data-invalid="@Messages("error.fileUpload.invalid")"
+            data-too-large="@Messages("error.fileUpload.too-large")"
+            value="@Messages("fileUpload.button")">
+        </div>
 
     </form>
 
