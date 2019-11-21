@@ -55,13 +55,13 @@
                 @trn
             </dt>
             <dd class="app-check-your-answers__answer">
-                <a href="@routes.TaxRegController.showRemoveTaxRegNumber(trn)" class="button--link-style" type="submit">@Messages("yourTaxRegistrationNumbers.remove.button")<span class="visuallyhidden"> @trn</span></a>
+                <a href="@routes.TaxRegController.showRemoveTaxRegNumber(trn)" aria-label="@Messages("yourTaxRegistrationNumbers.remove.button") @trn" class="button--link-style" type="submit">@Messages("yourTaxRegistrationNumbers.remove.button")<span class="visuallyhidden"> @trn</span></a>
             </dd>
             <dd class="app-check-your-answers__change">
                 @form(action = routes.TaxRegController.submitUpdateTaxRegNumber, 'class -> "form js-form actionButtons", 'id -> s"""updateTrn$trn""") {
                     <input class="hidden" name="original" type="text" id="actual-trn" value="@trn" />
                     <button class="button--link-style" type="submit" aria-label="@Messages("yourTaxRegistrationNumbers.update.button") @trn">
-                        @Messages("yourTaxRegistrationNumbers.update.button")
+                        @Messages("yourTaxRegistrationNumbers.update.button")<span class="visuallyhidden"> @trn</span>
                     </button>
                 }
             </dd>
