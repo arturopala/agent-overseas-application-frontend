@@ -17,7 +17,6 @@ import uk.gov.hmrc.agentoverseasapplicationfrontend.services.SessionStoreService
 import uk.gov.hmrc.agentoverseasapplicationfrontend.stubs.{AuthStubs, DataStreamStubs}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
-import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.duration._
@@ -29,8 +28,6 @@ class BaseISpec extends UnitSpec with OneAppPerSuite with WireMockSupport with A
   implicit val ec = play.api.libs.concurrent.Execution.defaultContext
 
   override implicit lazy val app: Application = appBuilder.build()
-
-  val servicesConfig = app.injector.instanceOf[ServicesConfig]
 
   protected def appBuilder: GuiceApplicationBuilder = {
     new GuiceApplicationBuilder()
