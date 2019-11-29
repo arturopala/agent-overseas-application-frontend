@@ -20,7 +20,7 @@ import javax.inject.{Inject, Named, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.agentoverseasapplicationfrontend.config.CountryNamesLoader
+import uk.gov.hmrc.agentoverseasapplicationfrontend.config.{AppConfig, CountryNamesLoader}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.config.view.CheckYourAnswers
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.{AgentAffinityNoHmrcAsAgentAuthAction, BasicAgentAuthAction}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.forms.YesNoRadioButtonForms.{registeredForUkTaxForm, registeredWithHmrcForm}
@@ -41,7 +41,7 @@ class ApplicationController @Inject()(
   applicationService: ApplicationService,
   countryNamesLoader: CountryNamesLoader,
   basicAgentAuthAction: BasicAgentAuthAction,
-  @Named("guidancePageApplicationUrl") guidanceApplicationPageUrl: String)(
+  appConfig: AppConfig)(
   implicit configuration: Configuration,
   messagesApi: MessagesApi,
   override val ec: ExecutionContext)
@@ -345,7 +345,7 @@ class ApplicationController @Inject()(
     val contactDetail = request.flash.get("contactDetail")
 
     if (tradingName.isDefined && contactDetail.isDefined)
-      Ok(application_complete(tradingName.get, contactDetail.get, guidanceApplicationPageUrl))
+      Ok(application_complete(tradingName.get, contactDetail.get, appConfig.guidancePageApplicationUrl))
     else Redirect(routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm())
   }
 

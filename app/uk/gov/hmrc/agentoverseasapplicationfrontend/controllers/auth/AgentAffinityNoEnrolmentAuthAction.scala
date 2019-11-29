@@ -21,6 +21,7 @@ import javax.inject.{Inject, Named, Singleton}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionBuilder, ActionFunction, Request, Result}
 import play.api.{Configuration, Environment}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.config.AppConfig
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.CommonRouting
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.CredentialRequest
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
@@ -40,8 +41,7 @@ class AgentAffinityNoEnrolmentAuthActionImpl @Inject()(
   val config: Configuration,
   val applicationService: ApplicationService,
   val sessionStoreService: SessionStoreService,
-  @Named("agent-services-account.root-path") agentServicesAccountRootPath: String,
-  @Named("agent-overseas-subscription-frontend.root-path") subscriptionRootPath: String)(implicit ec: ExecutionContext)
+  appConfig: AppConfig)(implicit ec: ExecutionContext)
     extends AgentAffinityNoHmrcAsAgentAuthAction with CommonRouting with AuthAction {
 
   def invokeBlock[A](request: Request[A], block: CredentialRequest[A] => Future[Result]): Future[Result] = {
@@ -51,14 +51,14 @@ class AgentAffinityNoEnrolmentAuthActionImpl @Inject()(
       .retrieve(credentials and allEnrolments) {
         case credentialsOpt ~ enrolments =>
           if (isEnrolledForHmrcAsAgent(enrolments))
-            Future.successful(Redirect(agentServicesAccountRootPath))
+            Future.successful(Redirect(appConfig.agentServicesAccountPath))
           else
             sessionStoreService.fetchAgentSession.flatMap {
               case Some(agentSession) =>
                 credentialsOpt.fold(throw UnsupportedCredentialRole("User has no credentials"))(credentials =>
                   block(CredentialRequest(credentials.providerId, request, agentSession)))
               case None =>
-                routesIfExistingApplication(subscriptionRootPath).map(Redirect)
+                routesIfExistingApplication(appConfig.agentOverseasSubscriptionFrontendRootPath).map(Redirect)
             }
       }
       .recover(handleFailure(request))

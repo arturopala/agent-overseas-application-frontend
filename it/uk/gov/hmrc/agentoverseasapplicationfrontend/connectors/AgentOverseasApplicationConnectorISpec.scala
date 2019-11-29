@@ -1,23 +1,24 @@
 package uk.gov.hmrc.agentoverseasapplicationfrontend.connectors
 
-import java.net.URL
-
 import com.kenshoo.play.metrics.Metrics
+import uk.gov.hmrc.agentoverseasapplicationfrontend.config.AppConfig
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.FileUploadStatus
 import uk.gov.hmrc.agentoverseasapplicationfrontend.stubs.AgentOverseasApplicationStubs
 import uk.gov.hmrc.agentoverseasapplicationfrontend.support.BaseISpec
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 
 class AgentOverseasApplicationConnectorISpec extends BaseISpec with AgentOverseasApplicationStubs {
 
   private lazy val metrics = app.injector.instanceOf[Metrics]
-  private lazy val http = app.injector.instanceOf[HttpGet with HttpPost]
+  private lazy val http = app.injector.instanceOf[HttpClient]
+  private lazy val appConfig = app.injector.instanceOf[AppConfig]
 
   private implicit val hc = HeaderCarrier()
 
   private lazy val connector: AgentOverseasApplicationConnector =
-    new AgentOverseasApplicationConnector(new URL(s"http://localhost:$wireMockPort"), http, metrics)
+    new AgentOverseasApplicationConnector(appConfig, http, metrics)
 
   "createOverseasApplication" should {
 

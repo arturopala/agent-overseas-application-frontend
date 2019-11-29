@@ -21,7 +21,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment}
 import play.mvc.Http.HeaderNames
-import uk.gov.hmrc.agentoverseasapplicationfrontend.config.CountryNamesLoader
+import uk.gov.hmrc.agentoverseasapplicationfrontend.config.{AppConfig, CountryNamesLoader}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.connectors.UpscanConnector
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.{AgentAffinityNoHmrcAsAgentAuthAction, BasicAgentAuthAction}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
@@ -36,7 +36,7 @@ import scala.concurrent.ExecutionContext
   val upscanConnector: UpscanConnector,
   countryNamesLoader: CountryNamesLoader,
   validApplicantAction: AgentAffinityNoHmrcAsAgentAuthAction,
-  @Named("accessibilityUrl") baseAccessibilityUrl: String)(
+  appConfig: AppConfig)(
   implicit configuration: Configuration,
   messagesApi: MessagesApi,
   override val ec: ExecutionContext)
@@ -45,7 +45,7 @@ import scala.concurrent.ExecutionContext
 
   def showAccessibilityStatement: Action[AnyContent] = Action { implicit request =>
     val userAction: String = request.headers.get(HeaderNames.REFERER).getOrElse("")
-    val accessibilityUrl: String = s"$baseAccessibilityUrl$userAction"
+    val accessibilityUrl: String = s"${appConfig.accessibilityUrl}$userAction"
     Ok(accessibility_statement(accessibilityUrl))
   }
 }

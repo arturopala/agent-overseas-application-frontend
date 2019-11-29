@@ -24,6 +24,7 @@ import javax.inject.{Inject, Named}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.config.AppConfig
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.{AgentAffinityNoHmrcAsAgentAuthAction, BasicAgentAuthAction, BasicAuthAction}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.ApplicationStatus.{Pending, Rejected}
 import uk.gov.hmrc.agentoverseasapplicationfrontend.services.{ApplicationService, SessionStoreService}
@@ -37,8 +38,7 @@ class StartController @Inject()(
   validApplicantAction: AgentAffinityNoHmrcAsAgentAuthAction,
   sessionStoreService: SessionStoreService,
   applicationService: ApplicationService,
-  @Named("maintainer-application-review-days") daysToReviewApplication: Int,
-  @Named("agent-overseas-subscription-frontend.root-path") subscriptionRootPath: String,
+  appConfig: AppConfig,
   basicAgentAuthAction: BasicAgentAuthAction)(
   implicit configuration: Configuration,
   messagesApi: MessagesApi,
@@ -61,7 +61,7 @@ class StartController @Inject()(
         val daysUntilReviewed: Int = daysUntilApplicationReviewed(application.applicationCreationDate)
         Ok(application_not_ready(application.tradingName, createdOnPrettifyDate, daysUntilReviewed))
       case Some(application) if application.status == Rejected => Ok(status_rejected(application))
-      case Some(_)                                             => SeeOther(subscriptionRootPath)
+      case Some(_)                                             => SeeOther(appConfig.agentOverseasSubscriptionFrontendRootPath)
       case None                                                => Redirect(routes.StartController.root())
     }
   }
@@ -69,7 +69,7 @@ class StartController @Inject()(
   private def daysUntilApplicationReviewed(applicationCreationDate: LocalDateTime): Int = {
     val daysUntilAppReviewed = LocalDate
       .now(Clock.systemUTC())
-      .until(applicationCreationDate.plusDays(daysToReviewApplication), ChronoUnit.DAYS)
+      .until(applicationCreationDate.plusDays(appConfig.maintainerApplicationReviewDays), ChronoUnit.DAYS)
       .toInt
     if (daysUntilAppReviewed > 0) daysUntilAppReviewed else 0
   }
