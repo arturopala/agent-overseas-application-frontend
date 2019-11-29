@@ -47,13 +47,15 @@ class FrontendAppConfig @Inject()(servicesConfig: ServicesConfig, environment: E
   override val feedbackSurveyUrl: String = servicesConfig.getString("feedback-survey-url")
   override val accessibilityUrl: String = servicesConfig.getString("accessibilityUrl")
   override val maintainerApplicationReviewDays: Int = servicesConfig.getInt("maintainer-application-review-days")
-  override val sessionCacheDomain: String = servicesConfig.getString("cachable.session-cache.domain")
+  override val sessionCacheDomain: String =
+    servicesConfig.getString("microservice.services.cachable.session-cache.domain")
   override val companyAuthSignInUrl: String = servicesConfig.getString("microservice.services.companyAuthSignInUrl")
   override val agentOverseasSubscriptionFrontendRootPath: String =
     servicesConfig.getString("microservice.services.agent-overseas-subscription-frontend.root-path")
   override val ggRegistrationFrontendSosRedirectPath: String =
-    servicesConfig.getString("government-gateway-registration-frontend.sosRedirect-path")
-  override val agentServicesAccountPath: String = servicesConfig.getString("agent-services-account.root-path")
+    servicesConfig.getString("microservice.services.government-gateway-registration-frontend.sosRedirect-path")
+  override val agentServicesAccountPath: String =
+    servicesConfig.getString("microservice.services.agent-services-account.root-path")
   override val guidancePageApplicationUrl: String =
     servicesConfig.getString("microservice.services.guidancePageApplicationUrl")
   override val authBaseUrl: String = servicesConfig.baseUrl("auth")
