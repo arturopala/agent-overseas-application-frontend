@@ -16,22 +16,23 @@
 
 package uk.gov.hmrc.agentoverseasapplicationfrontend.connectors
 
-import java.net.URL
 import java.time.{LocalDateTime, ZoneOffset}
 
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
-import javax.inject.{Inject, Named, Singleton}
+import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
+import uk.gov.hmrc.agentoverseasapplicationfrontend.config.AppConfig
 import uk.gov.hmrc.agentoverseasapplicationfrontend.models.{ApplicationEntityDetails, ApplicationStatus, CreateOverseasApplicationRequest, FileUploadStatus}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpPost, HttpResponse, _}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, _}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class AgentOverseasApplicationConnector @Inject()(
-  @Named("agent-overseas-application-baseUrl") baseUrl: URL,
-  http: HttpGet with HttpPost,
+  appConfig: AppConfig,
+  http: HttpClient,
   metrics: Metrics
 ) extends HttpAPIMonitor {
 
@@ -41,7 +42,8 @@ class AgentOverseasApplicationConnector @Inject()(
 
   val allStatuses = ApplicationStatus.allStatuses.map(status => s"statusIdentifier=${status.key}").mkString("&")
 
-  val urlGetAllApplications = new URL(baseUrl, s"/agent-overseas-application/application?$allStatuses")
+  val urlGetAllApplications =
+    s"${appConfig.agentOverseasApplicationBaseUrl}/agent-overseas-application/application?$allStatuses"
 
   def getUserApplications(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[ApplicationEntityDetails]] =
     monitor("ConsumedAPI-Agent-Overseas-Application-application-GET") {
@@ -57,7 +59,7 @@ class AgentOverseasApplicationConnector @Inject()(
     implicit hc: HeaderCarrier,
     ec: ExecutionContext
   ): Future[Unit] = {
-    val url = new URL(baseUrl, s"/agent-overseas-application/application")
+    val url = s"${appConfig.agentOverseasApplicationBaseUrl}/agent-overseas-application/application"
     monitor("ConsumedAPI-Agent-Overseas-Application-application-POST") {
       http
         .POST[CreateOverseasApplicationRequest, HttpResponse](url.toString, request)
@@ -67,7 +69,7 @@ class AgentOverseasApplicationConnector @Inject()(
 
   def upscanPollStatus(
     reference: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[FileUploadStatus] = {
-    val url = new URL(baseUrl, s"/agent-overseas-application/upscan-poll-status/$reference")
+    val url = s"${appConfig.agentOverseasApplicationBaseUrl}/agent-overseas-application/upscan-poll-status/$reference"
     monitor("ConsumedAPI-Agent-overseas-Application-upscan-poll-status-GET") {
       http
         .GET[FileUploadStatus](url.toString)

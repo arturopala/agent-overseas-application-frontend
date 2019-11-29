@@ -22,15 +22,15 @@ import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
 @Singleton
-class CountryNamesLoader @Inject()(@Named("country.list.location") location: String) {
+class CountryNamesLoader @Inject()(appConfig: AppConfig) {
 
   def load: Map[String, String] =
     Try {
-      require(location.nonEmpty, "The country list path should not be empty")
-      require(location.endsWith(".csv"), "The country list file should be a csv file")
+      require(appConfig.countryListLocation.nonEmpty, "The country list path should not be empty")
+      require(appConfig.countryListLocation.endsWith(".csv"), "The country list file should be a csv file")
 
       Source
-        .fromInputStream(getClass.getResourceAsStream(location), "utf-8")
+        .fromInputStream(getClass.getResourceAsStream(appConfig.countryListLocation), "utf-8")
         .getLines
         .drop(1)
         .foldLeft(Map.empty[String, String]) { (acc, row) =>

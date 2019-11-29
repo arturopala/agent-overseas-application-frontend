@@ -22,6 +22,7 @@ import javax.inject.{Inject, Named, Singleton}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import play.api.{Configuration, Environment}
+import uk.gov.hmrc.agentoverseasapplicationfrontend.config.AppConfig
 import uk.gov.hmrc.agentoverseasapplicationfrontend.controllers.auth.BasicAuthAction
 import uk.gov.hmrc.agentoverseasapplicationfrontend.utils.CallOps
 import uk.gov.hmrc.auth.core.AuthConnector
@@ -33,24 +34,20 @@ import scala.concurrent.ExecutionContext
 class SignOutController @Inject()(
   override val messagesApi: MessagesApi,
   val env: Environment,
-  @Named("companyAuthSignInUrl") val signInUrl: String,
   basicAuthAction: BasicAuthAction,
-  @Named("government-gateway-registration-frontend.sosRedirect-path") sosRedirectPath: String,
-  @Named("feedback-survey-url") feedbackSurveyUrl: String)(
-  implicit val configuration: Configuration,
-  ec: ExecutionContext)
+  appConfig: AppConfig)(implicit val configuration: Configuration, ec: ExecutionContext)
     extends FrontendController with I18nSupport {
 
   def signOut: Action[AnyContent] = Action { implicit request =>
-    SeeOther(signInUrl).withNewSession
+    SeeOther(appConfig.companyAuthSignInUrl).withNewSession
   }
 
   def signOutWithContinueUrl = Action { implicit request =>
     val continueUrl = routes.AntiMoneyLaunderingController.showAntiMoneyLaunderingForm().url
-    SeeOther(CallOps.addParamsToUrl(sosRedirectPath, "continue" -> Some(continueUrl))).withNewSession
+    SeeOther(CallOps.addParamsToUrl(appConfig.ggRegistrationFrontendSosRedirectPath, "continue" -> Some(continueUrl))).withNewSession
   }
 
   def startFeedbackSurvey: Action[AnyContent] = basicAuthAction { implicit request =>
-    SeeOther(new URL(feedbackSurveyUrl).toString).withNewSession
+    SeeOther(new URL(appConfig.feedbackSurveyUrl).toString).withNewSession
   }
 }
